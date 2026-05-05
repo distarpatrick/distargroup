@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>House Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body{
+    background:#f7f7f7;
+}
+
+.page{
+    max-width:1400px;
+    margin:30px auto;
+    padding:0 15px;
+    display:grid;
+    grid-template-columns: 2.3fr 1fr;
+    gap:25px;
+}
+
+/* ================= IMAGE VIEW ================= */
+.viewer{
+    background:#fff;
+    border-radius:10px;
+    padding:15px;
+}
+
+.main-image{
+    position:relative;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.main-image img{
+    width:100%;
+    height:520px;
+    object-fit:cover;
+}
+
+/* Arrows */
+.arrow{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    background:rgba(0,0,0,0.5);
+    color:#fff;
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    font-size:18px;
+}
+
+.arrow.left{ left:15px; }
+.arrow.right{ right:15px; }
+
+/* Thumbnails */
+.thumbs{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+    overflow-x:auto;
+}
+
+.thumbs img{
+    width:110px;
+    height:75px;
+    object-fit:cover;
+    border-radius:6px;
+    cursor:pointer;
+    opacity:.6;
+    border:2px solid transparent;
+}
+
+.thumbs img.active{
+    opacity:1;
+    border-color:#e91e63;
+}
+
+/* ================= FORM ================= */
+.form-box{
+    background:#fff;
+    border-radius:10px;
+    padding:20px;
+}
+
+.agent{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:20px;
+}
+
+.agent i{
+    font-size:35px;
+    color:#bbb;
+}
+
+.agent h4{
+    font-size:18px;
+}
+
+.form-box input,
+.form-box textarea,
+.form-box select{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border-radius:6px;
+    border:1px solid #ddd;
+    font-size:14px;
+}
+
+.form-box textarea{
+    resize:none;
+    height:120px;
+}
+
+.checkbox{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:14px;
+    margin-bottom:15px;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    background:#e91e63;
+    border:none;
+    color:#fff;
+    font-size:16px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+/* ================= WHATSAPP ================= */
+.whatsapp{
+    position:fixed;
+    bottom:25px;
+    right:25px;
+    background:#25D366;
+    color:#fff;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+    box-shadow:0 10px 25px rgba(0,0,0,.3);
+}
+
+/* ================= RESPONSIVE ================= */
+@media(max-width:900px){
+    .page{
+        grid-template-columns:1fr;
+    }
+    .main-image img{
+        height:360px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <!-- IMAGE VIEW -->
+    <div class="viewer">
+        <div class="main-image">
+            <img id="currentImage" src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2">
+            <div class="arrow left" onclick="prevImage()"><i class="fa fa-chevron-left"></i></div>
+            <div class="arrow right" onclick="nextImage()"><i class="fa fa-chevron-right"></i></div>
+        </div>
+
+        <div class="thumbs" id="thumbs">
+            <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2" class="active">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c">
+            <img src="https://images.unsplash.com/photo-1502673530728-f79b4cab31b1">
+            <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994">
+            <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914">
+        </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="form-box">
+        <div class="agent">
+            <i class="fa-solid fa-user-circle"></i>
+            <div>
+                <strong>Olivier</strong><br>
+                <small>View Listings</small>
+            </div>
+        </div>
+
+        <input type="text" placeholder="Name">
+        <input type="text" placeholder="Phone">
+        <input type="email" placeholder="Email">
+
+        <textarea>Hello, I am interested in [3 Bedroom House for Rent in Kimironko]</textarea>
+
+        <select>
+            <option>Select</option>
+            <option>Rent</option>
+            <option>Buy</option>
+        </select>
+
+        <div class="checkbox">
+            <input type="checkbox">
+            <span>By submitting this form I agree to Terms of Use</span>
+        </div>
+
+        <button>Send Message</button>
+    </div>
+
+</div>
+
+<!-- WhatsApp -->
+<div class="whatsapp">
+    <i class="fa-brands fa-whatsapp"></i>
+</div>
+
+<script>
+const images = document.querySelectorAll('.thumbs img');
+const mainImage = document.getElementById('currentImage');
+let index = 0;
+
+images.forEach((img, i)=>{
+    img.addEventListener('click', ()=>{
+        setImage(i);
+    });
+});
+
+function setImage(i){
+    images.forEach(img=>img.classList.remove('active'));
+    images[i].classList.add('active');
+    mainImage.src = images[i].src;
+    index = i;
+}
+
+function nextImage(){
+    index = (index + 1) % images.length;
+    setImage(index);
+}
+
+function prevImage(){
+    index = (index - 1 + images.length) % images.length;
+    setImage(index);
+}
+</script>
+
+</body>
+</html>

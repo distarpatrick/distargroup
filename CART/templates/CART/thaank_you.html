@@ -1,0 +1,267 @@
+{% extends 'USERPROFILE/base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed | DistarGroup{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --distar-blue: #001f3f;
+        --accent-gold: #c5a059;
+        --success-green: #28a745;
+        --soft-bg: #f8fafc;
+        --border-color: #e2e8f0;
+    }
+
+    .thank-you-wrapper {
+        min-height: 100vh;
+        padding: 40px 20px;
+        background: var(--soft-bg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .thank-you-card {
+        max-width: 850px;
+        width: 100%;
+        background: #fff;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 15px 35px rgba(0, 31, 63, 0.05);
+    }
+
+    .receipt-box {
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        margin: 30px 0;
+        background: #ffffff;
+        overflow: hidden;
+    }
+
+    .receipt-brand-header {
+        background: var(--distar-blue);
+        color: white;
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .receipt-body { padding: 30px; text-align: left; }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px dashed var(--border-color);
+    }
+
+    .info-label { display: block; font-size: 0.75rem; text-transform: uppercase; color:black; font-weight: 700; }
+    .info-value { display: block; font-size: 1rem; color: blue; font-weight: 600; }
+
+    .product-specs {
+        background: #f1f5f9;
+        padding: 15px;
+        border-radius: 12px;
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .spec-pill { font-size: 0.8rem; background: #fff; padding: 4px 12px; border-radius: 20px; border: 1px solid #e2e8f0; color: #475569; }
+
+    .price-calc { margin-top: 25px; }
+    .calc-row { display: flex; justify-content: space-between; margin-bottom: 8px; color: #64748b; }
+    .calc-row.total { font-size: 1.4rem; font-weight: 800; color: var(--distar-blue); border-top: 2px solid #f1f5f9; padding-top: 15px; margin-top: 10px; }
+
+    .signature-container {
+        margin-top: 100px; 
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 100px;
+        padding: 0 20px;
+    }
+
+    .sig-block { text-align: left; }
+
+    .sig-image-wrapper {
+        height: 40px; 
+        display: flex;
+        align-items: center; 
+        justify-content: flex-start;
+        margin-bottom: 5px;
+    }
+    
+    .sig-image {
+        height: 30px;
+        width: 34px;
+        object-fit: contain;
+    }
+
+    .sig-line {
+        border-top: 2px solid #334155;
+        padding-top: 12px;
+        width: 100%;
+    }
+
+    .sig-name {
+        font-weight: 700;
+        color: var(--distar-blue);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+    }
+
+    .download-strip {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        padding: 20px;
+        border-radius: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    @media print {
+        .no-print { display: none !important; }
+        .receipt-box { border: none; }
+        .thank-you-card { box-shadow: none; width: 100%; max-width: 100%; }
+        .signature-container { margin-top: 120px; } 
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="thank-you-wrapper">
+    <div class="thank-you-card">
+        <div class="no-print" style="text-align: center;">
+            <div style="font-size: 50px; color:green; margin-bottom: 10px;"><i class="fa-solid fa-circle-check"></i></div>
+            <h1 style="color:green; font-weight: 800;">Order Verified</h1>
+            <p>Welcome to the DistarGroup family! Your transaction was successful.</p>
+        </div>
+
+        <div class="receipt-box" id="receipt">
+            <div class="receipt-brand-header">
+                <div>
+                    <h3 style="margin:0; letter-spacing: 1px;">DistarGroup</h3>
+                    <small>Official Purchase Document</small>
+                </div>
+                <div style="text-align: right;">
+                    <i class="fa-solid fa-shield-check fa-2x"></i>
+                </div>
+            </div>
+
+            <div class="receipt-body">
+                <div class="info-grid">
+                    <div>
+                        <span class="info-label">Customer Name</span>
+                        <span class="info-value">
+                            {% if request.user.get_full_name %}
+                                {{ request.user.get_full_name }}
+                            {% else %}
+                                {{ request.user.username }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="info-label">Order Reference</span>
+                        <span class="info-value">#{{ order.id|stringformat:"05d" }}</span>
+                    </div>
+                    <div>
+                        <span class="info-label">Delivery Location</span>
+                        <span class="info-value">{{ order.location }}, {{ order.city }}</span>
+                    </div>
+                    <div>
+                        <span class="info-label">Date of Purchase</span>
+                        <span class="info-value">{{ order.created_at|date:"D, d M Y" }}</span>
+                    </div>
+                </div>
+
+                <h4 style="color:blue; margin-bottom: 15px;">Item Details</h4>
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+                    <div style="flex: 1;">
+                        <span style="font-size: 1.2rem; font-weight: 700; color: #1e293b;">
+                            {% if order.product.title %}{{ order.product.title }}{% else %}{{ order.product.name }}{% endif %}
+                        </span>
+                        
+                        <div class="product-specs">
+                            {% if order.product.property_type %} 
+                                <span class="spec-pill"><i class="fa-solid fa-house"></i> {{ order.product.property_type }}</span>
+                                <span class="spec-pill"><i class="fa-solid fa-bed"></i> {{ order.product.bedrooms }} Beds</span>
+                                <span class="spec-pill"><i class="fa-solid fa-location-dot"></i> {{ order.product.location }}</span>
+                            {% elif order.product.vehicle_type %} 
+                                <span class="spec-pill"><i class="fa-solid fa-car"></i> {{ order.product.brand }} {{ order.product.model }}</span>
+                                <span class="spec-pill"><i class="fa-solid fa-gas-pump"></i> {{ order.product.fuel_type }}</span>
+                                <span class="spec-pill"><i class="fa-solid fa-gauge"></i> {{ order.product.transmission }}</span>
+                            {% else %} 
+                                <span class="spec-pill"><i class="fa-solid fa-tag"></i> {{ order.product.category.name }}</span>
+                                <span class="spec-pill"><i class="fa-solid fa-box"></i> Qty: {{ order.quantity }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-weight: 700; font-size: 1.1rem;">{{ order.product.price }} USD</span>
+                    </div>
+                </div>
+
+                <div class="price-calc">
+                    <div class="calc-row"><span>Quantity</span><span>x{{ order.quantity }}</span></div>
+                    <div class="calc-row"><span>Delivery Fee (Standard)</span><span>Included</span></div>
+                    <div class="calc-row total">
+                        <span>Grand Total</span>
+                        <span>{{ order.total_price }} USD</span>
+                    </div>
+                </div>
+
+                <div class="signature-container">
+                    <div class="sig-block">
+                        <div class="sig-image-wrapper">
+                            <img src="{% static 'images/signiture_receipt.jpg' %}" alt="" class="sig-image">
+                        </div>
+                        <div class="sig-line">
+                            <div class="sig-name">DistarGroup</div>
+                            <span class="info-label">Authorized Representative</span>
+                        </div>
+                    </div>
+
+                    <div class="sig-block">
+                        <div class="sig-image-wrapper"></div>
+                        <div class="sig-line">
+                            <div class="sig-name">
+                                {% if request.user.get_full_name %}
+                                    {{ request.user.get_full_name }}
+                                {% else %}
+                                    {{ request.user.username }}
+                                {% endif %}
+                            </div>
+                            <span class="info-label">Customer Signature</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="download-strip no-print">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="color: var(--success-green); font-size: 1.5rem;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <div>
+                    <strong style="display: block; color: #166534;">Your Receipt is ready</strong>
+                    <small style="color: #15803d;">Validated with official DistarGroup signature</small>
+                </div>
+            </div>
+            <button onclick="window.print()" class="btn-main btn-primary-distar" style="padding: 12px 20px; border-radius: 8px;">
+                <i class="fa-solid fa-download"></i> Save as PDF
+            </button>
+        </div>
+
+        <div class="no-print" style="margin-top: 30px; display: flex; justify-content: center; gap: 20px;">
+            <a href="{% url 'BUS_SYSTEM:marketplace' %}" style="text-decoration: none; color: var(--distar-blue); font-weight: 700;">
+                <i class="fa-solid fa-house-chimney"></i> Back to Marketplace
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

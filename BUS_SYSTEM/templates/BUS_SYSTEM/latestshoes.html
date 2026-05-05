@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FilePage | Shop the Collection</title>
+    <style>
+        /* CSS Reset & Typography */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #ffffff;
+            color: #111;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Product Card */
+        .product-card {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .image-container {
+            background-color: #f6f6f6; /* Light grey background like the image */
+            border-radius: 4px;
+            margin-bottom: 15px;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .product-card img {
+            max-width: 85%;
+            height: auto;
+            mix-blend-mode: multiply; /* Helps blend white-background images */
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-top: 10px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .product-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Latest Drops</h1>
+    </header>
+
+    <main class="product-grid">
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe1.png' %}" alt="Air Jordan 1">
+            </div>
+            <div class="product-name">Air Jordan 1</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe4.png' %}" alt="Air Max">
+            </div>
+            <div class="product-name">Air Max</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe3.png' %}" alt="Graphic Tees">
+            </div>
+            <div class="product-name">Graphic Tees</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe2.png' %}" alt="Dunk">
+            </div>
+            <div class="product-name">Dunk</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe1.png' %}" alt="Air Force 1">
+            </div>
+            <div class="product-name">Air Force 1</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe5.png' %}" alt="24.7 Collection">
+            </div>
+            <div class="product-name">24.7 Collection</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe4.png' %}" alt="Vomero 5">
+            </div>
+            <div class="product-name">Vomero 5</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe3.png' %}" alt="Shox">
+            </div>
+            <div class="product-name">Shox</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe2.png' %}" alt="ACG">
+            </div>
+            <div class="product-name">ACG</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe7.png' %}" alt="Vomero Plus">
+            </div>
+            <div class="product-name">Vomero Plus</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe6.png' %}" alt="Pegasus Premium">
+            </div>
+            <div class="product-name">Pegasus Premium</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe3.png' %}" alt="Metcon 10">
+            </div>
+            <div class="product-name">Metcon 10</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe4.png' %}" alt="Fan Gear">
+            </div>
+            <div class="product-name">Fan Gear</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe5.png' %}" alt="Jordan Retro">
+            </div>
+            <div class="product-name">Jordan Retro</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/she2.png' %}" alt="Sabrina 3">
+            </div>
+            <div class="product-name">Sabrina 3</div>
+        </div>
+
+        <div class="product-card">
+            <div class="image-container">
+                <img src="{% static 'images/shoe1.png' %}" alt="Tatum 4">
+            </div>
+            <div class="product-name">Tatum 4</div>
+        </div>
+
+    </main>
+
+</body>
+</html>

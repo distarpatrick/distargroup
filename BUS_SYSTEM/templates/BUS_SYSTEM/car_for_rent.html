@@ -1,0 +1,166 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Modern World | DistarGroup{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* === CORE STYLES === */
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",sans-serif;}
+        body{background:#f6f8f7;color:#1f2937;padding-top:140px;}
+        
+        /* HEADER & NAV */
+        .header{position:fixed;top:0;left:0;width:100%;z-index:2000;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08);}
+        .navbar{padding:15px 40px;display:flex;align-items:center;gap:20px;}
+        .logo{display:flex;align-items:center;gap:8px;font-weight:700;color:#16a34a; text-decoration: none;}
+        .search-box{flex:1;position:relative;}
+        .search-box input{width:100%;padding:12px 45px;border-radius:30px;border:1px solid #ddd; outline: none;}
+        .search-box i{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:#999;}
+        .nav-icons{display:flex;gap:18px;font-size:18px; color: #374151;}
+        .nav-icons i {cursor: pointer; transition: 0.3s;}
+        .nav-icons i:hover {color: #16a34a;}
+
+        /* CATEGORY BAR */
+        .category-bar{padding:15px 40px;display:flex;align-items:center;gap:30px;border-top:1px solid #eee;}
+        .category-btn{background:#16a34a;color:#fff;padding:12px 18px;border-radius:30px;border:none;font-weight:600; cursor: pointer;}
+        .category-links a{text-decoration:none;color:#374151;font-weight:600;margin-right:25px; transition: 0.3s;}
+        .category-links a:hover{color: #16a34a;}
+
+        /* DROPDOWN MENU */
+        .category-dropdown {position: relative;}
+        .category-menu {position: absolute;top: 55px;left: 0;width: 240px;background: #fff;border-radius: 16px;box-shadow: 0 15px 40px rgba(0,0,0,0.15);padding: 12px 0;display: none;z-index: 3000;}
+        .category-menu a {display:flex;align-items:center;gap:12px;padding:12px 20px;text-decoration:none;color:#374151;font-weight:600;}
+        .category-menu a:hover {background: #f0fdf4;}
+        .category-dropdown.active .category-menu {display:block;}
+
+        /* CONTAINER */
+        .container{width:92%;margin:40px auto; min-height: 60vh;}
+
+        /* FOOTER */
+        .site-footer{background: linear-gradient(135deg, #001f1f, #0b4d3c);color:#eaeaea;padding:60px 30px 20px; margin-top: 50px;}
+        .footer-container{max-width:1200px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:40px;}
+        .footer-col h3{margin-bottom:20px;font-size:20px; color: #fff;}
+        .footer-col ul{list-style: none;}
+        .footer-col ul li{margin-bottom: 10px;}
+        .footer-col ul li a{color: #b6e7d8; text-decoration: none;}
+        .footer-bottom{border-top:1px solid rgba(255,255,255,0.2);margin-top:40px;padding-top:15px;text-align:center;font-size:14px;color:#b6e7d8;}
+
+        /* CUSTOM CSS BLOCK FOR SPECIFIC PAGES */
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="navbar">
+        <a href="{% url 'BUS_SYSTEM:mainpage' %}" class="logo">
+            <i class="fa-solid fa-car-side"></i> DistarGroup
+        </a>
+        
+        <form method="GET" action="{% url 'BUS_SYSTEM:car_for_sale' %}" class="search-box">
+            <i class="fa fa-search"></i>
+            <input type="text" name="q" placeholder="Search brand, model, fuel type...">
+        </form>
+
+        <div class="nav-icons">
+            <a href="#" style="color: inherit;"><i class="fa-regular fa-heart"></i></a>
+            <a href="{% url 'CART:view_cart' %}">
+            <i class="fa fa-shopping-cart fa-lg"></i>
+            <span class="cart-count">{{ cart_count }}</span>
+        </a>
+            <a href="/accounts/profile/" style="color: inherit;"><i class="fa-regular fa-user"></i></a>
+        </div>
+    </div>
+
+    <div class="category-bar">
+        <div class="category-dropdown" id="categoryDropdown">
+            <button class="category-btn" id="categoryToggle">
+                <i class="fa fa-bars"></i> Shop Categories <i class="fa fa-chevron-down arrow"></i>
+            </button>
+            <div class="category-menu">
+                <a href="{% url 'BUS_SYSTEM:newcars' %}"><i class="fa-solid fa-car"></i> New Cars</a>
+                <a href="{% url 'BUS_SYSTEM:car_for_sale' %}"><i class="fa-solid fa-tags"></i> Cars For Sale</a>
+                <a href="{% url 'BUS_SYSTEM:car_for_rent' %}"><i class="fa-solid fa-key"></i> Car For Rent</a>
+                <a href="{% url 'BUS_SYSTEM:hybridcar' %}"><i class="fa-solid fa-bolt"></i> Electric / Hybrid</a>
+                <a href="{% url 'BUS_SYSTEM:car_used' %}"><i class="fa-solid fa-car-side"></i> Used Cars</a>
+            </div>
+        </div>
+
+        <div class="category-links">
+            <a href="{% url 'BUS_SYSTEM:mainpage' %}">Home</a>
+            <a href="#">Passenger</a>
+            <a href="#">Commercial</a>
+            <a href="#">Luxury</a>
+            <a href="#">Sport</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 15px; background: #dcfce7; color: #166534; border-radius: 10px; margin-bottom: 20px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-col brand">
+            <h3>DistarGroup</h3>
+            <p>Rwanda's premier vehicle marketplace connecting buyers and sellers nationwide.</p>
+        </div>
+        <div class="footer-col">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">Local Market</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h3>Support</h3>
+            <ul>
+                <li><a href="#">How it works</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h3>Contact Us</h3>
+            <p><i class="fas fa-phone"></i> +250 791 273 368</p>
+            <p><i class="fas fa-envelope"></i> distarpatrick@.rw</p>
+        </div>
+    </div>
+    <div class="footer-bottom">© <span id="year"></span> DistarGroup. All rights reserved.</div>
+</footer>
+
+<script>
+    // CATEGORY DROPDOWN LOGIC
+    const toggleBtn = document.getElementById("categoryToggle");
+    const dropdown = document.getElementById("categoryDropdown");
+    
+    toggleBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle("active");
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove("active");
+        }
+    });
+
+    // AUTO-UPDATE YEAR
+    document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

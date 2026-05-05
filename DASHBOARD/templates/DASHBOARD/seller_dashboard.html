@@ -1,0 +1,246 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard | DistarGroup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-bg: #0f172a;
+            --primary: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --text-main: #1e293b;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-light);
+            display: flex;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 30px 20px;
+            position: fixed;
+        }
+
+        .sidebar .logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 40px; }
+        .sidebar .logo span { color: var(--primary); }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: 0.3s;
+        }
+
+        .nav-link.active, .nav-link:hover {
+            background: rgba(37, 99, 235, 0.1);
+            color: white;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+            width: 100%;
+        }
+
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+
+        /* --- Stats Cards --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-card h3 { font-size: 0.85rem; color: #64748b; margin: 0 0 10px 0; text-transform: uppercase; }
+        .stat-card .value { font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
+        .stat-card .sub { font-size: 0.8rem; margin-top: 5px; }
+
+        /* --- Table Section --- */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; padding: 15px; color: #64748b; font-size: 0.85rem; border-bottom: 1px solid #e2e8f0; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-confirmed { background: #dcfce7; color: #166534; }
+
+        .btn-action {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .btn-confirm { background: var(--primary); color: white; }
+        .btn-msg { background: #f1f5f9; color: var(--text-main); margin-left: 5px; }
+
+        /* Notification Modal styling */
+        #notifModal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">Seller<span>Dashboard</span></div>
+    <a href="{% url 'DASHBOARD:seller_dashboard' %}" class="nav-link active"><i class="fas fa-chart-pie"></i> &nbsp; Overview</a>
+    <a href="{% url 'DASHBOARD:seller_inventory' %}" class="nav-link"><i class="fas fa-box"></i> &nbsp; My Inventory</a>
+    {% comment %} <a href="{% url 'DASHBOARD:orders' %}" class="nav-link"><i class="fas fa-shopping-cart"></i> &nbsp; Orders</a>
+    <a href="{% url 'DASHBOARD:wallet' %}" class="nav-link"><i class="fas fa-wallet"></i> &nbsp; Wallet</a> {% endcomment %}
+    <hr style="border: 0.5px solid #1e293b; margin: 20px 0;">
+    <a href="{% url 'BUS_SYSTEM:mainpage' %}" class="nav-link"><i class="fas fa-home"></i> &nbsp; Exit to Store</a>
+</div>
+
+<div class="main-content">
+    <div class="header-row">
+        <h1>Welcome, {{ request.user.username }}!</h1>
+        <div class="user-info">
+            <span class="badge badge-confirmed">Verified Seller</span>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Sales</h3>
+            <div class="value">${{ total_sales }}</div>
+            <div class="sub" style="color: var(--danger);">Platform Fee (2%): -${{ platform_fees }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Net Earnings</h3>
+            <div class="value" style="color: var(--success);">${{ net_earnings }}</div>
+            <div class="sub">Available for withdrawal</div>
+        </div>
+        <div class="stat-card">
+            <h3>Current Stock</h3>
+            <div class="value">{{ total_stock }}</div>
+            <div class="sub">{{ active_listings }} Active Listings</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0;">Recent Orders</h2>
+            <button class="btn-action btn-confirm" onclick="window.location.reload()"><i class="fas fa-sync"></i> Refresh</button>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ORDER ID</th>
+                    <th>PRODUCT</th>
+                    <th>BUYER</th>
+                    <th>QTY</th>
+                    <th>TOTAL</th>
+                    <th>STATUS</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>
+                        <strong>{{ order.product.name }}</strong>
+                    </td>
+                    <td>{{ order.full_name }}</td>
+                    <td>{{ order.quantity }}</td>
+                    <td>${{ order.total_price }}</td>
+                    <td><span class="badge badge-{{ order.status }}">{{ order.status|upper }}</span></td>
+                    <td>
+                        {% if order.status == 'pending' %}
+                        <form action="{% url 'CART:confirm_order' order.id %}" method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-confirm">Confirm Delivery</button>
+                        </form>
+                        {% endif %}
+                        <button class="btn-action btn-msg" onclick="openNotifModal('{{ order.id }}', '{{ order.full_name }}')">
+                            <i class="fas fa-envelope"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">No orders found yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="notifModal">
+    <h2 id="modalTitle">Message Buyer</h2>
+    <form method="POST" action="{% url 'DASHBOARD:notify_buyer_action' %}">
+        {% csrf_token %}
+        <input type="hidden" name="order_id" id="modalOrderId">
+        <textarea name="message" style="width: 100%; height: 100px; padding: 10px; border-radius: 10px; border: 1px solid #ccc;" placeholder="Your message..."></textarea>
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button type="submit" class="btn-action btn-confirm" style="flex: 1;">Send Message</button>
+            <button type="button" class="btn-action btn-msg" style="flex: 1;" onclick="document.getElementById('notifModal').style.display='none'">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function openNotifModal(orderId, buyerName) {
+        document.getElementById('modalOrderId').value = orderId;
+        document.getElementById('modalTitle').innerText = "Message " + buyerName;
+        document.getElementById('notifModal').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

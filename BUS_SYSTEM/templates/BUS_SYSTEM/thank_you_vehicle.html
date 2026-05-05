@@ -1,0 +1,228 @@
+{% extends 'USERPROFILE/base.html' %}
+{% load static %}
+
+{% block title %}Vehicle Reservation Confirmed and download Receipt| DistarGroup{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --distar-blue: #001f3f;
+        --accent-gold: #c5a059;
+        --success-green: #28a745;
+        --soft-bg: #f8fafc;
+        --border-color: #e2e8f0;
+    }
+
+    .thank-you-wrapper {
+        min-height: 100vh;
+        padding: 100px 20px 60px;
+        background: var(--soft-bg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .thank-you-card {
+        max-width: 850px;
+        width: 100%;
+        background: #fff;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 15px 35px rgba(0, 31, 63, 0.05);
+    }
+
+    /* Receipt Header */
+    .receipt-box {
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        margin: 30px 0;
+        background: #ffffff;
+        overflow: hidden;
+    }
+
+    .receipt-brand-header {
+        background: var(--distar-blue);
+        color: white;
+        padding: 25px 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .receipt-body { padding: 35px; text-align: left; }
+
+    /* Info Grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 30px;
+        padding-bottom: 25px;
+        border-bottom: 1px dashed var(--border-color);
+    }
+
+    .info-label { display: block; font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; font-weight: 700; margin-bottom: 5px; }
+    .info-value { display: block; font-size: 1rem; color: var(--distar-blue); font-weight: 600; }
+
+    /* Vehicle Specifications */
+    .vehicle-spec-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin: 20px 0;
+    }
+
+    .spec-item {
+        background: #f8fafc;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .spec-item i { color: var(--accent-gold); font-size: 1.1rem; }
+    .spec-text { font-size: 0.85rem; color: #475569; font-weight: 500; }
+
+    /* Signature Section */
+    .signature-area {
+        margin-top: 40px;
+        padding-top: 25px;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .signature-box { text-align: center; width: 200px; }
+    .sig-line { border-bottom: 2px solid var(--distar-blue); margin-bottom: 10px; height: 60px; display: flex; align-items: center; justify-content: center; }
+    .sig-image { max-height: 50px; opacity: 0.9; }
+
+    .price-total {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--success-green);
+        text-align: right;
+        margin-top: 10px;
+    }
+
+    .btn-action {
+        padding: 14px 24px;
+        border-radius: 12px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: 0.3s;
+        text-decoration: none;
+        color: white;
+        background: var(--distar-blue);
+    }
+
+    @media (max-width: 600px) {
+        .info-grid, .vehicle-spec-grid { grid-template-columns: 1fr; }
+        .signature-area { flex-direction: column; align-items: center; gap: 30px; }
+    }
+
+    @media print {
+        .no-print { display: none !important; }
+        .thank-you-wrapper { padding: 0; }
+        .thank-you-card { box-shadow: none; border: none; }
+    }
+</style>
+
+<div class="thank-you-wrapper">
+    <div class="thank-you-card">
+        <div class="no-print" style="text-align: center; margin-bottom: 30px;">
+            <div style="font-size: 60px; color: var(--success-green);"><i class="fa-solid fa-circle-check"></i></div>
+            <h1 style="color: var(--distar-blue); font-weight: 800; margin: 10px 0;">Vehicle Reserved</h1>
+            <p style="color: #64748b;">Congratulations! You have successfully reserved the <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong>.</p>
+        </div>
+
+        <div class="receipt-box">
+            <div class="receipt-brand-header">
+                <div>
+                    <h2 style="margin:0; letter-spacing: 2px; font-weight: 900;">DISTAR GROUP</h2>
+                    <small style="opacity: 0.8;">Elite Motors & Logistics Services</small>
+                </div>
+                <div style="text-align: right;">
+                    <i class="fa-solid fa-car-side fa-2x"></i>
+                </div>
+            </div>
+
+            <div class="receipt-body">
+                <div class="info-grid">
+                    <div>
+                        <span class="info-label">Reserved By</span>
+                        <span class="info-value">{{ user.get_full_name|default:user.username }}</span>
+                    </div>
+                    <div>
+                        <span class="info-label">Transaction ID</span>
+                        <span class="info-value">#{{ payment.transaction_id }}</span>
+                    </div>
+                    <div>
+                        <span class="info-label">Vehicle Condition</span>
+                        <span class="info-value"><i class="fa-solid fa-certificate"></i> {{ vehicle.condition|default:"Premium Grade" }}</span>
+                    </div>
+                    <div>
+                        <span class="info-label">Reservation Date</span>
+                        <span class="info-value"><i class="fa-solid fa-calendar-check"></i> {{ payment.updated_at|date:"D, d M Y" }}</span>
+                    </div>
+                </div>
+
+                <h4 style="color: var(--distar-blue); margin-bottom: 20px;"><i class="fa-solid fa-gears"></i> Vehicle Specifications</h4>
+                
+                <div class="vehicle-spec-grid">
+                    <div class="spec-item"><i class="fa-solid fa-car"></i> <span class="spec-text">{{ vehicle.brand }}</span></div>
+                    <div class="spec-item"><i class="fa-solid fa-layer-group"></i> <span class="spec-text">{{ vehicle.model }}</span></div>
+                    <div class="spec-item"><i class="fa-solid fa-gas-pump"></i> <span class="spec-text">{{ vehicle.fuel_type|default:"Petrol" }}</span></div>
+                    <div class="spec-item"><i class="fa-solid fa-gauge-high"></i> <span class="spec-text">{{ vehicle.mileage }} KM</span></div>
+                    <div class="spec-item"><i class="fa-solid fa-palette"></i> <span class="spec-text">{{ vehicle.color }}</span></div>
+                    <div class="spec-item"><i class="fa-solid fa-calendar-days"></i> <span class="spec-text">Year: {{ vehicle.year }}</span></div>
+                    <div class="spec-item"><i class="fa-solid fa-microchip"></i> <span class="spec-text">{{ vehicle.transmission|default:"Automatic" }}</span></div>
+                    <div class="spec-item"><i class="fa-solid fa-bolt"></i> <span class="spec-text">{{ vehicle.engine_size|default:"2.0L" }}</span></div>
+                    <div class="spec-item"><i class="fa-solid fa-id-card"></i> <span class="spec-text">ID: {{ vehicle.id }}</span></div>
+                </div>
+
+                <div style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 20px; border-radius: 15px; margin-top: 25px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700; color: #0369a1;">Verification & Payment Status</span>
+                        <span class="info-value" style="color: var(--success-green);"><i class="fa-solid fa-shield-check"></i> OTP VERIFIED</span>
+                    </div>
+                    <div class="price-total">{{ payment.amount|floatformat:2 }} USD</div>
+                </div>
+
+                <div class="signature-area">
+                    <div class="signature-box">
+                        <div class="sig-line">
+                            <img src="{% static 'BUS_SYSTEM/images/signature_on_receipt.jpg' %}" alt="Manager Signature" class="sig-image">
+                        </div>
+                        <span class="info-label">Authorized Signature</span>
+                        <span style="font-size: 0.8rem; font-weight: 700;">DistarGroup Motors</span>
+                    </div>
+
+                    <div class="signature-box">
+                        <div class="sig-line" style="border-bottom-style: dashed;">
+                            </div>
+                        <span class="info-label">Customer Signature</span>
+                        <span style="font-size: 0.8rem; font-weight: 700;">{{ user.username }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="no-print" style="display: flex; gap: 15px; margin-top: 30px;">
+            <button onclick="window.print()" class="btn-action" style="flex: 1; background: #64748b;">
+                <i class="fa-solid fa-print"></i> Print Receipt
+            </button>
+            <a href="{% url 'BUS_SYSTEM:mainpage' %}" class="btn-action" style="flex: 1;">
+                <i class="fa-solid fa-car"></i> Back to Showroom
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

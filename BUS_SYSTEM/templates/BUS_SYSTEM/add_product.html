@@ -1,0 +1,327 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Product | DistarGroup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-dark: #001F3F;
+            --accent-green: #00D27F;
+            --text-gray: #64748b;
+            --border-light: #e2e8f0;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fb 0%, #dbeafe 100%);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* MAIN CONTAINER */
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1100px;
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            min-height: 85vh;
+        }
+
+        /* LEFT SIDE - BRANDING & VISUAL */
+        .left-bg {
+            flex: 1.2;
+            background: linear-gradient(rgba(0, 31, 63, 0.85), rgba(0, 31, 63, 0.85)), 
+                        url("{% static 'images/distarlogo.png' %}") center center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .left-bg h1 { font-size: 2.5rem; margin-bottom: 15px; font-weight: 800; }
+        .left-bg p { font-size: 1.1rem; opacity: 0.9; line-height: 1.6; }
+
+        /* RIGHT SIDE - THE FORM */
+        .right {
+            flex: 1.5;
+            padding: 50px;
+            overflow-y: auto;
+            max-height: 85vh;
+        }
+
+        .form-header { margin-bottom: 35px; }
+        .form-header h2 { font-size: 28px; color: var(--primary-dark); display: flex; align-items: center; gap: 12px; }
+        .form-header p { color: var(--text-gray); margin-top: 5px; }
+
+        /* FORM LOGIC & STRUCTURE */
+        .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        .form-group { margin-bottom: 22px; }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-gray);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper { position: relative; }
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+            transition: 0.3s;
+        }
+
+        /* Styling Django form widgets */
+        .form-control, select, input[type="text"], input[type="number"], input[type="email"] {
+            width: 100%;
+            padding: 13px 15px 13px 42px;
+            border-radius: 12px;
+            border: 2px solid var(--border-light);
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8fafc;
+        }
+
+        .form-control:focus, input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(0, 210, 127, 0.1);
+        }
+
+        .form-control:focus + i { color: var(--accent-green); }
+
+        /* IMAGE PREVIEW AREA */
+        #preview-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .preview-card {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 2px solid var(--accent-green);
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* CUSTOM UPLOAD BUTTON */
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            border: 2px dashed var(--border-light);
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-gray);
+            transition: 0.3s;
+        }
+        .file-input-label:hover { border-color: var(--accent-green); color: var(--accent-green); background: rgba(0, 210, 127, 0.05); }
+
+        /* SUBMIT BUTTON */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--accent-green);
+            color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 210, 127, 0.2);
+        }
+
+        /* MEDIA QUERIES */
+        @media (max-width: 900px) {
+            .container { flex-direction: column; height: auto; margin: 20px; }
+            .left-bg { padding: 60px 20px; }
+            .right { padding: 30px 20px; overflow-y: visible; }
+            .grid-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="left-bg">
+        <h1>DistarGroup</h1>
+        <p>Join our marketplace and reach thousands of customers worldwide. Your premium product deserves a premium listing.</p>
+    </div>
+
+    <div class="right">
+        <div class="form-header">
+            <h2><i class="fas fa-plus-circle"></i> Add New Product</h2>
+            <p>Fill in the details below to list your item.</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label>Product Name</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-box"></i>
+                    {{ form.name }}
+                </div>
+            </div>
+
+            <div class="grid-row">
+                <div class="form-group">
+                    <label>Price</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-dollar-sign"></i>
+                        {{ form.price }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-tags"></i>
+                        {{ form.category }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-row">
+                <div class="form-group">
+                    <label>Condition/Type</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-list"></i>
+                        {{ form.type }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>In Stock</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-boxes-stacked"></i>
+                        {{ form.stock }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Main Showcase Image</label>
+                <div class="input-wrapper">
+                    {{ form.image }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Gallery Images (Max 8)</label>
+                <label for="images-input" class="file-input-label">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Drag & drop or click to upload</span>
+                </label>
+                <input type="file" name="images" multiple accept="image/*" id="images-input" style="display:none">
+                <div id="preview-images"></div>
+            </div>
+
+            <div class="grid-row">
+                <div class="form-group">
+                    <label>Location</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ form.location }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Discount (%)</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-percent"></i>
+                        {{ form.discount }}
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <span>Upload Product</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Enhanced Image Preview with Animation
+    const imagesInput = document.getElementById('images-input');
+    const previewContainer = document.getElementById('preview-images');
+
+    imagesInput.addEventListener('change', (e) => {
+        previewContainer.innerHTML = '';
+        const files = e.target.files;
+
+        if (files.length > 8) {
+            alert("Maximum 8 gallery images allowed.");
+            imagesInput.value = "";
+            return;
+        }
+
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = event => {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.className = "preview-card";
+                    previewContainer.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+
+    // Automatically apply .form-control class to Django form fields via JS 
+    // in case you can't edit the forms.py file
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        if (el.type !== 'file' && el.type !== 'submit') {
+            el.classList.add('form-control');
+        }
+    });
+</script>
+
+</body>
+</html>

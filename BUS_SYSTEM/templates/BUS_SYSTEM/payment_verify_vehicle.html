@@ -1,0 +1,213 @@
+{% extends 'USERPROFILE/base.html' %}
+{% block content %}
+
+<style>
+    /* Messages Styling */
+    .messages-container {
+        width: 100%;
+        max-width: 450px;
+        margin: 0 auto 15px auto;
+    }
+    .alert {
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        font-weight: 600;
+        text-align: center;
+        list-style: none;
+        animation: slideIn 0.3s ease-out;
+    }
+    .alert-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .alert-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+
+    @keyframes slideIn {
+        from { transform: translateY(-10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .verify-page {
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        padding: 20px;
+    }
+
+    .glass-card {
+        background: white;
+        padding: 40px;
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(30, 95, 168, 0.1);
+        border: 1px solid #e2e8f0;
+        max-width: 450px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .otp-container {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 30px 0;
+    }
+
+    .otp-input {
+        width: 45px;
+        height: 55px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        color: #1e5fa8;
+        transition: all 0.3s;
+    }
+
+    .otp-input:focus {
+        border-color: #1e5fa8;
+        box-shadow: 0 0 0 4px rgba(30, 95, 168, 0.1);
+        outline: none;
+        transform: translateY(-2px);
+    }
+
+    .verify-btn {
+        width: 100%;
+        background: #1e5fa8;
+        color: white;
+        padding: 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .verify-btn:hover { background: #15467d; }
+
+    .order-preview {
+        background: #f1f5f9;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        border-left: 4px solid #1e5fa8;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .resend-section {
+        margin-top: 25px;
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+
+    .resend-link {
+        color: #1e5fa8;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .resend-link.disabled {
+        color: #94a3b8;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+</style>
+
+<div class="verify-page">
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="glass-card">
+        <div style="font-size: 3rem; color: #1e5fa8; margin-bottom: 15px;">
+            <i class="fa-solid fa-shield-check"></i>
+        </div>
+        
+        <h2 style="font-weight: 800; color: #1e293b;">Confirm Payment</h2>
+        <p style="color: #64748b; font-size: 0.9rem;">
+            Order #{{ payment.transaction_id }}<br>
+            Enter the 6-digit code sent to your device.
+        </p>
+
+        <div class="order-preview">
+            <span style="color: #64748b; font-weight: 500;">Total Amount:</span>
+            <span style="color: #1e5fa8; font-weight: 800;">USD {{ payment.amount|floatformat:2 }}</span>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="otp-container">
+                <input type="text" name="d1" class="otp-input" maxlength="1" pattern="\d*" required autofocus>
+                <input type="text" name="d2" class="otp-input" maxlength="1" pattern="\d*" required>
+                <input type="text" name="d3" class="otp-input" maxlength="1" pattern="\d*" required>
+                <input type="text" name="d4" class="otp-input" maxlength="1" pattern="\d*" required>
+                <input type="text" name="d5" class="otp-input" maxlength="1" pattern="\d*" required>
+                <input type="text" name="d6" class="otp-input" maxlength="1" pattern="\d*" required>
+            </div>
+
+            <button type="submit" class="verify-btn">
+                <span>Verify & Complete</span>
+                <i class="fa-solid fa-circle-check"></i>
+            </button>
+        </form>
+
+        <div class="resend-section">
+            <span id="resend-text">Didn't receive the code?</span>
+            <a href="#" id="resend-btn" class="resend-link disabled">Resend in <span id="timer">60</span>s</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Auto-focus and Paste Logic
+    const inputs = document.querySelectorAll('.otp-input');
+    
+    inputs.forEach((input, index) => {
+        input.addEventListener('keyup', (e) => {
+            if (e.key >= 0 && e.key <= 9) {
+                if (index < inputs.length - 1) inputs[index + 1].focus();
+            } else if (e.key === 'Backspace') {
+                if (index > 0) inputs[index - 1].focus();
+            }
+        });
+
+        input.addEventListener('paste', (e) => {
+            const data = e.clipboardData.getData('text').trim().split('');
+            if (data.length === inputs.length) {
+                inputs.forEach((input, i) => input.value = data[i]);
+                inputs[inputs.length - 1].focus();
+            }
+        });
+    });
+
+    // 2. Resend Timer Logic
+    let timeLeft = 60;
+    const timerElement = document.getElementById('timer');
+    const resendBtn = document.getElementById('resend-btn');
+
+    const countdown = setInterval(() => {
+        timeLeft--;
+        timerElement.innerText = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            resendBtn.innerText = "Resend Code";
+            resendBtn.classList.remove('disabled');
+        }
+    }, 1000);
+</script>
+
+{% endblock %}

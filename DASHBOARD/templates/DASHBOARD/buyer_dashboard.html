@@ -1,0 +1,201 @@
+{% extends 'USERPROFILE/base.html' %}
+
+{% block content %}
+<div class="buyer-grid-container">
+    
+    <div class="welcome-banner">
+        <div class="text-group">
+            <h1>Welcome, {{ request.user.username }}</h1>
+            <p>You've completed <strong>{{ order_count|default:0 }}</strong> orders so far. Keep it up!</p>
+        </div>
+        <div class="user-meta">
+            <span class="category-tag">Favorite: {{ fav_category|default:"None" }}</span>
+        </div>
+    </div>
+
+    <div class="personal-stats">
+        <div class="mini-card">
+            <small>Personal Spending</small>
+            <h3>{{ total_spent|floatformat:0 }} USD</h3>
+        </div>
+        <div class="mini-card">
+            <small>Active Orders</small>
+            <h3>{{ recent_purchases.count }}</h3>
+        </div>
+        <div class="mini-card highlight">
+            <small>Reward Points</small>
+            <h3>{{ order_count|add:"10" }} pts</h3>
+        </div>
+    </div>
+
+    <div class="behavior-group">
+        <div class="chart-section">
+            <div class="section-title">Your 14-Day Spending Trend</div>
+            <div class="chart-wrapper">
+                <canvas id="personalTrendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="recent-section">
+            <div class="section-title">Recent Activity</div>
+            <div class="activity-feed">
+                {% for order in recent_purchases %}
+                <div class="feed-item">
+                    <div class="dot"></div>
+                    <div class="info">
+                        <strong>{{ order.product.name|default:"Order Item" }}</strong>
+                        <span>{{ order.created_at|date:"D, d M" }}</span>
+                    </div>
+                    <div class="amt">{{ order.total_price|floatformat:0 }} USD</div>
+                </div>
+                {% empty %}
+                <p class="empty-state">No recent purchases found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS Variables for consistent luxury branding */
+    :root {
+        --primary: #4361ee;
+        --dark-bg: #1a202c;
+        --border-color: #edf2f7;
+    }
+
+    .buyer-grid-container { 
+        padding: 20px; 
+        max-width: 1100px; 
+        margin: auto; 
+        display: flex; 
+        flex-direction: column; 
+        gap: 20px; 
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .welcome-banner { 
+        background: var(--dark-bg); 
+        color: white; 
+        padding: 25px; 
+        border-radius: 15px; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+    }
+
+    .category-tag { 
+        background: rgba(255,255,255,0.1); 
+        padding: 8px 18px; 
+        border-radius: 20px; 
+        font-size: 0.85rem; 
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .personal-stats { 
+        display: grid; 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 15px; 
+    }
+
+    .mini-card { 
+        background: white; 
+        padding: 20px; 
+        border-radius: 12px; 
+        border: 1px solid var(--border-color); 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .mini-card.highlight { border-left: 5px solid var(--primary); }
+    .mini-card small { color: #718096; text-transform: uppercase; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; }
+    .mini-card h3 { margin-top: 5px; font-size: 1.4rem; color: #2d3748; }
+
+    .behavior-group { 
+        display: grid; 
+        grid-template-columns: 1.8fr 1.2fr; 
+        gap: 20px; 
+        height: 400px; 
+    }
+
+    .chart-section, .recent-section { 
+        background: white; 
+        padding: 20px; 
+        border-radius: 15px; 
+        border: 1px solid var(--border-color); 
+        display: flex; 
+        flex-direction: column; 
+    }
+    
+    .section-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 20px; color: #2d3748; }
+    .chart-wrapper { flex-grow: 1; position: relative; min-height: 250px; }
+
+    .activity-feed { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 15px; 
+        overflow-y: auto; 
+        padding-right: 5px;
+    }
+
+    .feed-item { 
+        display: flex; 
+        align-items: center; 
+        gap: 12px; 
+        font-size: 0.85rem; 
+        padding-bottom: 10px; 
+        border-bottom: 1px solid #f7fafc; 
+    }
+
+    .dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; }
+    .feed-item .info { flex-grow: 1; }
+    .feed-item span { display: block; color: #a0aec0; font-size: 0.75rem; margin-top: 2px; }
+    .feed-item .amt { font-weight: 700; color: #2d3748; }
+
+    .empty-state { color: #a0aec0; text-align: center; margin-top: 20px; font-size: 0.9rem; }
+
+    /* Responsive adjustments */
+    @media (max-width: 850px) {
+        .behavior-group { grid-template-columns: 1fr; height: auto; }
+        .personal-stats { grid-template-columns: 1fr; }
+        .welcome-banner { flex-direction: column; text-align: center; gap: 15px; }
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('personalTrendChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ days_labels|safe }},
+                datasets: [{
+                    label: 'Spending',
+                    data: {{ spending_data|safe }},
+                    borderColor: '#4361ee',
+                    backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderWidth: 2,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+                    y: { 
+                        beginAtZero: true,
+                        grid: { color: '#f1f1f1' }, 
+                        ticks: { font: { size: 11 }, callback: function(value) { return value + ' RWF'; } } 
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

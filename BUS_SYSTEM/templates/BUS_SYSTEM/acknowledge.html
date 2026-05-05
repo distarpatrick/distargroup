@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thank You | DistarGroup</title>
+
+<style>
+body{
+  font-family:Arial, sans-serif;
+  margin:0;
+  background:#f4f4f4;
+}
+
+main{
+  padding:60px 20px;
+  text-align:center;
+}
+
+.thank-box{
+  background:#fff;
+  padding:50px;
+  max-width:800px;
+  margin:auto;
+  border-radius:8px;
+  box-shadow:0 2px 12px rgba(0,0,0,.15);
+}
+
+.thank-box h1{
+  color:#28a745;
+  margin-bottom:20px;
+}
+
+.related{
+  margin-top:50px;
+}
+
+.related-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:#fff;
+  padding:15px;
+  border-radius:6px;
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+footer{
+  background:#222;
+  color:#ccc;
+  padding:25px;
+  text-align:center;
+  margin-top:60px;
+}
+</style>
+</head>
+
+<body>
+
+<main>
+
+<div class="thank-box">
+  <h1>🎉 Thank You!</h1>
+  <p>Your property has been successfully submitted.</p>
+  <p>Our team will review it and publish it shortly.</p>
+
+  <a href="{% url 'BUS_SYSTEM:mainpage' %}" style="color:#007bff;">Go back to Home</a>
+
+  <div class="related">
+    <h2>Related Properties You May Like</h2>
+
+    <div class="related-grid">
+      {% for propert in properts %}
+      <div class="card">
+        <strong>{{ propert.title }}</strong>
+        <p>{{ propert.location }}</p>
+        <p>{{image.url}}</p>
+      </div>
+      {% empty %}
+      <p>No related properties yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  © 2026 DistarGroup · Trusted Property Platform
+</footer>
+
+</body>
+</html>

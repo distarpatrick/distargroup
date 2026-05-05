@@ -1,0 +1,232 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>DistarGroup Checkout</title>
+
+<style>
+
+body{
+font-family: Arial, Helvetica, sans-serif;
+background:#f5f7fb;
+margin:0;
+}
+
+/* HEADER */
+
+.header{
+background:#1e5fa8;
+color:white;
+padding:15px 40px;
+font-size:22px;
+font-weight:bold;
+}
+
+/* MAIN CONTAINER */
+
+.container{
+display:flex;
+justify-content:center;
+padding:40px;
+gap:40px;
+}
+
+/* LEFT SIDE FORM */
+
+.checkout-form{
+background:white;
+padding:30px;
+width:55%;
+border-radius:8px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.checkout-form h3{
+margin-top:0;
+}
+
+input,select{
+width:100%;
+padding:12px;
+margin:8px 0 16px 0;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+/* PAYMENT OPTIONS */
+
+.payment{
+display:flex;
+gap:15px;
+margin-bottom:20px;
+}
+
+.payment div{
+border:1px solid #ccc;
+padding:10px 15px;
+border-radius:5px;
+cursor:pointer;
+}
+
+/* RIGHT SIDE CART */
+
+.summary{
+background:white;
+padding:25px;
+width:30%;
+border-radius:8px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.product{
+display:flex;
+justify-content:space-between;
+margin-bottom:12px;
+}
+
+.total{
+font-size:18px;
+font-weight:bold;
+margin-top:15px;
+}
+
+/* BUTTON */
+
+.place-order{
+background:#3fa34d;
+color:white;
+border:none;
+width:100%;
+padding:14px;
+font-size:16px;
+border-radius:5px;
+cursor:pointer;
+margin-top:20px;
+}
+
+.place-order:hover{
+background:#2f8c3b;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+.container{
+flex-direction:column;
+align-items:center;
+}
+
+.checkout-form{
+width:90%;
+}
+
+.summary{
+width:90%;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+DistarGroup Checkout
+</div>
+
+<div class="container">
+
+<!-- SHIPPING FORM -->
+
+<div class="checkout-form">
+
+<h3>Shipping Information</h3>
+
+<form method="POST" action="/place-order/">
+{% csrf_token %}
+
+<input type="text" name="fullname" placeholder="Full Name" required>
+
+<input type="email" name="email" placeholder="Email Address">
+
+<input type="text" name="address" placeholder="Street Address">
+
+<input type="text" name="city" placeholder="City">
+
+<input type="text" name="phone" placeholder="Phone Number">
+
+<h3>Payment Method</h3>
+
+<div class="payment">
+
+<div onclick="selectPayment('card')" id="card">
+💳 Card
+</div>
+
+<div onclick="selectPayment('mobile')" id="mobile">
+📱 Mobile Money
+</div>
+
+<div onclick="selectPayment('paypal')" id="paypal">
+💰 PayPal
+</div>
+
+</div>
+
+<input type="hidden" name="payment_method" id="paymentMethod">
+
+<button class="place-order">
+Place Order
+</button>
+
+</form>
+
+</div>
+
+
+<!-- ORDER SUMMARY -->
+
+<div class="summary">
+
+<h3>Order Summary</h3>
+
+<div class="product">
+<span>Product 1</span>
+<span>$20</span>
+</div>
+
+<div class="product">
+<span>Product 2</span>
+<span>$15</span>
+</div>
+
+<div class="product">
+<span>Shipping</span>
+<span>$5</span>
+</div>
+
+<hr>
+
+<div class="total">
+Total: $40
+</div>
+
+</div>
+
+</div>
+<script>
+function selectPayment(method){
+document.getElementById("paymentMethod").value = method
+document.getElementById("card").style.border="1px solid #ccc"
+document.getElementById("mobile").style.border="1px solid #ccc"
+document.getElementById("paypal").style.border="1px solid #ccc"
+document.getElementById(method).style.border="2px solid #1e5fa8"
+
+}
+
+</script>
+
+</body>
+</html>

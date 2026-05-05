@@ -1,0 +1,493 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}DistarGroup | Premium Marketplace{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-green: #10b981;
+            --brand-dark: #0f172a;
+            --bg-light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.95);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        body { 
+            background: var(--bg-light); 
+            color: var(--brand-dark); 
+            padding-top: 140px; /* Space for fixed header */
+        }
+
+        /* ===== HEADER & NAVIGATION ===== */
+        .header {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 2000;
+            background: var(--glass); backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .navbar { padding: 15px 4%; display: flex; align-items: center; justify-content: space-between; gap: 30px; }
+
+        .logo {
+            font-size: 24px; font-weight: 800; color: var(--brand-green);
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+
+        /* SEARCH BAR */
+        .search-container { flex: 1; max-width: 600px; position: relative; }
+        .search-box { display: flex; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; transition: var(--transition); }
+        .search-box:focus-within { border-color: var(--brand-green); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        
+        .search-box select { border: none; background: #f8fafc; padding: 0 15px; font-weight: 600; color: #64748b; border-right: 1px solid #e2e8f0; outline: none; cursor: pointer; }
+        .search-box input { flex: 1; border: none; padding: 12px 15px; outline: none; font-size: 14px; }
+        .search-btn { background: var(--brand-green); color: white; border: none; padding: 0 20px; cursor: pointer; }
+
+        .nav-icons { display: flex; align-items: center; gap: 20px; }
+        .nav-icons a { color: var(--brand-dark); text-decoration: none; position: relative; font-size: 18px; transition: 0.3s; }
+        .nav-icons a:hover { color: var(--brand-green); transform: translateY(-2px); }
+        
+        .cart-badge {
+            position: absolute; top: -8px; right: -10px;
+            background: #ef4444; color: #fff; font-size: 10px; font-weight: 800;
+            padding: 2px 6px; border-radius: 10px; border: 2px solid #fff;
+        }
+
+      /* NOTIFICATION STYLING */
+.notif-wrapper { position: relative; }
+
+.notif-badge {
+    position: absolute; top: -8px; right: -10px;
+    background: #ef4444; color: #fff; font-size: 10px; font-weight: 800;
+    padding: 2px 6px; border-radius: 10px; border: 2px solid #fff;
+}
+
+.notif-dropdown {
+    position: absolute; top: calc(100% + 20px); right: -100px;
+    width: 320px; background: #fff; border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    border: 1px solid #e2e8f0; display: none; z-index: 3000;
+    overflow: hidden; animation: slideUp 0.3s ease;
+}
+
+.notif-dropdown.active { display: block; }
+
+.notif-header { 
+    padding: 15px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+    display: flex; justify-content: space-between; align-items: center; font-weight: 700;
+}
+
+.notif-header small { background: var(--brand-green); color: white; padding: 2px 8px; border-radius: 50px; font-size: 10px; }
+
+.notif-body { max-height: 380px; overflow-y: auto; }
+
+.notif-item { 
+    display: flex; gap: 15px; padding: 15px 20px; text-decoration: none; 
+    border-bottom: 1px solid #f1f5f9; transition: 0.2s; 
+}
+
+.notif-item:hover { background: #f0fdf4; }
+.notif-item.unread { background: #f9fffb; border-left: 3px solid var(--brand-green); }
+
+.notif-icon { color: var(--brand-green); font-size: 16px; padding-top: 2px; }
+.notif-title { font-size: 13px; font-weight: 700; color: var(--brand-dark); margin: 0; }
+.notif-text { font-size: 12px; color: #64748b; margin: 3px 0; line-height: 1.4; }
+.notif-time { font-size: 10px; color: #94a3b8; }
+
+.notif-empty { padding: 40px 20px; text-align: center; color: #94a3b8; }
+.notif-empty i { font-size: 24px; margin-bottom: 10px; display: block; opacity: 0.5; }
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}  
+
+      .category-bar {
+            padding: 10px 4%; display: flex; align-items: center; gap: 20px;
+            background: rgba(255,255,255,0.5); border-top: 1px solid #f1f5f9;
+        }
+
+        .category-dropdown { position: relative; }
+        .category-btn {
+            background: var(--brand-green); color: #fff; padding: 10px 20px;
+            border-radius: 8px; border: none; cursor: pointer; font-weight: 600;
+            display: flex; align-items: center; gap: 10px; transition: var(--transition);
+        }
+
+        .category-menu {
+            position: absolute; top: calc(100% + 12px); left: 0;
+            width: 280px; background: #fff; border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border: 1px solid #f1f5f9; padding: 10px;
+            opacity: 0; visibility: hidden; transform: translateY(10px);
+            transition: var(--transition); z-index: 3000;
+        }
+        .category-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        .category-menu a {
+            display: flex; align-items: center; gap: 15px; padding: 12px 15px;
+            text-decoration: none; color: var(--brand-dark); font-size: 14px;
+            font-weight: 600; border-radius: 10px; transition: 0.2s;
+        }
+        .category-menu a i { 
+            width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+            background: #f8fafc; color: var(--brand-green); border-radius: 8px;
+        }
+        .category-menu a:hover { background: #ecfdf5; color: var(--brand-green); }
+
+        .category-links { display: flex; align-items: center; gap: 10px; }
+        .category-links a {
+            text-decoration: none; color: #64748b; font-weight: 600; font-size: 13px;
+            padding: 8px 15px; border-radius: 50px; display: flex; align-items: center; gap: 8px;
+            transition: 0.3s;
+        }
+        .category-links a:hover { background: #fff; color: var(--brand-green); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        .main-content { padding: 40px 4%; max-width: 1600px; margin: 0 auto; min-height: 60vh; }
+/* ===== REDESIGNED PROFESSIONAL SINGLE-ROW FOOTER ===== */
+.site-footer {
+            background:  #0a0a2a;;
+            color: #94a3b8;
+            padding: 60px 5% 30px;
+            border-top: 5px solid var(--primary);
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        .footer-col h3 {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .footer-col ul li:hover {
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .footer-col ul li a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--primary);
+        }
+
+        .social-icons {
+            margin-top: 25px;
+        }
+
+        .social-icons a {
+            display: inline-flex;
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            color: #fff;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .social-icons a:hover {
+            background: var(--primary);
+            color: var(--secondary);
+            transform: translateY(-5px);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .contact-item i {
+            width: 30px;
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 60px;
+            padding-top: 30px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        @media(max-width: 1024px) { nav ul, .welcome-msg { display: none; } }
+
+/* Mobile Responsiveness */
+@media (max-width: 1100px) {
+    .footer-container { flex-direction: column; text-align: center; gap: 20px; }
+    .footer-nav { flex-wrap: wrap; justify-content: center; }
+    .footer-brand { border-left: none; }
+}
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="navbar">
+        <a href="{% url 'BUS_SYSTEM:mainpage' %}" class="logo">
+            <i class="fa-solid fa-bolt-lightning"></i> DistarGroup
+        </a>
+
+        <div class="search-container">
+            <form action="{% url 'BUS_SYSTEM:global_search' %}" method="GET" class="search-box">
+                <select name="category">
+                    <option value="all">All</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="vehicles">Vehicles</option>
+                    <option value="property">Property</option>
+                </select>
+                <input type="text" name="q" placeholder="Search any name of product around the world..." required>
+                <button type="submit" class="search-btn"><i class="fa fa-search"></i></button>
+            </form>
+        </div>
+
+        <div class="nav-icons">
+            <div id="welcome-msg" style="font-size: 12px; font-weight: 600; text-align: right; line-height: 1.2; margin-right: 5px;">
+                </div>
+            <div class="notif-wrapper">
+    <a href="javascript:void(0)" id="notif-trigger">
+        <i class="fa-regular fa-bell"></i>
+        {% if unread_count > 0 %}
+            <span class="notif-badge">{{ unread_count }}</span>
+        {% endif %}
+    </a>
+
+    <div class="notif-dropdown" id="notif-dropdown">
+        <div class="notif-header">
+            <span>Notifications</span>
+            {% if unread_count > 0 %}<small>{{ unread_count }} New</small>{% endif %}
+        </div>
+        <div class="notif-body">
+            {% for n in all_notifications %}
+                <a href="{% url 'CART:mark_read' n.id %}" class="notif-item {% if not n.is_read %}unread{% endif %}">
+                    <div class="notif-icon"><i class="fa-solid fa-circle-info"></i></div>
+                    <div class="notif-content">
+                        <p class="notif-title">{{ n.title }}</p>
+                        <p class="notif-text">{{ n.message }}</p>
+                        <span class="notif-time">{{ n.created_at|timesince }} ago</span>
+                    </div>
+                </a>
+            {% empty %}
+                <div class="notif-empty">
+                    <i class="fa-solid fa-bell-slash"></i>
+                    <p>No new updates</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+            <a href="{% url 'CART:view_cart' %}">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="cart-badge" id="global-cart-count">{% if cart_count %}{{ cart_count }}{% else %}0{% endif %}</span>
+            </a>
+            <a href="#"><i class="fa-regular fa-user-circle fa-lg"></i></a>
+        </div>
+    </div>
+
+    <div class="category-bar">
+        <div class="category-links">
+            <a href="/" class="active"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="{% url 'BUILDING:building_list' %}">
+            <i class="fas fa-th-large"></i> All Properties
+        </a>
+
+         <a href="{% url 'BUILDING:residential_list' %}">
+            <i class="fas fa-home"></i> Residential
+        </a>
+        <a href="{% url 'BUILDING:apartment_list' %}">
+            <i class="fas fa-building"></i> Apartments
+        </a>
+        <a href="{% url 'BUILDING:commercial_list' %}">
+            <i class="fas fa-briefcase"></i> Commercial
+        </a>
+
+         <a href="{% url 'BUILDING:industrial_list' %}">
+            <i class="fas fa-industry"></i> Industrial
+        </a>
+             <a href="{% url 'BUS_SYSTEM:marketplace' %}"><i class="fa-solid fa-store"></i> Local Markets</a>
+        </div>
+    </div>
+</header>
+
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+    <div class="footer-container">
+
+        <!-- BRAND -->
+        <div class="footer-col brand">
+            <div class="logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">DistarGroup</span>
+            </div>
+            <small class="tagline">Quality, Faster</small>
+
+            <p>
+                Rwanda's premier online grocery platform, connecting you with the
+                freshest products from local markets across Kigali.
+            </p>
+
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+
+        <!-- QUICK LINKS -->
+        <div class="footer-col">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">How It Works</a></li>
+                <li><a href="#">Local Markets</a></li>
+                <li><a href="#">Fresh Guarantee</a></li>
+                <li><a href="#">Delivery Areas</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Blog</a></li>
+            </ul>
+        </div>
+
+        <!-- CATEGORIES -->
+        <div class="footer-col">
+            <h3 class="orange">Categories</h3>
+            <ul>
+                <li>Fruits & Vegetables</li>
+                <li>Meat & Fish</li>
+                <li>Dairy & Eggs</li>
+                <li>Beverages</li>
+                <li>Household Items</li>
+                <li>Local Specialties</li>
+                <li>Organic Products</li>
+            </ul>
+        </div>
+
+        <!-- CONTACT -->
+        <div class="footer-col">
+            <h3 class="yellow">Contact Us</h3>
+
+            <div class="contact-item">
+                <span class="icon green"><i class="fas fa-location-dot"></i></span>
+                <span>KG 123 St, Kigali<br>Rwanda</span>
+            </div>
+
+            <div class="contact-item">
+                <span class="icon blue"><i class="fas fa-phone"></i></span>
+                <span>+250 791 273 368</span>
+            </div>
+
+            <div class="contact-item">
+                <span class="icon purple"><i class="fas fa-envelope"></i></span>
+                <span>distarpatrick@.rw</span>
+            </div>
+
+            <div class="contact-item">
+                <span class="icon orange"><i class="fas fa-clock"></i></span>
+                <span>
+                    Mon - Sat: 6:00 AM - 10:00 PM<br>
+                    Sunday: 8:00 AM - 8:00 PM
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        © <span id="year"></span> DistarGroup. All rights reserved.
+    </div>
+</footer>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Dropdown Toggle
+        const catToggle = document.getElementById('categoryToggle');
+        const catMenu = document.getElementById('categoryMenu');
+        if(catToggle) {
+            catToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                catMenu.classList.toggle('active');
+            });
+        }
+        document.addEventListener('click', () => catMenu.classList.remove('active'));
+
+        // 2. Dynamic Greeting
+        const welcome = document.getElementById('welcome-msg');
+        const hour = new Date().getHours();
+        let greeting = "Good Evening";
+        if (hour < 12) greeting = "Good Morning";
+        else if (hour < 18) greeting = "Good Afternoon";
+        
+        const username = "{{ request.user.username|default:'Concierge' }}";
+        welcome.innerHTML = `<span style="color: var(--brand-green);">${greeting}</span><br>${username}`;
+
+        // 3. Footer Year
+        document.getElementById('year').textContent = new Date().getFullYear();
+    });
+
+    // Global function to update cart from any page
+    function updateCartCount(newCount) {
+        const badge = document.getElementById('global-cart-count');
+        if(badge) {
+            badge.innerText = newCount;
+            badge.style.animation = 'pop 0.3s ease-out';
+        }
+    }
+
+    const notifTrigger = document.getElementById('notif-trigger');
+const notifDropdown = document.getElementById('notif-dropdown');
+
+if (notifTrigger) {
+    notifTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        notifDropdown.classList.toggle('active');
+
+        const catMenu = document.getElementById('categoryMenu');
+        if(catMenu) catMenu.classList.remove('active');
+    });
+}
+
+document.addEventListener('click', () => {
+    if(notifDropdown) notifDropdown.classList.remove('active');
+});
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

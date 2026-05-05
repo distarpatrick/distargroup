@@ -1,0 +1,1237 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DistarGroup | Premium Auto Marketplace - Rwanda's #1 Vehicle Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Discover premium vehicles for sale and rent in Rwanda. New & used cars, motorcycles at unbeatable prices.">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #00d27f;
+            --primary-dark: #00b86f;
+            --secondary: #001f3f;
+            --accent: #ff6b35;
+            --dark: #0a0a2a;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Header Styles */
+        .top-bar {
+            background: var(--secondary);
+            color: white;
+            padding: 8px 5%;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .top-bar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            transition: color 0.3s;
+        }
+
+        .top-bar a:hover {
+            color: var(--primary);
+        }
+
+        .main-header {
+            background: white;
+            padding: 15px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 45px 12px 20px;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,210,127,0.1);
+        }
+
+        .search-bar button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-bar button:hover {
+            background: var(--primary-dark);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .user-actions a {
+            text-decoration: none;
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .user-actions a i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .user-actions a:hover {
+            color: var(--primary);
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            background: var(--primary);
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Navigation */
+        .nav-menu {
+            background: white;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 0 5%;
+        }
+
+        .nav-menu ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            overflow-x: auto;
+            padding: 12px 0;
+        }
+
+        .nav-menu ul li a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: color 0.3s;
+        }
+
+        .nav-menu ul li a:hover, .nav-menu ul li a.active {
+            color: var(--primary);
+        }
+
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--dark) 100%);
+            margin: 20px 5%;
+            border-radius: 24px;
+            padding: 60px 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0,210,127,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+        }
+
+        .hero-content h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .hero-content p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: white;
+            margin: 20px 5%;
+            padding: 20px 25px;
+            border-radius: 16px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            box-shadow: var(--shadow-md);
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group select, .filter-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-group select:focus, .filter-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .filter-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .clear-btn {
+            background: var(--gray);
+        }
+
+        .clear-btn:hover {
+            background: #4a5568;
+        }
+
+        /* Vehicle Type Tabs */
+        .vehicle-tabs {
+            margin: 0 5% 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 30px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .tab-btn i {
+            margin-right: 8px;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Product Grid */
+        .container {
+            padding: 20px 5% 60px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-header h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .section-header p {
+            color: var(--gray);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .discount-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--accent);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 800;
+            z-index: 10;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: white;
+            z-index: 10;
+        }
+
+        .product-image {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+            background: #f5f5f5;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+
+        .quick-view {
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            padding: 10px;
+            text-align: center;
+            transition: 0.3s;
+            text-decoration: none;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .product-card:hover .quick-view {
+            bottom: 0;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .location {
+            color: var(--gray);
+            font-size: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .location i {
+            color: var(--primary);
+        }
+
+        .product-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .specs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: var(--gray);
+            flex-wrap: wrap;
+        }
+
+        .specs i {
+            margin-right: 4px;
+            color: var(--primary);
+        }
+
+        .price-container {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .current-price {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .old-price {
+            font-size: 14px;
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+
+        .price-unit {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btn-buy {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-buy:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-rent {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-rent:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+        }
+
+        .btn-disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Pagination */
+        .pagination {
+            margin-top: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pagination a, .pagination span {
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .pagination a:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .pagination .current {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Footer */
+        .site-footer {
+            background: var(--secondary);
+            color: #94a3b8;
+            padding: 60px 5% 30px;
+            border-top: 5px solid var(--primary);
+            margin-top: 60px;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        .footer-col h3 {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 12px;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .footer-col ul li:hover {
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .footer-col ul li a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--primary);
+        }
+
+        .social-icons {
+            margin-top: 25px;
+        }
+
+        .social-icons a {
+            display: inline-flex;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            color: #fff;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .social-icons a:hover {
+            background: var(--primary);
+            color: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .contact-item i {
+            width: 30px;
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 60px;
+            padding-top: 30px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 28px;
+            }
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .filter-bar {
+                flex-direction: column;
+            }
+            .filter-btn, .clear-btn {
+                width: 100%;
+            }
+            .top-bar {
+                display: none;
+            }
+            .user-actions span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-notification"></div>
+
+<!-- Top Bar -->
+<div class="top-bar">
+    <div>
+        <i class="fas fa-map-marker-alt"></i> Kigali, Rwanda
+        <span style="margin-left: 15px;"><i class="fas fa-phone"></i> +250 791 273 368</span>
+        <span style="margin-left: 15px;"><i class="fas fa-envelope"></i> vehicles@distargroup.rw</span>
+    </div>
+    <div>
+        <a href="#"><i class="fas fa-store"></i> Sell Your Vehicle</a>
+        <a href="#"><i class="fas fa-truck"></i> Track Order</a>
+        <a href="#"><i class="fas fa-headset"></i> Help Center</a>
+    </div>
+</div>
+
+<!-- Main Header -->
+<div class="main-header">
+    <div class="logo">
+        <h1>DistarGroup</h1>
+    </div>
+    <div class="search-bar">
+        <form method="GET" action="{% url 'BUS_SYSTEM:allvehicles' %}" id="searchForm">
+            <input type="text" name="q" placeholder="Search by brand, model, fuel type..." value="{{ query|default:'' }}">
+            <button type="submit"><i class="fas fa-search"></i></button>
+        </form>
+    </div>
+    <div class="user-actions">
+        {% if user.is_authenticated %}
+        <a href="{% url 'USERPROFILE:profile_info' %}">
+            <i class="fas fa-user-circle"></i>
+            <span>{{ user.username|truncatechars:8 }}</span>
+        </a>
+        {% else %}
+        <a href="{% url 'BUS_SYSTEM:auth_system' %}">
+            <i class="fas fa-user"></i>
+            <span>Sign In</span>
+        </a>
+        {% endif %}
+        <a href="{% url 'CART:view_cart' %}">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+            <span class="cart-count" id="cartCount">{{ cart_count|default:"0" }}</span>
+        </a>
+        <a href="#">
+            <i class="fas fa-heart"></i>
+            <span>Wishlist</span>
+        </a>
+    </div>
+</div>
+
+<!-- Navigation -->
+<div class="nav-menu">
+    <ul>
+        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="{% url 'BUS_SYSTEM:allvehicles' %}" class="active"><i class="fas fa-car"></i> All Vehicles</a></li>
+        <li><a href="{% url 'BUS_SYSTEM:newcars' %}"><i class="fas fa-car-side"></i> New Cars</a></li>
+        <li><a href="{% url 'BUS_SYSTEM:car_for_sale' %}"><i class="fas fa-tag"></i> For Sale</a></li>
+        <li><a href="{% url 'BUS_SYSTEM:car_for_rent' %}"><i class="fas fa-key"></i> For Rent</a></li>
+        <li><a href="{% url 'BUS_SYSTEM:car_used' %}"><i class="fas fa-history"></i> Used Cars</a></li>
+        <li><a href="{% url 'BUS_SYSTEM:allvehicles' %}?vehicle_type=Motorcycle"><i class="fas fa-motorcycle"></i> Motorcycles</a></li>
+        <li><a href="#"><i class="fas fa-charging-station"></i> Electric Vehicles</a></li>
+    </ul>
+</div>
+
+<!-- Hero Banner -->
+<div class="hero-banner">
+    <div class="hero-content">
+        <h1>Find Your Perfect Ride<br>In Rwanda</h1>
+        <p>Discover premium vehicles for sale and rent. New, used, luxury, or economy - we have it all.</p>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">{{ total_vehicles|default:"500+" }}</div>
+                <div class="stat-label">Vehicles Available</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Trusted Dealers</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">98%</div>
+                <div class="stat-label">Customer Satisfaction</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vehicle Type Tabs -->
+<div class="vehicle-tabs">
+    <button class="tab-btn {% if current_vehicle_type == 'Car' or not current_vehicle_type %}active{% endif %}" data-type="Car">
+        <i class="fas fa-car"></i> Cars
+    </button>
+    <button class="tab-btn {% if current_vehicle_type == 'Motorcycle' %}active{% endif %}" data-type="Motorcycle">
+        <i class="fas fa-motorcycle"></i> Motorcycles
+    </button>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <form method="GET" action="{% url 'BUS_SYSTEM:allvehicles' %}" id="filterForm" style="display: contents;">
+        <input type="hidden" name="vehicle_type" id="vehicleTypeInput" value="{{ current_vehicle_type|default:'Car' }}">
+        {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+        
+        <div class="filter-group">
+            <label><i class="fas fa-tag"></i> Listing Type</label>
+            <select name="product_type">
+                <option value="">All Types</option>
+                <option value="sale" {% if current_product_type == 'sale' %}selected{% endif %}>For Sale</option>
+                <option value="rent" {% if current_product_type == 'rent' %}selected{% endif %}>For Rent</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-star"></i> Condition</label>
+            <select name="condition">
+                <option value="">All Conditions</option>
+                <option value="New" {% if current_condition == 'New' %}selected{% endif %}>New</option>
+                <option value="Used" {% if current_condition == 'Used' %}selected{% endif %}>Used</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-gas-pump"></i> Fuel Type</label>
+            <select name="fuel_type">
+                <option value="">All Fuel Types</option>
+                <option value="Petrol" {% if current_fuel_type == 'Petrol' %}selected{% endif %}>Petrol</option>
+                <option value="Diesel" {% if current_fuel_type == 'Diesel' %}selected{% endif %}>Diesel</option>
+                <option value="Electric" {% if current_fuel_type == 'Electric' %}selected{% endif %}>Electric</option>
+                <option value="Hybrid" {% if current_fuel_type == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-cog"></i> Transmission</label>
+            <select name="transmission">
+                <option value="">All</option>
+                <option value="Manual" {% if current_transmission == 'Manual' %}selected{% endif %}>Manual</option>
+                <option value="Automatic" {% if current_transmission == 'Automatic' %}selected{% endif %}>Automatic</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-dollar-sign"></i> Max Price</label>
+            <input type="number" name="max_price" placeholder="Any" value="{{ current_max_price|default:'' }}" step="1000">
+        </div>
+        <button type="submit" class="filter-btn"><i class="fas fa-filter"></i> Apply</button>
+        <a href="{% url 'BUS_SYSTEM:allvehicles' %}" class="filter-btn clear-btn"><i class="fas fa-times"></i> Clear</a>
+    </form>
+</div>
+
+<!-- Products Grid -->
+<div class="container">
+    <div class="section-header">
+        <h2>🔥 {{ current_vehicle_type|default:"Featured" }} Vehicles</h2>
+        <p>Handpicked premium vehicles just for you</p>
+    </div>
+    
+    <div class="product-grid">
+        {% for vehicle in vehicles %}
+        <div class="product-card" data-vehicle-id="{{ vehicle.id }}" data-vehicle-name="{{ vehicle.brand }} {{ vehicle.model }}">
+            {% if vehicle.discount and vehicle.discount > 0 %}
+            <div class="discount-badge">-{{ vehicle.discount|floatformat:0 }}% OFF</div>
+            {% endif %}
+            
+            <div class="status-badge" style="background: {% if vehicle.product_type == 'rent' %}var(--accent){% else %}var(--primary){% endif %};">
+                {{ vehicle.get_product_type_display|upper }}
+            </div>
+            
+            <div class="product-image">
+                {% with vehicle.images.first as first_image %}
+                {% if first_image %}
+                <img src="{{ first_image.image.url }}" alt="{{ vehicle.brand }} {{ vehicle.model }}">
+                {% else %}
+                <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f0f0f0;">
+                    <i class="fas fa-car fa-4x" style="color: #ccc;"></i>
+                </div>
+                {% endif %}
+                {% endwith %}
+                <a href="{% url 'BUS_SYSTEM:car_detail' vehicle.id %}" class="quick-view">
+                    <i class="fas fa-eye"></i> Quick View
+                </a>
+            </div>
+            
+            <div class="product-info">
+                <div class="location">
+                    <i class="fas fa-map-marker-alt"></i> {{ vehicle.location|default:"Kigali, Rwanda" }}
+                </div>
+                <h3 class="product-title">{{ vehicle.brand }} {{ vehicle.model }} {{ vehicle.year|default:"" }}</h3>
+                
+                <div class="specs">
+                    {% if vehicle.transmission %}
+                    <span><i class="fas fa-cog"></i> {{ vehicle.transmission }}</span>
+                    {% endif %}
+                    {% if vehicle.fuel_type %}
+                    <span><i class="fas fa-gas-pump"></i> {{ vehicle.fuel_type }}</span>
+                    {% endif %}
+                    {% if vehicle.mileage %}
+                    <span><i class="fas fa-road"></i> {{ vehicle.mileage|floatformat:0 }} km</span>
+                    {% endif %}
+                    {% if vehicle.engine_capacity %}
+                    <span><i class="fas fa-tachometer-alt"></i> {{ vehicle.engine_capacity }}cc</span>
+                    {% endif %}
+                </div>
+                
+                <div class="price-container">
+                    <span class="current-price">${{ vehicle.price|floatformat:0 }}</span>
+                    {% if vehicle.discount and vehicle.discount > 0 %}
+                    <span class="old-price">${{ vehicle.price|add:vehicle.discount|floatformat:0 }}</span>
+                    {% endif %}
+                    {% if vehicle.product_type == 'rent' %}
+                    <span class="price-unit">/ day</span>
+                    {% endif %}
+                </div>
+                
+                {% if vehicle.is_available and vehicle.stock > 0 %}
+                    {% if vehicle.product_type == 'rent' %}
+                    <a href="{% url 'BUS_SYSTEM:car_detail' vehicle.id %}" class="btn-action btn-rent">
+                        <i class="fas fa-key"></i> Rent Now
+                    </a>
+                    {% else %}
+                    <button class="btn-action btn-buy add-to-cart" data-vehicle-id="{{ vehicle.id }}" data-vehicle-name="{{ vehicle.brand }} {{ vehicle.model }}" data-vehicle-price="{{ vehicle.price }}" data-product-type="Vehicleinformation">
+                        <i class="fas fa-shopping-cart"></i> Buy Now
+                    </button>
+                    {% endif %}
+                {% else %}
+                <button class="btn-action btn-disabled" disabled>
+                    <i class="fas fa-times-circle"></i> Sold Out
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; background: white; border-radius: 24px;">
+            <i class="fas fa-car-side" style="font-size: 64px; color: #ccc; margin-bottom: 20px;"></i>
+            <h3 style="font-size: 24px; margin-bottom: 10px;">No Vehicles Found</h3>
+            <p style="color: var(--gray); margin-bottom: 20px;">We couldn't find any vehicles matching your criteria.</p>
+            <a href="{% url 'BUS_SYSTEM:allvehicles' %}" class="btn-action btn-buy" style="width: auto; display: inline-flex; padding: 12px 30px;">
+                <i class="fas fa-undo-alt"></i> View All Vehicles
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if vehicles.has_other_pages %}
+    <div class="pagination">
+        {% if vehicles.has_previous %}
+        <a href="?page={{ vehicles.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+            <i class="fas fa-chevron-left"></i> Previous
+        </a>
+        {% endif %}
+        
+        {% for i in vehicles.paginator.page_range %}
+            {% if vehicles.number == i %}
+            <span class="current">{{ i }}</span>
+            {% elif i > vehicles.number|add:'-3' and i < vehicles.number|add:'3' %}
+            <a href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if vehicles.has_next %}
+        <a href="?page={{ vehicles.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+            Next <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-col">
+            <h3>DistarGroup</h3>
+            <p>Rwanda's premier automotive marketplace connecting buyers and sellers with quality vehicles.</p>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+        
+        <div class="footer-col">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">How It Works</a></li>
+                <li><a href="#">Financing Options</a></li>
+                <li><a href="#">Vehicle Inspection</a></li>
+                <li><a href="#">Insurance Partners</a></li>
+                <li><a href="#">Careers</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-col">
+            <h3>Vehicle Categories</h3>
+            <ul>
+                <li><a href="#">New Cars</a></li>
+                <li><a href="#">Used Cars</a></li>
+                <li><a href="#">Luxury Vehicles</a></li>
+                <li><a href="#">SUVs & Crossovers</a></li>
+                <li><a href="#">Motorcycles</a></li>
+                <li><a href="#">Commercial Vehicles</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-col">
+            <h3>Contact Info</h3>
+            <div class="contact-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>KG 123 St, Kigali<br>Rwanda</span>
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-phone"></i>
+                <span>+250 791 273 368</span>
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-envelope"></i>
+                <span>info@distargroup.rw</span>
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-clock"></i>
+                <span>Mon - Sat: 8:00 AM - 8:00 PM<br>Sunday: 9:00 AM - 5:00 PM</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer-bottom">
+        <p>&copy; {% now "Y" %} DistarGroup. All rights reserved. Made with <i class="fas fa-heart" style="color: var(--primary);"></i> in Rwanda</p>
+    </div>
+</footer>
+
+<script>
+// Get CSRF token from cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Toast Notification System
+function showToast(message, type = 'success') {
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(toast => toast.remove());
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.style.background = type === 'success' ? '#10b981' : '#ef4444';
+    toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Update cart badge
+function updateCartBadge(count) {
+    const cartBadge = document.getElementById('cartCount');
+    if (cartBadge) {
+        cartBadge.textContent = count;
+        cartBadge.style.transform = 'scale(1.2)';
+        setTimeout(() => {
+            cartBadge.style.transform = 'scale(1)';
+        }, 300);
+    }
+}
+
+// Add to Cart with AJAX
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        const vehicleId = this.dataset.vehicleId;
+        const vehicleName = this.dataset.vehicleName;
+        
+        // Use the correct URL pattern for Vehicleinformation
+        const url = `/cart/add/Vehicleinformation/${vehicleId}/`;
+        
+        // Add loading state
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        this.disabled = true;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ quantity: 1 })
+            });
+            
+            const data = await response.json();
+            
+            // Reset button
+            this.innerHTML = originalText;
+            this.disabled = false;
+            
+            if (data.success) {
+                showToast(`${vehicleName} added to cart!`, 'success');
+                updateCartBadge(data.cart_count);
+            } else {
+                showToast(data.error || 'Failed to add to cart', 'error');
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            this.innerHTML = originalText;
+            this.disabled = false;
+            showToast('Network error. Please try again.', 'error');
+        }
+    });
+});
+
+// Vehicle Type Tabs
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const vehicleType = btn.dataset.type;
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('vehicle_type', vehicleType);
+        currentUrl.searchParams.delete('page');
+        window.location.href = currentUrl.toString();
+    });
+});
+
+// Smooth scroll animation
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+
+// Animate stats on scroll
+const observerOptions = {
+    threshold: 0.5,
+    rootMargin: '0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const numbers = entry.target.querySelectorAll('.stat-number');
+            numbers.forEach(num => {
+                const target = parseInt(num.innerText);
+                let current = 0;
+                const increment = target / 50;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        num.innerText = target + '+';
+                        clearInterval(timer);
+                    } else {
+                        num.innerText = Math.floor(current) + '+';
+                    }
+                }, 30);
+            });
+            observer.unobserve(entry.target);
+        }
+    });
+}, observerOptions);
+
+const statsSection = document.querySelector('.hero-banner .stats');
+if (statsSection) observer.observe(statsSection);
+
+// Header scroll effect
+window.addEventListener('scroll', () => {
+    const header = document.querySelector('.main-header');
+    if (window.scrollY > 100) {
+        header.style.boxShadow = 'var(--shadow-lg)';
+    } else {
+        header.style.boxShadow = 'var(--shadow-sm)';
+    }
+});
+</script>
+</body>
+</html>

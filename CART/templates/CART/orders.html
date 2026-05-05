@@ -1,0 +1,230 @@
+{% extends 'USERPROFILE/base.html' %}
+{% load static %}
+
+{% block title %}My Orders | DistarGroup{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --pending: #f59e0b;
+        --confirmed: #3b82f6;
+        --shipped: #8b5cf6;
+        --delivered: #10b981;
+    }
+
+    .orders-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        border: 1px solid #f1f5f9;
+        transition: transform 0.2s;
+        display: grid;
+        grid-template-columns: 120px 1fr 200px;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .order-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+    input[type="text"]:focus {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    transition: all 0.2s ease;
+}
+
+.d-none-mobile {
+    display: block;
+}
+
+@media (max-width: 600px) {
+    .d-none-mobile { display: none; }
+    .search-container form { flex-direction: column; }
+}
+
+    .product-img-wrapper {
+        width: 120px;
+        height: 120px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8fafc;
+    }
+
+    .product-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .order-info h3 {
+        font-size: 18px;
+        color: var(--primary-color);
+        margin-bottom: 8px;
+    }
+
+    .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .meta-item {
+        font-size: 13px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .meta-item i {
+        color: var(--accent-color);
+        width: 16px;
+    }
+
+    .order-status-price {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    .status-pending { background: #fffbeb; color: var(--pending); }
+    .status-confirmed { background: #eff6ff; color: var(--confirmed); }
+    .status-shipped { background: #f5f3ff; color: var(--shipped); }
+    .status-delivered { background: #ecfdf5; color: var(--delivered); }
+
+    .price-tag {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--primary-color);
+    }
+
+    .btn-track {
+        margin-top: 15px;
+        padding: 8px 16px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-track:hover { background: var(--accent-color); color: var(--primary-color); }
+
+    @media (max-width: 768px) {
+        .order-card {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        .product-img-wrapper { margin: 0 auto; }
+        .order-status-price { text-align: center; align-items: center; }
+    }
+</style>
+<div class="search-container" style="margin-bottom: 25px;">
+    <form method="GET" action="." style="display: flex; gap: 10px;">
+        <div style="position: relative; flex-grow: 1;">
+            <i class="fa fa-search" style="position: absolute; left: 15px; top: 15px; color: var(--text-muted);"></i>
+            <input type="text" name="q" value="{{ search_query|default:'' }}" 
+                   placeholder="Search by location, status, or phone..." 
+                   style="width: 100%; padding: 12px 12px 12px 45px; border-radius: 12px; border: 1px solid #e2e8f0; outline: none; font-size: 14px;">
+        </div>
+        <button type="submit" class="btn-track" style="margin-top: 0; padding: 0 25px;">Search</button>
+        {% if search_query %}
+            <a href="{% url 'CART:order_history' %}" class="btn-track" style="background: #e2e8f0; color: #475569; display: flex; align-items: center; margin-top:0;">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="orders-container">
+    <div class="page-header">
+        <div>
+            <h1 style="font-weight: 800; font-size: 28px;">Your Purchase History</h1>
+            <p style="color: var(--text-muted);">Track and manage your recent orders</p>
+        </div>
+        <button class="btn-track" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+    </div>
+
+    {% if orders %}
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="product-img-wrapper">
+                {% if order.product.images.first %}
+                    <img src="{{ order.product.images.first.image.url }}" alt="Product">
+                {% elif order.product.image %}
+                    <img src="{{ order.product.image.url }}" alt="Product">
+                {% else %}
+                    <img src="{% static 'images/placeholder.jpg' %}" alt="No Image">
+                {% endif %}
+            </div>
+
+            <div class="order-info">
+                <span style="font-size: 12px; color: var(--accent-color); font-weight: 600;">Order ID: #DS-{{ order.id }}0{{ forloop.counter }}</span>
+                <h3>{{ order.product }}</h3>
+                
+                <div class="meta-grid">
+                    <div class="meta-item"><i class="fa-solid fa-calendar-day"></i> {{ order.created_at|date:"M d, Y" }}</div>
+                    <div class="meta-item"><i class="fa-solid fa-layer-group"></i> Qty: {{ order.quantity }}</div>
+                    <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ order.location }}</div>
+                    <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ order.phone }}</div>
+                </div>
+            </div>
+
+            <div class="order-status-price">
+                <div>
+                    <span class="status-badge status-{{ order.status }}">
+                        <i class="fa-solid {% if order.status == 'completed' %}fa-circle-check{% else %}fa-clock{% endif %}"></i>
+                        {{ order.status }}
+                    </span>
+                    <div class="price-tag">${{ order.total_price }}</div>
+                </div>
+                <button class="btn-track" onclick="showOrderDetails('{{ order.id }}')">Order Details</button>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div style="text-align: center; padding: 100px 20px;">
+            <i class="fa-solid fa-bag-shopping" style="font-size: 60px; color: #cbd5e1; margin-bottom: 20px;"></i>
+            <h2>No orders found</h2>
+            <p style="color: var(--text-muted);">You haven't made any purchases yet.</p>
+            <a href="/" class="btn-track" style="display: inline-block; text-decoration: none; margin-top: 20px;">Start Shopping</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    function showOrderDetails(orderId) {
+        // You could open a modal or redirect to a detail page
+        alert("Fetching details for Order #" + orderId + "... This could open a detailed modal.");
+    }
+</script>
+
+{% endblock %}

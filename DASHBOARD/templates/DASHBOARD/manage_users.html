@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .analytics-container { padding: 20px; max-width: 1400px; margin: auto; }
+    
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px; margin-bottom: 30px;
+    }
+    .stat-card {
+        background: white; padding: 25px; border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border-bottom: 4px solid var(--accent-color);
+    }
+    .stat-card h3 { color: #64748b; font-size: 14px; text-transform: uppercase; margin-bottom: 10px; }
+    .stat-card .value { font-size: 28px; font-weight: 800; color: var(--primary-color); }
+
+    /* Charts Layout */
+    .charts-main-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 25px; margin-bottom: 25px;
+    }
+    .chart-container {
+        background: white; padding: 25px; border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    /* Explanation Text */
+    .analysis-text {
+        background: #f1f5f9; padding: 20px; border-radius: 10px;
+        border-left: 4px solid var(--primary-color); margin-top: 15px;
+        font-size: 14px; color: #475569;
+    }
+
+    @media (max-width: 1100px) {
+        .charts-main-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="analytics-container">
+    <div class="header" style="margin-bottom: 30px;">
+        <h1 style="font-weight: 800;">Business Insights</h1>
+        <p style="color: #64748b;">Real-time analysis of DistarGroup operations</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Revenue</h3>
+            <div class="value">{{ total_revenue }} RWF</div>
+        </div>
+        <div class="stat-card">
+            <h3>Active Orders</h3>
+            <div class="value">{{ total_orders }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Registered Users</h3>
+            <div class="value">{{ total_users }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Total Inventory</h3>
+            <div class="value">{{ total_stock }}</div>
+        </div>
+    </div>
+
+    <div class="charts-main-grid">
+        <div class="chart-container">
+            <h2 style="font-size: 18px; margin-bottom: 20px;">Order Status Distribution</h2>
+            <canvas id="orderChart" height="120"></canvas>
+            <div class="analysis-text">
+                <strong>Insight:</strong> This graph represents the lifecycle of current orders. High "Pending" values may indicate a bottleneck in the confirmation process, while "Delivered" shows successful fulfillment.
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h2 style="font-size: 18px; margin-bottom: 20px;">Inventory Composition</h2>
+            <canvas id="inventoryChart"></canvas>
+            <div class="analysis-text">
+                This shows the diversity of your marketplace. 
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 1. Order Status Bar Chart
+    const ctxOrder = document.getElementById('orderChart').getContext('2d');
+    new Chart(ctxOrder, {
+        type: 'bar',
+        data: {
+            labels: {{ status_labels|safe }},
+            datasets: [{
+                label: 'Number of Orders',
+                data: {{ status_counts|safe }},
+                backgroundColor: '#10b981',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 2. Inventory Pie Chart
+    const ctxInv = document.getElementById('inventoryChart').getContext('2d');
+    new Chart(ctxInv, {
+        type: 'doughnut',
+        data: {
+            labels: {{ inventory_labels|safe }},
+            datasets: [{
+                data: {{ inventory_data|safe }},
+                backgroundColor: ['#0f172a', '#10b981', '#3b82f6'],
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

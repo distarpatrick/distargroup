@@ -1,0 +1,491 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Inventory | DistarGroup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --sidebar-bg: #0f172a;
+            --bg-light: #f8fafc;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; }
+
+        .sidebar { width: 260px; height: 100vh; background: var(--sidebar-bg); color: white; padding: 30px 20px; position: fixed; z-index: 100; }
+        .sidebar .logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 40px; }
+        .sidebar .logo span { color: var(--primary); }
+        .nav-link { display: flex; align-items: center; padding: 12px 15px; color: #94a3b8; text-decoration: none; border-radius: 10px; margin-bottom: 8px; transition: 0.3s; }
+        .nav-link:hover, .nav-link.active { background: rgba(37, 99, 235, 0.1); color: white; }
+
+        .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); }
+
+        /* Tabs Styling */
+        .tab-container { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 10px; flex-wrap: wrap; }
+        .tab-btn { background: none; border: none; padding: 10px 20px; font-weight: 700; color: #64748b; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary); color: white; }
+
+        /* Inventory Grid */
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .item-card { background: white; border-radius: 15px; border: 1px solid var(--border); overflow: hidden; transition: 0.3s; position: relative; display: flex; flex-direction: column; }
+        .item-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        
+        .item-img { width: 100%; height: 180px; object-fit: cover; background: #f1f5f9; }
+        .item-body { padding: 20px; flex-grow: 1; }
+        .item-body h3 { margin: 0 0 10px 0; font-size: 1.1rem; color: var(--sidebar-bg); }
+        
+        .stock-badge { 
+            position: absolute; top: 10px; right: 10px; 
+            background: rgba(255,255,255,0.95); padding: 5px 12px; 
+            border-radius: 20px; font-size: 0.75rem; font-weight: 800;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .low-stock { color: var(--warning); border: 1px solid var(--warning); }
+        .out-of-stock { color: var(--danger); border: 1px solid var(--danger); background: #fef2f2; }
+
+        .price-tag { font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-bottom: 15px; }
+        .old-price { font-size: 0.85rem; text-decoration: line-through; color: #94a3b8; margin-left: 5px; font-weight: 400; }
+
+        .actions { display: flex; gap: 10px; margin-top: auto; }
+        .btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 0.85rem; text-decoration: none; text-align: center; transition: 0.2s; }
+        .btn-edit { background: #f1f5f9; color: var(--sidebar-bg); }
+        .btn-edit:hover { background: var(--primary); color: white; }
+        .btn-delete { background: #fff1f2; color: var(--danger); }
+        .btn-delete:hover { background: var(--danger); color: white; }
+
+        .pagination { margin-top: 40px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .page-link { padding: 8px 16px; border-radius: 8px; background: white; border: 1px solid var(--border); color: var(--sidebar-bg); text-decoration: none; font-weight: 600; transition: 0.2s; }
+        .page-link:hover { border-color: var(--primary); color: var(--primary); }
+        .page-current { padding: 8px 16px; border-radius: 8px; background: var(--primary); color: white; font-weight: 700; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+        /* Modal Styles */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; border-radius: 20px; max-width: 600px; width: 90%;
+            max-height: 85vh; overflow-y: auto; padding: 30px;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { margin: 0; }
+        .close-modal { font-size: 28px; cursor: pointer; color: #94a3b8; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--sidebar-bg); }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+            border-radius: 8px; font-family: inherit; font-size: 14px;
+        }
+        .form-actions { display: flex; gap: 12px; margin-top: 25px; }
+        .btn-save { background: var(--primary); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-cancel { background: #f1f5f9; color: #64748b; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        
+        .delete-modal .modal-content { max-width: 400px; text-align: center; }
+        .delete-modal .warning-icon { font-size: 64px; color: var(--danger); margin-bottom: 20px; }
+        .btn-confirm-delete { background: var(--danger); color: white; }
+        
+        .toast {
+            position: fixed; bottom: 20px; right: 20px; background: var(--success);
+            color: white; padding: 12px 24px; border-radius: 8px; z-index: 1100;
+            animation: slideInRight 0.3s ease;
+        }
+        .toast.error { background: var(--danger); }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">Seller<span>Dashboard</span></div>
+    <a href="{% url 'DASHBOARD:seller_dashboard' %}" class="nav-link"><i class="fas fa-chart-pie"></i> &nbsp; Overview</a>
+    <a href="{% url 'DASHBOARD:seller_inventory' %}" class="nav-link active"><i class="fas fa-box"></i> &nbsp; My Inventory</a>
+    <a href="#" class="nav-link"><i class="fas fa-wallet"></i> &nbsp; Payments</a>
+    <hr style="border: 0.5px solid #1e293b; margin: 20px 0;">
+    <a href="/" class="nav-link"><i class="fas fa-home"></i> &nbsp; Storefront</a>
+</div>
+
+<div class="main-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+        <h1>Inventory Management</h1>
+        <a href="{% url 'BUS_SYSTEM:uploadfile' %}" class="btn" style="background: var(--primary); color: white; padding: 12px 25px; border-radius: 12px; flex: none;">+ Add New Item</a>
+    </div>
+
+    <div class="tab-container">
+        <button class="tab-btn active" data-tab="tab-vehicles">Vehicles</button>
+        <button class="tab-btn" data-tab="tab-buildings">Real Estate</button>
+        <button class="tab-btn" data-tab="tab-fashion">Fashion</button>
+        <button class="tab-btn" data-tab="tab-commodities">General Goods</button>
+    </div>
+
+    <!-- Vehicles Tab -->
+    <div id="tab-vehicles" class="tab-content active">
+        <div class="inventory-grid">
+            {% for v in vehicles %}
+            <div class="item-card" data-id="{{ v.id }}" data-type="vehicle">
+                <div class="stock-badge {% if v.stock == 0 %}out-of-stock{% elif v.stock < 3 %}low-stock{% endif %}">
+                    {% if v.stock == 0 %}OUT OF STOCK{% else %}Stock: {{ v.stock }}{% endif %}
+                </div>
+                {% with v.images.all|first as img %}
+                <img src="{% if img %}{{ img.image.url }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" class="item-img">
+                {% endwith %}
+                <div class="item-body">
+                    <h3>{{ v.brand }} {{ v.model }} ({{ v.year }})</h3>
+                    <div class="price-tag">USD {{ v.price|floatformat:0 }}</div>
+                    <div class="actions">
+                        <button class="btn btn-edit" onclick="openEditModal('vehicle', {{ v.id }})">Edit</button>
+                        <button class="btn btn-delete" onclick="openDeleteModal('vehicle', {{ v.id }}, '{{ v.brand }} {{ v.model }}')">Delete</button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>No vehicles listed yet. <a href="{% url 'BUS_SYSTEM:uploadfile' %}">Add your first vehicle</a></p>
+            {% endfor %}
+        </div>
+        {% if vehicles.has_other_pages %}
+        <div class="pagination">
+            {% if vehicles.has_previous %}<a href="?page_veh={{ vehicles.previous_page_number }}&tab=tab-vehicles" class="page-link">← Prev</a>{% endif %}
+            <span class="page-current">{{ vehicles.number }}</span>
+            {% if vehicles.has_next %}<a href="?page_veh={{ vehicles.next_page_number }}&tab=tab-vehicles" class="page-link">Next →</a>{% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Buildings Tab -->
+    <div id="tab-buildings" class="tab-content">
+        <div class="inventory-grid">
+            {% for b in buildings %}
+            <div class="item-card" data-id="{{ b.id }}" data-type="building">
+                <div class="stock-badge {% if b.stock == 0 %}out-of-stock{% endif %}">Units: {{ b.stock }}</div>
+                {% with b.images.all|first as img %}
+                <img src="{% if img %}{{ img.image.url }}{% else %}{% static 'images/house-placeholder.jpg' %}{% endif %}" class="item-img">
+                {% endwith %}
+                <div class="item-body">
+                    <h3>{{ b.title }}</h3>
+                    <p style="color: #64748b; font-size: 0.85rem;"><i class="fas fa-map-marker-alt"></i> {{ b.location }}</p>
+                    <div class="price-tag">USD {{ b.price|floatformat:0 }}</div>
+                    <div class="actions">
+                        <button class="btn btn-edit" onclick="openEditModal('building', {{ b.id }})">Edit</button>
+                        <button class="btn btn-delete" onclick="openDeleteModal('building', {{ b.id }}, '{{ b.title }}')">Delete</button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>No properties listed. <a href="{% url 'BUS_SYSTEM:uploadfile' %}">Add your first property</a></p>
+            {% endfor %}
+        </div>
+        {% if buildings.has_other_pages %}
+        <div class="pagination">
+            {% if buildings.has_previous %}<a href="?page_build={{ buildings.previous_page_number }}&tab=tab-buildings" class="page-link">← Prev</a>{% endif %}
+            <span class="page-current">{{ buildings.number }}</span>
+            {% if buildings.has_next %}<a href="?page_build={{ buildings.next_page_number }}&tab=tab-buildings" class="page-link">Next →</a>{% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Fashion Tab -->
+    <div id="tab-fashion" class="tab-content">
+        <div class="inventory-grid">
+            {% for f in fashion %}
+            <div class="item-card" data-id="{{ f.id }}" data-type="fashion">
+                <div class="stock-badge {% if f.stock == 0 %}out-of-stock{% elif f.stock < 5 %}low-stock{% endif %}">
+                    {% if f.stock == 0 %}OUT OF STOCK{% else %}Qty: {{ f.stock }}{% endif %}
+                </div>
+                {% with f.images.all|first as img %}
+                <img src="{% if img %}{{ img.image.url }}{% else %}{% static 'images/placeholder-fashion.jpg' %}{% endif %}" class="item-img">
+                {% endwith %}
+                <div class="item-body">
+                    <span style="font-size: 0.7rem; color: var(--primary); font-weight: 800; text-transform: uppercase;">{{ f.brand|default:"No Brand" }}</span>
+                    <h3>{{ f.title }}</h3>
+                    <p style="color: #64748b; font-size: 0.85rem;">Size: {{ f.size }} | {{ f.get_gender_display }}</p>
+                    <div class="price-tag">
+                        USD {{ f.price_after_discount|floatformat:0 }}
+                        {% if f.discount > 0 %}<span class="old-price">USD {{ f.price|floatformat:0 }}</span>{% endif %}
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-edit" onclick="openEditModal('fashion', {{ f.id }})">Edit</button>
+                        <button class="btn btn-delete" onclick="openDeleteModal('fashion', {{ f.id }}, '{{ f.title }}')">Delete</button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>No fashion items listed. <a href="{% url 'BUS_SYSTEM:uploadfile' %}">Add your first fashion item</a></p>
+            {% endfor %}
+        </div>
+        {% if fashion.has_other_pages %}
+        <div class="pagination">
+            {% if fashion.has_previous %}<a href="?page_fash={{ fashion.previous_page_number }}&tab=tab-fashion" class="page-link">← Prev</a>{% endif %}
+            <span class="page-current">{{ fashion.number }}</span>
+            {% if fashion.has_next %}<a href="?page_fash={{ fashion.next_page_number }}&tab=tab-fashion" class="page-link">Next →</a>{% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Commodities Tab -->
+    <div id="tab-commodities" class="tab-content">
+        <div class="inventory-grid">
+            {% for c in commodities %}
+            <div class="item-card" data-id="{{ c.id }}" data-type="commodity">
+                <div class="stock-badge {% if c.stock == 0 %}out-of-stock{% elif c.stock < 10 %}low-stock{% endif %}">Stock: {{ c.stock }}</div>
+                <img src="{{ c.image.url }}" class="item-img">
+                <div class="item-body">
+                    <h3>{{ c.name }}</h3>
+                    <p style="color: #64748b; font-size: 0.85rem;">{{ c.category.name|default:"General" }}</p>
+                    <div class="price-tag">USD {{ c.price|floatformat:0 }}</div>
+                    <div class="actions">
+                        <button class="btn btn-edit" onclick="openEditModal('commodity', {{ c.id }})">Edit</button>
+                        <button class="btn btn-delete" onclick="openDeleteModal('commodity', {{ c.id }}, '{{ c.name }}')">Delete</button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>No products listed. <a href="{% url 'BUS_SYSTEM:uploadfile' %}">Add your first product</a></p>
+            {% endfor %}
+        </div>
+        {% if commodities.has_other_pages %}
+        <div class="pagination">
+            {% if commodities.has_previous %}<a href="?page_com={{ commodities.previous_page_number }}&tab=tab-commodities" class="page-link">← Prev</a>{% endif %}
+            <span class="page-current">{{ commodities.number }}</span>
+            {% if commodities.has_next %}<a href="?page_com={{ commodities.next_page_number }}&tab=tab-commodities" class="page-link">Next →</a>{% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Edit Item</h2>
+            <span class="close-modal" onclick="closeEditModal()">&times;</span>
+        </div>
+        <form id="editForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div id="editFormFields"></div>
+            <div class="form-actions">
+                <button type="submit" class="btn-save">Save Changes</button>
+                <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div id="deleteModal" class="modal delete-modal">
+    <div class="modal-content">
+        <div class="warning-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Delete Item</h3>
+        <p id="deleteMessage">Are you sure you want to delete this item? This action cannot be undone.</p>
+        <div class="form-actions" style="justify-content: center;">
+            <button class="btn-confirm-delete btn-save" onclick="confirmDelete()">Yes, Delete</button>
+            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentDeleteItem = null;
+    let currentEditItem = null;
+
+    function showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${isError ? 'error' : ''}`;
+        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === ('csrftoken' + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    async function openEditModal(type, id) {
+        currentEditItem = { type, id };
+        try {
+            const response = await fetch(`/dashboard/inventory/edit/${type}/${id}/`);
+            const data = await response.json();
+            
+            let formHtml = '';
+            
+            if (type === 'vehicle') {
+                formHtml = `
+                    <div class="form-group"><label>Brand</label><input type="text" name="brand" value="${data.brand || ''}" required></div>
+                    <div class="form-group"><label>Model</label><input type="text" name="model" value="${data.model || ''}" required></div>
+                    <div class="form-group"><label>Year</label><input type="number" name="year" value="${data.year || ''}"></div>
+                    <div class="form-group"><label>Price (USD)</label><input type="number" step="0.01" name="price" value="${data.price || ''}" required></div>
+                    <div class="form-group"><label>Condition</label><select name="condition"><option ${data.condition === 'New' ? 'selected' : ''}>New</option><option ${data.condition === 'Used' ? 'selected' : ''}>Used</option></select></div>
+                    <div class="form-group"><label>Fuel Type</label><input type="text" name="fuel_type" value="${data.fuel_type || ''}"></div>
+                    <div class="form-group"><label>Mileage (km)</label><input type="number" name="mileage" value="${data.mileage || ''}"></div>
+                    <div class="form-group"><label>Stock</label><input type="number" name="stock" value="${data.stock || 1}" required></div>
+                    <div class="form-group"><label>Description</label><textarea name="description" rows="3">${data.description || ''}</textarea></div>
+                `;
+            } else if (type === 'building') {
+                formHtml = `
+                    <div class="form-group"><label>Title</label><input type="text" name="title" value="${data.title || ''}" required></div>
+                    <div class="form-group"><label>Price (USD)</label><input type="number" step="0.01" name="price" value="${data.price || ''}" required></div>
+                    <div class="form-group"><label>Location</label><input type="text" name="location" value="${data.location || ''}" required></div>
+                    <div class="form-group"><label>Bedrooms</label><input type="number" name="bedrooms" value="${data.bedrooms || 0}"></div>
+                    <div class="form-group"><label>Bathrooms</label><input type="number" name="bathrooms" value="${data.bathrooms || 0}"></div>
+                    <div class="form-group"><label>Plot Area (sqm)</label><input type="number" name="plot_area" value="${data.plot_area || ''}"></div>
+                    <div class="form-group"><label>Property Type</label><select name="property_type"><option ${data.property_type === 'Residential' ? 'selected' : ''}>Residential</option><option ${data.property_type === 'Commercial' ? 'selected' : ''}>Commercial</option><option ${data.property_type === 'Industrial' ? 'selected' : ''}>Industrial</option><option ${data.property_type === 'Apartment' ? 'selected' : ''}>Apartment</option></select></div>
+                    <div class="form-group"><label>Units Available</label><input type="number" name="stock" value="${data.stock || 1}" required></div>
+                    <div class="form-group"><label>Description</label><textarea name="description" rows="3">${data.description || ''}</textarea></div>
+                `;
+            } else if (type === 'fashion') {
+                formHtml = `
+                    <div class="form-group"><label>Title</label><input type="text" name="title" value="${data.title || ''}" required></div>
+                    <div class="form-group"><label>Price (USD)</label><input type="number" step="0.01" name="price" value="${data.price || ''}" required></div>
+                    <div class="form-group"><label>Discount (%)</label><input type="number" step="0.01" name="discount" value="${data.discount || 0}"></div>
+                    <div class="form-group"><label>Brand</label><input type="text" name="brand" value="${data.brand || ''}"></div>
+                    <div class="form-group"><label>Size</label><input type="text" name="size" value="${data.size || ''}"></div>
+                    <div class="form-group"><label>Gender</label><select name="gender"><option ${data.gender === 'M' ? 'selected' : ''} value="M">Men</option><option ${data.gender === 'F' ? 'selected' : ''} value="F">Women</option><option ${data.gender === 'U' ? 'selected' : ''} value="U">Unisex</option></select></div>
+                    <div class="form-group"><label>Stock</label><input type="number" name="stock" value="${data.stock || 1}" required></div>
+                    <div class="form-group"><label>Description</label><textarea name="description" rows="3">${data.description || ''}</textarea></div>
+                `;
+            } else if (type === 'commodity') {
+                formHtml = `
+                    <div class="form-group"><label>Name</label><input type="text" name="name" value="${data.name || ''}" required></div>
+                    <div class="form-group"><label>Price (USD)</label><input type="number" step="0.01" name="price" value="${data.price || ''}" required></div>
+                    <div class="form-group"><label>Discount (%)</label><input type="number" step="0.01" name="discount" value="${data.discount || 0}"></div>
+                    <div class="form-group"><label>Stock</label><input type="number" name="stock" value="${data.stock || 1}" required></div>
+                    <div class="form-group"><label>Description</label><textarea name="description" rows="3">${data.description || ''}</textarea></div>
+                `;
+            }
+            
+            document.getElementById('editFormFields').innerHTML = formHtml;
+            document.getElementById('editModal').style.display = 'flex';
+        } catch (error) {
+            showToast('Error loading item data', true);
+        }
+    }
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        try {
+            const response = await fetch(`/dashboard/inventory/edit/${currentEditItem.type}/${currentEditItem.id}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCSRFToken() },
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                showToast(data.message);
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast(data.error || 'Error updating item', true);
+            }
+        } catch (error) {
+            showToast('Network error', true);
+        }
+    });
+
+    function openDeleteModal(type, id, name) {
+        currentDeleteItem = { type, id, name };
+        document.getElementById('deleteMessage').innerHTML = `Are you sure you want to delete <strong>${name}</strong>? This action cannot be undone.`;
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    async function confirmDelete() {
+        if (!currentDeleteItem) return;
+        try {
+            const response = await fetch(`/dashboard/inventory/delete/${currentDeleteItem.type}/${currentDeleteItem.id}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCSRFToken() }
+            });
+            const data = await response.json();
+            if (data.success) {
+                showToast(data.message);
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast(data.error || 'Error deleting item', true);
+            }
+        } catch (error) {
+            showToast('Network error', true);
+        }
+        closeDeleteModal();
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+        currentEditItem = null;
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+        currentDeleteItem = null;
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabId);
+            window.history.pushState({}, '', url);
+        });
+    });
+
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab');
+        if (activeTab && document.getElementById(activeTab)) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(activeTab).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.tab-btn[data-tab="${activeTab}"]`).classList.add('active');
+        }
+    }
+
+    window.onclick = function(e) {
+        if (e.target === document.getElementById('editModal')) closeEditModal();
+        if (e.target === document.getElementById('deleteModal')) closeDeleteModal();
+    }
+</script>
+
+</body>
+</html>

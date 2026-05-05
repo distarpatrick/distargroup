@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Houses & Apartments</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+/* ================= RESET ================= */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* ================= PAGE ================= */
+body{
+    background:#fff;
+    color:#222;
+}
+
+.container{
+    max-width:1200px;
+    margin:40px auto;
+    padding:0 15px;
+}
+
+h1{
+    font-size:32px;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    color:#777;
+    margin-bottom:30px;
+}
+
+/* ================= GRID ================= */
+.property-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+    gap:30px;
+}
+
+/* ================= CARD ================= */
+.property-card{
+    background:#fff;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    transition:transform .3s ease, box-shadow .3s ease;
+}
+
+.property-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 15px 35px rgba(0,0,0,0.12);
+}
+
+/* ================= IMAGE ================= */
+.property-image{
+    position:relative;
+    height:230px;
+    overflow:hidden;
+}
+
+.property-image img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+/* Badge */
+.badge{
+    position:absolute;
+    top:15px;
+    left:15px;
+    background:#111;
+    color:#fff;
+    font-size:12px;
+    padding:6px 10px;
+    border-radius:4px;
+    text-transform:uppercase;
+}
+
+.badge.sale{ background:#222; }
+.badge.rent{ background:#333; }
+
+/* Icons */
+.image-icons{
+    position:absolute;
+    bottom:15px;
+    right:15px;
+    display:flex;
+    gap:12px;
+}
+
+.image-icons i{
+    background:rgba(0,0,0,0.6);
+    color:#fff;
+    padding:8px;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:14px;
+    transition:background .3s;
+}
+
+.image-icons i:hover{
+    background:#000;
+}
+
+/* ================= CONTENT ================= */
+.property-content{
+    padding:20px;
+    text-align:center;
+}
+
+.property-title{
+    font-size:20px;
+    margin-bottom:6px;
+}
+
+.property-category{
+    font-size:12px;
+    letter-spacing:1px;
+    color:#888;
+    margin-bottom:15px;
+    text-transform:uppercase;
+}
+
+/* ================= DETAILS ================= */
+.property-details{
+    display:flex;
+    justify-content:center;
+    gap:25px;
+    font-size:14px;
+    color:#444;
+}
+
+.property-details span{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+/* ================= WHATSAPP ================= */
+.whatsapp{
+    position:fixed;
+    bottom:25px;
+    right:25px;
+    background:#25D366;
+    color:#fff;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+    box-shadow:0 10px 25px rgba(0,0,0,.3);
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Houses & Apartments</h1>
+    <p class="subtitle">Featured properties available for rent & sale</p>
+
+    <div class="property-grid">
+
+        <!-- CARD 1 -->
+        <div class="property-card">
+            <div class="property-image">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" alt="">
+                <span class="badge rent">For Rent</span>
+                <div class="image-icons">
+                    <i class="fa-solid fa-expand"></i>
+                    <i class="fa-regular fa-heart"></i>
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+            </div>
+            <div class="property-content">
+                <div class="property-title">2 Bedroom House For Rent</div>
+                <div class="property-category">Apartments</div>
+                <div class="property-details">
+                    <span><i class="fa-solid fa-bed"></i> 2</span>
+                    <span><i class="fa-solid fa-bath"></i> 2</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 2 -->
+        <div class="property-card">
+            <div class="property-image">
+                <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2" alt="">
+                <span class="badge rent">For Rent</span>
+                <div class="image-icons">
+                    <i class="fa-solid fa-expand"></i>
+                    <i class="fa-regular fa-heart"></i>
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+            </div>
+            <div class="property-content">
+                <div class="property-title">3 Bedroom House For Rent</div>
+                <div class="property-category">Apartments</div>
+                <div class="property-details">
+                    <span><i class="fa-solid fa-bed"></i> 3</span>
+                    <span><i class="fa-solid fa-bath"></i> 2.5</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 3 -->
+        <div class="property-card">
+            <div class="property-image">
+                <img src="https://images.unsplash.com/photo-1502673530728-f79b4cab31b1" alt="">
+                <span class="badge rent">For Rent</span>
+                <div class="image-icons">
+                    <i class="fa-solid fa-expand"></i>
+                    <i class="fa-regular fa-heart"></i>
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+            </div>
+            <div class="property-content">
+                <div class="property-title">Furnished Apartment</div>
+                <div class="property-category">Apartments</div>
+                <div class="property-details">
+                    <span><i class="fa-solid fa-bed"></i> 4</span>
+                    <span><i class="fa-solid fa-bath"></i> 3.5</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- WhatsApp -->
+<div class="whatsapp">
+    <i class="fa-brands fa-whatsapp"></i>
+</div>
+
+<script>
+document.querySelectorAll('.fa-heart').forEach(icon=>{
+    icon.addEventListener('click', ()=>{
+        icon.classList.toggle('fa-solid');
+        icon.classList.toggle('fa-regular');
+        icon.style.color = icon.classList.contains('fa-solid') ? 'red' : 'white';
+    });
+});
+</script>
+
+</body>
+</html>

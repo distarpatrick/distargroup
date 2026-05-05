@@ -1,0 +1,942 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ECM | Quality, Faster</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+/* ===== ORIGINAL STYLES (UNCHANGED) ===== */
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",sans-serif;}
+body{background:#f6f8f7;color:#1f2937;padding-top:140px;}
+.header{position:fixed;top:0;left:0;width:100%;z-index:2000;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08);}
+.navbar{padding:15px 40px;display:flex;align-items:center;gap:20px;}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;color:#16a34a;}
+.search-box{flex:1;position:relative;}
+.search-box input{width:100%;padding:12px 45px;border-radius:30px;border:1px solid #ddd;}
+.search-box i{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:#999;}
+.nav-icons{display:flex;gap:18px;font-size:18px;}
+.category-bar{padding:15px 40px;display:flex;align-items:center;gap:30px;border-top:1px solid #eee;}
+.category-btn{background:#16a34a;color:#fff;padding:12px 18px;border-radius:30px;border:none;font-weight:600;}
+.category-links a{text-decoration:none;color:#374151;font-weight:600;margin-right:25px;}
+.container{width:92%;margin:40px auto;}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:30px;}
+.product-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,.08);}
+.product-image{position:relative;height:200px;overflow:hidden;}
+.product-content{padding:20px;}
+.location{color:#16a34a;font-size:13px;margin-bottom:6px;}
+.product-title{font-size:18px;font-weight:700;margin-bottom:10px;}
+.price{font-size:22px;font-weight:800;}
+.add-cart{margin-top:18px;width:100%;padding:14px;background:#16a34a;border:none;color:#fff;border-radius:30px;font-weight:700;cursor:pointer;}
+
+/* ===== SLIDER PER PRODUCT ===== */
+.image-slider{
+    display:flex;
+    width:100%;
+    height:200px;
+    transition:transform 0.6s ease;
+}
+
+.image-slider img,
+.image-slider video{
+    min-width:100%;
+    height:200px;
+    object-fit:cover;
+}
+
+/* CATEGORY DROPDOWN */
+.category-dropdown {
+    position: relative;
+}
+
+.category-btn {
+    background: #16a34a;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.category-btn .arrow {
+    font-size: 12px;
+    transition: transform 0.3s;
+}
+
+/* MENU */
+.category-menu {
+    position: absolute;
+    top: 55px;
+    left: 0;
+    width: 240px;
+    background: gray;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    padding: 12px 0;
+    display: none;
+    animation: dropdown 0.25s ease;
+    z-index: 3000;
+}
+
+@keyframes dropdown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.category-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #080808;
+    font-weight: 600;
+    transition: background 0.3s, color 0.3s;
+}
+
+.category-menu a i {
+    color: #ffffff;
+    width: 20px;
+}
+
+.category-menu a:hover {
+    background:white;
+    color: #15803d;
+}
+
+/* ACTIVE STATE */
+.category-dropdown.active .category-menu {
+    display: block;
+}
+
+.category-dropdown.active .arrow {
+    transform: rotate(180deg);
+}
+
+/* FOOTER */
+.site-footer {
+    background: linear-gradient(135deg, #001f1f, #0b4d3c);
+    color: #eaeaea;
+    padding: 60px 30px 20px;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+}
+
+/* BRAND */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.logo-text {
+    color: #00d27f;
+}
+
+.tagline {
+    display: block;
+    margin-bottom: 15px;
+    color: #8fdac1;
+}
+
+.brand p {
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+/* SOCIAL ICONS */
+.social-icons a {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    margin-right: 10px;
+    font-size: 18px;
+    color: white;
+}
+
+.social-icons a:nth-child(1) { background: #1877f2; }
+.social-icons a:nth-child(2) { background: #1da1f2; }
+.social-icons a:nth-child(3) { background: #e1306c; }
+.social-icons a:nth-child(4) { background: #ff0000; }
+
+/* COLUMNS */
+.footer-col h3 {
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+.footer-col h3.orange { color: #ff9f43; }
+.footer-col h3.yellow { color: #feca57; }
+
+.footer-col ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-col ul li {
+    margin-bottom: 12px;
+}
+
+.footer-col ul li a {
+    color: #d6f5ec;
+    text-decoration: none;
+}
+
+.footer-col ul li a:hover {
+    color: #00d27f;
+}
+
+/* CONTACT */
+.contact-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+}
+
+.icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.icon.green { background: #00d27f; }
+.icon.blue { background: #3b82f6; }
+.icon.purple { background: #8b5cf6; }
+.icon.orange { background: #f97316; }
+
+/* BOTTOM */
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.2);
+    margin-top: 40px;
+    padding-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #b6e7d8;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .footer-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media(max-width:768px){
+    nav ul { display:none; }
+    .hero h1 { font-size:28px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+
+    <div class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-basket-shopping"></i> DistarGroup
+        </div>
+
+        <div class="search-box">
+            <i class="fa fa-search"></i>
+            <input type="text" placeholder="What are you looking for today?">
+        </div>
+
+        <div class="nav-icons">
+            <i class="fa-regular fa-heart"></i>
+            <i class="fa-solid fa-cart-shopping"></i>
+            <i class="fa-regular fa-user"></i>
+        </div>
+    </div>
+
+    <div class="category-bar">
+
+      <!--for menu-->
+        <div class="category-dropdown">
+    <button class="category-btn" id="categoryToggle">
+        <i class="fa fa-bars"></i> Shop Categories
+        <i class="fa fa-chevron-down arrow"></i>
+    </button>
+
+    <div class="category-menu" id="categoryMenu">
+         <a href="#"><i class="fa fa-apple-whole"></i> Sport</a>
+        <a href="#"><i class="fa fa-drumstick-bite"></i> Cruiser</a>
+        <a href="#"><i class="fa fa-egg"></i>Touring</a>
+        <a href="#"><i class="fa fa-mug-hot"></i> Adventure</a>
+        <a href="#"><i class="fa fa-bread-slice"></i> Off-Road</a>
+        <a href="#"><i class="fa fa-leaf"></i> Scooper</a>
+        <a href="#"><i class="fa fa-leaf"></i> Electric</a>
+        <a href="#"><i class="fa fa-store"></i> Local Markets</a>
+    </div>
+</div>
+ <!--for menu-->
+
+        <div class="category-links">
+            <a href=" ">Home</a>
+            <a href="#">Standard</a>
+            <a href="#">Cruiser</a>
+            <a href="#">Scooter</a>
+            <a href="#">Dual-sport</a>
+            <a href="#">Local Markets</a>
+
+        </div>
+    </div>
+
+</div>
+
+
+<!-- PRODUCTS -->
+<div class="container">
+<div class="product-grid">
+
+<!-- PRODUCT 1 -->
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/m1.png' %}">
+            <img src="{% static 'images/m2.png' %}">
+            <img src="{% static 'images/m3.png' %}">
+            <img src="{% static 'images/m4.png' %}">
+            
+            <video muted autoplay loop>
+                <source src="{% static 'videos/mo1.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Kimironko Market</div>
+        <div class="product-title">Touring Motor</div>
+        <div class="price">8000$</div>
+        <button class="add-cart">+ Buy</button>
+    </div>
+</div>
+
+<!-- PRODUCT 2 -->
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/m2.png' %}">
+            <img src="{% static 'images/m1.png' %}">
+            <img src="{% static 'images/m3.png' %}">
+            <img src="{% static 'images/m4.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/mot2.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyabugogo Market</div>
+        <div class="product-title">Scooter</div>
+        <div class="price">2,5000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            
+            <img src="{% static 'images/m3.png' %}">
+            <img src="{% static 'images/m4.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/mo3.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyanza Market</div>
+        <div class="product-title">Advanture</div>
+        <div class="price">2,500 $</div>
+        <button class="add-cart">+ Sale</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/m1.png' %}">
+            <img src="{% static 'images/m4.png' %}">
+            <img src="{% static 'images/m2.png' %}">
+            <img src="{% static 'images/m4.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/mot4.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">DownTown Market</div>
+        <div class="product-title">Boxer Motor</div>
+        <div class="price">2,00 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            
+            <img src="{% static 'images/m3.png' %}">
+            <img src="{% static 'images/m3.png' %}">
+            <img src="{% static 'images/m4.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/mot4.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyagatare Market</div>
+        <div class="product-title">Hybrid</div>
+        <div class="price">100 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/m4.png' %}">
+            <img src="{% static 'images/m3.png' %}">
+            <img src="{% static 'images/m1.png' %}">
+            <img src="{% static 'images/m2.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/mot2.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Akagera Market</div>
+        <div class="product-title">Sport Motor</div>
+        <div class="price">20000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/m1.png' %}">
+            <img src="{% static 'images/m3.png' %}">
+            <img src="{% static 'images/m2.png' %}">
+            <img src="{% static 'images/m4.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/mot5.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyabugogo Market</div>
+        <div class="product-title">Benz Motor</div>
+        <div class="price">12000 $</div>
+        <button class="add-cart">+ Sale</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <<img src="{% static 'images/m3.png' %}">
+            <img src="{% static 'images/m4.png' %}">
+            <img src="{% static 'images/m3.png' %}">
+            <img src="{% static 'images/m1.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/mo1.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyabugogo Market</div>
+        <div class="product-title">Crooter</div>
+        <div class="price">2,5000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/la.png' %}">
+            <img src="{% static 'images/lb.png' %}">
+            <img src="{% static 'images/lc.png' %}">
+            <img src="{% static 'images/la.png' %}">
+            <img src="{% static 'images/lg.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car1.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Kimironko Market</div>
+        <div class="product-title">MBW</div>
+        <div class="price">8000$</div>
+        <button class="add-cart">+ Buy</button>
+    </div>
+</div>
+
+<!-- PRODUCT 2 -->
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/lc.png' %}">
+            <img src="{% static 'images/lb.png' %}">
+            <img src="{% static 'images/ld.png' %}">
+            <img src="{% static 'images/lf.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car2.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyabugogo Market</div>
+        <div class="product-title">Land Cruiser</div>
+        <div class="price">2,5000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/la.png' %}">
+            <img src="{% static 'images/ld.png' %}">
+            <img src="{% static 'images/lb.png' %}">
+            <img src="{% static 'images/lf.png' %}">
+            <img src="{% static 'images/lg.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car1.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyanza Market</div>
+        <div class="product-title">Range Rover</div>
+        <div class="price">2,500 $</div>
+        <button class="add-cart">+ Sale</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/lc.png' %}">
+            <img src="{% static 'images/la.png' %}">
+            <img src="{% static 'images/lb.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car2.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">DownTown Market</div>
+        <div class="product-title">Toyota</div>
+        <div class="price">2,00 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/lg.png' %}">
+            <img src="{% static 'images/lc.png' %}">
+            <img src="{% static 'images/la.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car1.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyagatare Market</div>
+        <div class="product-title">Hybrid</div>
+        <div class="price">100 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/la.png' %}">
+            <img src="{% static 'images/lb.png' %}">
+            <img src="{% static 'images/lc.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car1.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Akagera Market</div>
+        <div class="product-title">Land Cruiser</div>
+        <div class="price">20000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/ld.png' %}">
+            <img src="{% static 'images/le.png' %}">
+            <img src="{% static 'images/lf.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car2.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyabugogo Market</div>
+        <div class="product-title">Benz</div>
+        <div class="price">12000 $</div>
+        <button class="add-cart">+ Sale</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/lc.png' %}">
+            <img src="{% static 'images/ld.png' %}">
+            <img src="{% static 'images/lf.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car2.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyabugogo Market</div>
+        <div class="product-title">Land Cruiser</div>
+        <div class="price">2,5000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/lc.png' %}">
+            <img src="{% static 'images/ld.png' %}">
+            <img src="{% static 'images/lf.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car2.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyabugogo Market</div>
+        <div class="product-title">Land Cruiser</div>
+        <div class="price">2,5000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/lc.png' %}">
+            <img src="{% static 'images/ld.png' %}">
+            <img src="{% static 'images/lf.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car2.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyabugogo Market</div>
+        <div class="product-title">Land Cruiser</div>
+        <div class="price">2,5000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/lc.png' %}">
+            <img src="{% static 'images/ld.png' %}">
+            <img src="{% static 'images/la.png' %}">
+            <img src="{% static 'images/lf.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car2.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Rusizi Market</div>
+        <div class="product-title">Hybrid</div>
+        <div class="price">6000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/lg.png' %}">
+            <img src="{% static 'images/lf.png' %}">
+            <img src="{% static 'images/la.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car1.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Rwamagana Market</div>
+        <div class="product-title">ViGo</div>
+        <div class="price">70000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/lc.png' %}">
+            <img src="{% static 'images/la.png' %}">
+            <img src="{% static 'images/lf.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/car1.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">
+          Kigali Market</div>
+        <div class="product-title">Land Cruiser</div>
+        <div class="price">2,5000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/m1.png' %}">
+            <img src="{% static 'images/m2.png' %}">
+            <img src="{% static 'images/m4.png' %}">
+            <img src="{% static 'images/m3.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/mo1.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Nyabugogo Market</div>
+        <div class="product-title">Naked Motor</div>
+        <div class="price">2,5000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/lg.png' %}">
+            <img src="{% static 'images/lf.png' %}">
+            <img src="{% static 'images/la.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/mot2.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">Rwamagana Market</div>
+        <div class="product-title">V8 combat</div>
+        <div class="price">70000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+
+<div class="product-card">
+    <div class="product-image">
+        <div class="image-slider">
+            <img src="{% static 'images/m1.png' %}">
+            <img src="{% static 'images/m2.png' %}">
+            <img src="{% static 'images/m3.png' %}">
+            <img src="{% static 'images/m4.png' %}">
+            <video muted autoplay loop>
+                <source src="{% static 'videos/mot4.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <div class="product-content">
+        <div class="location">
+          Kigali Market</div>
+        <div class="product-title">Hybrid</div>
+        <div class="price">2,5000 $</div>
+        <button class="add-cart">+ Rent</button>
+    </div>
+</div>
+
+</div>
+</div>
+
+
+<!-- FOOTER -->
+<footer class="site-footer">
+    <div class="footer-container">
+
+        <!-- BRAND -->
+        <div class="footer-col brand">
+            <div class="logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">DistarGroup</span>
+            </div>
+            <small class="tagline">Quality, Faster</small>
+
+            <p>
+                Rwanda's premier online grocery platform, connecting you with the
+                freshest products from local markets across Kigali.
+            </p>
+
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+
+        <!-- QUICK LINKS -->
+        <div class="footer-col">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">How It Works</a></li>
+                <li><a href="#">Local Markets</a></li>
+                <li><a href="#">Fresh Guarantee</a></li>
+                <li><a href="#">Delivery Areas</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Blog</a></li>
+            </ul>
+        </div>
+
+        <!-- CATEGORIES -->
+        <div class="footer-col">
+            <h3 class="orange">Categories</h3>
+            <ul>
+                <li>Fruits & Vegetables</li>
+                <li>Meat & Fish</li>
+                <li>Dairy & Eggs</li>
+                <li>Beverages</li>
+                <li>Household Items</li>
+                <li>Local Specialties</li>
+                <li>Organic Products</li>
+            </ul>
+        </div>
+
+        <!-- CONTACT -->
+        <div class="footer-col">
+            <h3 class="yellow">Contact Us</h3>
+
+            <div class="contact-item">
+                <span class="icon green"><i class="fas fa-location-dot"></i></span>
+                <span>KG 123 St, Kigali<br>Rwanda</span>
+            </div>
+
+            <div class="contact-item">
+                <span class="icon blue"><i class="fas fa-phone"></i></span>
+                <span>+250 791 273 368</span>
+            </div>
+
+            <div class="contact-item">
+                <span class="icon purple"><i class="fas fa-envelope"></i></span>
+                <span>distarpatrick@.rw</span>
+            </div>
+
+            <div class="contact-item">
+                <span class="icon orange"><i class="fas fa-clock"></i></span>
+                <span>
+                    Mon - Sat: 6:00 AM - 10:00 PM<br>
+                    Sunday: 8:00 AM - 8:00 PM
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        © <span id="year"></span> DistarGroup. All rights reserved.
+    </div>
+</footer>
+
+<!-- JS -->
+<script>
+document.querySelectorAll(".image-slider").forEach(slider=>{
+    let index=0;
+    const slides=slider.children;
+    setInterval(()=>{
+        index=(index+1)%slides.length;
+        slider.style.transform=`translateX(-${index*100}%)`;
+    },4000);
+});
+
+
+const toggleBtn = document.getElementById("categoryToggle");
+const dropdown = toggleBtn.parentElement;
+
+toggleBtn.addEventListener("click", () => {
+    dropdown.classList.toggle("active");
+});
+
+// Close dropdown when clicking outside
+document.addEventListener("click", (e) => {
+    if (!dropdown.contains(e.target)) {
+        dropdown.classList.remove("active");
+    }
+});
+</script>
+
+</body>
+</html>

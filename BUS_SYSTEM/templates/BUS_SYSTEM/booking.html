@@ -1,0 +1,261 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DistarGroup | Booking & Vehicle Listings</title>
+<style>
+ body { font-family: Roboto, Arial, sans-serif; margin:0; padding:0; background:#f5f5f5; color:#001F3F; }
+ header { background:#001F3F; color:white; padding:20px 40px; display:flex; justify-content:space-between; align-items:center; }
+ header nav a { color:white; text-decoration:none; margin:0 15px; font-weight:600; }
+ header nav a:hover { color:#00D27F; }
+ .container { width:90%; margin:auto; padding-top:40px; }
+ .product-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
+ .product-card { background:white; border-radius:6px; padding:15px; box-shadow:0 0 4px rgba(0,0,0,0.2); }
+ .product-images { position:relative; height:200px; overflow:hidden; }
+ .product-images img { width:100%; height:100%; object-fit:cover; display:none; }
+ .product-images img.active { display:block; }
+ .next-btn { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; padding:8px; cursor:pointer; border-radius:4px; }
+ .details-preview { margin-top:10px; }
+ .view-btn { background:#00D27F; padding:8px 15px; color:white; text-decoration:none; display:inline-block; margin-top:10px; border-radius:4px; font-weight:bold; }
+ .view-btn:hover { background:#008f5a; }
+ /* DETAILS MODAL */
+ .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; }
+ .modal-content { background:white; width:85%; max-height:90%; overflow-y:auto; border-radius:6px; padding:20px; }
+ .close-modal { float:right; cursor:pointer; font-size:20px; color:#001F3F; }
+ .section-title { font-size:20px; margin-top:20px; border-bottom:2px solid #001F3F; display:inline-block; }
+ .related-products { margin-top:40px; }
+ .like-btn, .comment-btn { margin-right:10px; cursor:pointer; color:#00D27F; font-weight:bold; }
+ textarea { width:100%; height:60px; margin-top:8px; padding:8px; }
+ .comment-section { margin-top:20px; }
+ .comment-item { background:#f2f2f2; padding:10px; border-radius:6px; margin-bottom:10px; }
+</style>
+</head>
+<body>
+<header>
+  <h2>DistarGroup</h2>
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">Buy Cars</a>
+    <a href="#">Sell a Vehicle</a>
+    <a href="#">About Us</a>
+    <a href="#">Contact</a>
+    <a href="#">Login / Sign Up</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h1>Available Vehicles (Booking Page)</h1>
+  <p>Explore all products currently available for booking. Click view to see full details, like, comment and explore related vehicles.</p>
+
+  <div class="product-grid">
+    <!-- PRODUCT CARD EXAMPLE -->
+    <div class="product-card">
+      <div class="product-images">
+        <img src="{% static 'images/i.webp' %}" class="active">
+        <img src="{% static 'images/k.webp' %}">
+        <img src="{% static 'images/f.webp' %}">
+        <button class="next-btn" onclick="nextImage(this)">Next ></button>
+      </div>
+      <div class="details-preview">
+        <h3>Toyota Prado 2018</h3>
+        <p>Location: Kigali | Price: RWF 45,000,000</p>
+        <p>Mileage: 65,000km | Transmission: Automatic</p>
+        <a href="#" class="view-btn" onclick="openModal(0)">View Details</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div id="modal0" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal(0)">&times;</span>
+    <h2>Toyota Prado 2018 — Full Specifications</h2>
+
+    <div class="section-title">Images</div>
+    <p>Left, right, front, rear, engine, tires, interior images + optional video clip</p>
+
+    <div class="section-title">Basic Information</div>
+    <p>Make: Toyota | Model: Prado | Year: 2018 | Body Type: SUV</p>
+
+    <div class="section-title">Mechanical & Condition</div>
+    <p>Transmission: Automatic | Fuel Type: Petrol | Engine Size: 2700cc | Mileage: 65,000km</p>
+
+    <div class="section-title">Ownership & Legal</div>
+    <p>Registered | Logbook Available | Comprehensive Insurance</p>
+
+    <div class="section-title">Pricing & Seller</div>
+    <p>Price: RWF 45,000,000 | Negotiable | Seller: Dealer | Contact Hidden</p>
+
+    <div class="section-title">Engagement</div>
+    <span class="like-btn">Like</span>
+    <span class="comment-btn">Comment</span>
+
+    <div class="comment-section">
+      <textarea placeholder="Write a comment..."></textarea>
+      <button class="view-btn" style="margin-top:6px;">Submit</button>
+      <div class="comment-item">Great condition, looks clean! — Alex</div>
+      <div class="comment-item">Is the price negotiable? — Sam</div>
+    </div>
+
+    <div class="related-products">
+      <h3>Related Vehicles</h3>
+      <div class="product-grid">
+        <div class="product-card">
+          <p>Mitsubishi Pajero 2015 — RWF 38,000,000</p>
+        </div>
+        <div class="product-card">
+          <p>Land Cruiser 2017 — RWF 55,000,000</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+ <div class="product-grid">
+    <!-- PRODUCT CARD EXAMPLE -->
+    <div class="product-card">
+      <div class="product-images">
+        <img src="{% static 'images/i.webp' %}" class="active">
+        <img src="{% static 'images/k.webp' %}">
+        <img src="{% static 'images/f.webp' %}">
+        <button class="next-btn" onclick="nextImage(this)">Next ></button>
+      </div>
+      <div class="details-preview">
+        <h3>Toyota Prado 2018</h3>
+        <p>Location: Kigali | Price: RWF 45,000,000</p>
+        <p>Mileage: 65,000km | Transmission: Automatic</p>
+        <a href="#" class="view-btn" onclick="openModal(0)">View Details</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div id="modal0" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal(0)">&times;</span>
+    <h2>Toyota Prado 2018 — Full Specifications</h2>
+
+    <div class="section-title">Images</div>
+    <p>Left, right, front, rear, engine, tires, interior images + optional video clip</p>
+
+    <div class="section-title">Basic Information</div>
+    <p>Make: Toyota | Model: Prado | Year: 2018 | Body Type: SUV</p>
+
+    <div class="section-title">Mechanical & Condition</div>
+    <p>Transmission: Automatic | Fuel Type: Petrol | Engine Size: 2700cc | Mileage: 65,000km</p>
+
+    <div class="section-title">Ownership & Legal</div>
+    <p>Registered | Logbook Available | Comprehensive Insurance</p>
+
+    <div class="section-title">Pricing & Seller</div>
+    <p>Price: RWF 45,000,000 | Negotiable | Seller: Dealer | Contact Hidden</p>
+
+    <div class="section-title">Engagement</div>
+    <span class="like-btn">Like</span>
+    <span class="comment-btn">Comment</span>
+
+    <div class="comment-section">
+      <textarea placeholder="Write a comment..."></textarea>
+      <button class="view-btn" style="margin-top:6px;">Submit</button>
+      <div class="comment-item">Great condition, looks clean! — Alex</div>
+      <div class="comment-item">Is the price negotiable? — Sam</div>
+    </div>
+
+    <div class="related-products">
+      <h3>Related Vehicles</h3>
+      <div class="product-grid">
+        <div class="product-card">
+          <p>Mitsubishi Pajero 2015 — RWF 38,000,000</p>
+        </div>
+        <div class="product-card">
+          <p>Land Cruiser 2017 — RWF 55,000,000</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+ <div class="product-grid">
+    <!-- PRODUCT CARD EXAMPLE -->
+    <div class="product-card">
+      <div class="product-images">
+        <img src="{% static 'images/i.webp' %}" class="active">
+        <img src="{% static 'images/k.webp' %}">
+        <img src="{% static 'images/f.webp' %}">
+        <button class="next-btn" onclick="nextImage(this)">Next ></button>
+      </div>
+      <div class="details-preview">
+        <h3>Toyota Prado 2018</h3>
+        <p>Location: Kigali | Price: RWF 45,000,000</p>
+        <p>Mileage: 65,000km | Transmission: Automatic</p>
+        <a href="#" class="view-btn" onclick="openModal(0)">View Details</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div id="modal0" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal(0)">&times;</span>
+    <h2>Toyota Prado 2018 — Full Specifications</h2>
+
+    <div class="section-title">Images</div>
+    <p>Left, right, front, rear, engine, tires, interior images + optional video clip</p>
+
+    <div class="section-title">Basic Information</div>
+    <p>Make: Toyota | Model: Prado | Year: 2018 | Body Type: SUV</p>
+
+    <div class="section-title">Mechanical & Condition</div>
+    <p>Transmission: Automatic | Fuel Type: Petrol | Engine Size: 2700cc | Mileage: 65,000km</p>
+
+    <div class="section-title">Ownership & Legal</div>
+    <p>Registered | Logbook Available | Comprehensive Insurance</p>
+
+    <div class="section-title">Pricing & Seller</div>
+    <p>Price: RWF 45,000,000 | Negotiable | Seller: Dealer | Contact Hidden</p>
+
+    <div class="section-title">Engagement</div>
+    <span class="like-btn">Like</span>
+    <span class="comment-btn">Comment</span>
+
+    <div class="comment-section">
+      <textarea placeholder="Write a comment..."></textarea>
+      <button class="view-btn" style="margin-top:6px;">Submit</button>
+      <div class="comment-item">Great condition, looks clean! — Alex</div>
+      <div class="comment-item">Is the price negotiable? — Sam</div>
+    </div>
+
+    <div class="related-products">
+      <h3>Related Vehicles</h3>
+      <div class="product-grid">
+        <div class="product-card">
+          <p>Mitsubishi Pajero 2015 — RWF 38,000,000</p>
+        </div>
+        <div class="product-card">
+          <p>Land Cruiser 2017 — RWF 55,000,000</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+function nextImage(button){
+  let images = button.parentNode.querySelectorAll('img');
+  let index = Array.from(images).findIndex(img => img.classList.contains('active'));
+  images[index].classList.remove('active');
+  index = (index + 1) % images.length;
+  images[index].classList.add('active');
+}
+function openModal(id){ document.getElementById('modal'+id).style.display='flex'; }
+function closeModal(id){ document.getElementById('modal'+id).style.display='none'; }
+</script>
+
+</body>
+</html>

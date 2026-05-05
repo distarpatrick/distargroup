@@ -1,0 +1,1098 @@
+{% extends "BUS_SYSTEM/baseone.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap');
+
+    :root {
+        --primary: #0f172a;
+        --primary-dark: #020617;
+        --accent: #10b981;
+        --accent-dark: #059669;
+        --gold: #fbbf24;
+        --gold-dark: #f59e0b;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-600: #4b5563;
+        --gray-800: #1f2937;
+        --blue-dark: #1e3a5f;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: var(--primary);
+        line-height: 1.6;
+    }
+
+    /* Toast Notification */
+    .toast-notification {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: var(--accent);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Breadcrumb Navigation */
+    .breadcrumb-nav {
+        max-width: 1400px;
+        margin: 20px auto 0;
+        padding: 0 40px;
+    }
+
+    .breadcrumb-list {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        list-style: none;
+        flex-wrap: wrap;
+    }
+
+    .breadcrumb-list li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .breadcrumb-list a {
+        color: var(--gray-600);
+        text-decoration: none;
+        transition: var(--transition-smooth);
+    }
+
+    .breadcrumb-list a:hover {
+        color: var(--accent);
+    }
+
+    .breadcrumb-list .active {
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    /* Main Container */
+    .master-container {
+        max-width: 1400px;
+        margin: 20px auto 40px;
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        gap: 40px;
+        padding: 0 40px;
+    }
+
+    /* Media Gallery */
+    .media-gallery {
+        position: relative;
+    }
+
+    .main-media {
+        background: white;
+        border-radius: 32px;
+        overflow: hidden;
+        box-shadow: var(--shadow-xl);
+        margin-bottom: 20px;
+        position: relative;
+        aspect-ratio: 1 / 1;
+        cursor: pointer;
+    }
+
+    .main-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform 0.5s ease;
+        background: var(--gray-50);
+        padding: 20px;
+    }
+
+    .main-media:hover img {
+        transform: scale(1.05);
+    }
+
+    .zoom-overlay {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(10px);
+        padding: 8px 12px;
+        border-radius: 30px;
+        color: white;
+        font-size: 12px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        opacity: 0;
+        transition: var(--transition-smooth);
+        pointer-events: none;
+    }
+
+    .main-media:hover .zoom-overlay {
+        opacity: 1;
+    }
+
+    /* Payment Methods Section */
+    .payment-methods-section {
+        background: white;
+        border-radius: 24px;
+        padding: 24px;
+        margin-top: 20px;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--gray-100);
+    }
+
+    .payment-methods-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--blue-dark);
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .payment-methods-title i {
+        color: var(--accent);
+        font-size: 20px;
+    }
+
+    .payment-icons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .payment-icon {
+        background: var(--gray-50);
+        padding: 10px 15px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: green;
+        transition: var(--transition-smooth);
+        border: 1px solid var(--gray-200);
+    }
+
+    .payment-icon i {
+        font-size: 20px;
+        color: var(--accent);
+    }
+
+    .payment-icon:hover {
+        transform: translateY(-2px);
+        border-color: white;
+        background: black;
+        color: white;
+    }
+
+    .payment-icon:hover i {
+        color: white;
+    }
+
+    /* Features Section */
+    .product-features-section {
+        background: white;
+        border-radius: 24px;
+        padding: 24px;
+        margin-top: 20px;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--gray-100);
+    }
+
+    .features-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--blue-dark);
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .features-title i {
+        color: var(--accent);
+    }
+
+    .features-list-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background: var(--gray-50);
+        border-radius: 12px;
+        font-size: 13px;
+        color: var(--gray-600);
+        transition: var(--transition-smooth);
+    }
+
+    .feature-item i {
+        width: 24px;
+        color: var(--accent);
+    }
+
+    .feature-item:hover {
+        background: var(--accent);
+        color: white;
+        transform: translateX(5px);
+    }
+
+    .feature-item:hover i {
+        color: white;
+    }
+
+    /* Thumbnail Gallery */
+    .thumbnail-gallery {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        scrollbar-width: thin;
+    }
+
+    .thumbnail {
+        flex-shrink: 0;
+        width: 80px;
+        height: 80px;
+        border-radius: 16px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: var(--transition-smooth);
+        background: white;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .thumbnail.active {
+        border-color: var(--accent);
+        transform: scale(1.05);
+        box-shadow: var(--shadow-md);
+    }
+
+    .thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Product Info Card */
+    .product-info-card {
+        background: white;
+        border-radius: 32px;
+        padding: 35px;
+        box-shadow: var(--shadow-xl);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .product-info-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), var(--blue-dark));
+    }
+
+    .brand-path {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+    }
+
+    .product-title {
+        font-size: 36px;
+        font-weight: 800;
+        color: var(--primary);
+        margin-bottom: 20px;
+        line-height: 1.2;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        padding: 20px 0;
+        margin-bottom: 25px;
+        border-top: 1px solid var(--gray-100);
+        border-bottom: 1px solid var(--gray-100);
+    }
+
+    .stat-card {
+        text-align: center;
+        padding: 10px;
+        border-radius: 16px;
+        transition: var(--transition-smooth);
+        background: var(--gray-50);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        background: white;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .stat-icon {
+        font-size: 24px;
+        color: green;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: var(--gray-600);
+        margin-top: 4px;
+    }
+
+    /* Add to Cart Button */
+    .add-to-cart-btn {
+        width: 100%;
+        padding: 18px 28px;
+        border-radius: 60px;
+        border: none;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+        background: linear-gradient(135deg, black 0%, green 100%);
+        color: white;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        margin: 20px 0;
+    }
+
+    .add-to-cart-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        background: linear-gradient(135deg, black 0%, #047857 100%);
+    }
+
+    .add-to-cart-btn:disabled {
+        background: black;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Rating Section */
+    .rating-section {
+        margin-top: 30px;
+        background: var(--gray-50);
+        border-radius: 24px;
+        padding: 25px;
+    }
+
+    .rating-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .average-rating {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+    }
+
+    .rating-number {
+        font-size: 48px;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .rating-stars {
+        display: flex;
+        gap: 4px;
+        color: var(--gold);
+    }
+
+    /* Star Rating Form */
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .star-rating input {
+        display: none;
+    }
+
+    .star-rating label {
+        font-size: 32px;
+        color: var(--gray-300);
+        cursor: pointer;
+        transition: var(--transition-smooth);
+    }
+
+    .star-rating label:hover,
+    .star-rating label:hover ~ label,
+    .star-rating input:checked ~ label {
+        color: var(--gold);
+    }
+
+    .review-textarea {
+        width: 100%;
+        border: 2px solid var(--gray-200);
+        border-radius: 20px;
+        padding: 15px;
+        font-family: inherit;
+        font-size: 14px;
+        resize: vertical;
+        transition: var(--transition-smooth);
+    }
+
+    .review-textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .btn-submit-review {
+        background: grey;
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 40px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .btn-submit-review:hover {
+        background: green;
+        transform: translateY(-2px);
+    }
+
+    /* Reviews List */
+    .reviews-list {
+        margin-top: 30px;
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    .review-item {
+        padding: 20px 0;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .reviewer-name {
+        font-weight: 700;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .reviewer-name i {
+        color: var(--accent);
+    }
+
+    .review-rating {
+        color: var(--gold);
+        font-size: 13px;
+    }
+
+    .review-comment {
+        color: var(--gray-600);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .review-date {
+        font-size: 11px;
+        color: var(--gray-400);
+        margin-top: 8px;
+    }
+
+    /* Buy Card */
+    .buy-card {
+        background: linear-gradient(135deg, var(--blue-dark) 0%, var(--primary) 100%);
+        border-radius: 32px;
+        padding: 35px;
+        position: sticky;
+        top: 100px;
+        box-shadow: var(--shadow-xl);
+        color: white;
+        transition: var(--transition-smooth);
+    }
+
+    .price-section {
+        margin-bottom: 25px;
+    }
+
+    .price-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--gold);
+        font-weight: 600;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .price-tag {
+        font-size: 54px;
+        font-weight: 800;
+        color: white;
+        display: block;
+        line-height: 1;
+    }
+
+    .price-original {
+        font-size: 18px;
+        text-decoration: line-through;
+        color: rgba(255,255,255,0.5);
+        margin-left: 12px;
+        font-weight: 400;
+    }
+
+    .features-list {
+        list-style: none;
+        margin: 25px 0;
+    }
+
+    .features-list li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+    .features-list i {
+        width: 20px;
+        color: var(--gold);
+    }
+
+    .btn-buy-now {
+        width: 100%;
+        padding: 18px;
+        border-radius: 60px;
+        border: 2px solid rgba(255,255,255,0.3);
+        background: transparent;
+        color: white;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .btn-buy-now:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Modal */
+    .image-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.95);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .modal-content img {
+        max-width: 90vw;
+        max-height: 90vh;
+        object-fit: contain;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 30px;
+        right: 40px;
+        color: white;
+        font-size: 40px;
+        cursor: pointer;
+    }
+
+    .description {
+        color: var(--gray-600);
+        line-height: 1.7;
+        margin-bottom: 20px;
+        font-size: 15px;
+    }
+
+    /* Remove footer spacing */
+    .footer {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    @media (max-width: 1024px) {
+        .master-container {
+            grid-template-columns: 1fr;
+            padding: 0 20px;
+        }
+        .buy-card {
+            position: static;
+        }
+        .product-title {
+            font-size: 28px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        .features-list-grid {
+            grid-template-columns: 1fr;
+        }
+        .payment-icons {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="breadcrumb-nav">
+    <ul class="breadcrumb-list">
+        <li><a href="{% url 'BUS_SYSTEM:mainpage' %}"><i class="fas fa-home"></i> Home</a></li>
+        <li><i class="fas fa-chevron-right" style="font-size: 10px;"></i></li>
+        <li><a href="{% url 'BUS_SYSTEM:marketplace' %}">Marketplace</a></li>
+        <li><i class="fas fa-chevron-right" style="font-size: 10px;"></i></li>
+        <li class="active">{{ commodity.name|truncatechars:50 }}</li>
+    </ul>
+</div>
+
+<div class="master-container">
+    <div class="media-gallery">
+        <!-- Main Image -->
+        <div class="main-media" id="mainMedia">
+            {% if commodity.images.first %}
+                <img id="mainImage" src="{{ commodity.images.first.image.url }}" alt="{{ commodity.name }}">
+            {% elif commodity.image %}
+                <img id="mainImage" src="{{ commodity.image.url }}" alt="{{ commodity.name }}">
+            {% else %}
+                <img id="mainImage" src="{% static 'images/placeholder.png' %}" alt="No Image">
+            {% endif %}
+            <div class="zoom-overlay">
+                <i class="fas fa-search-plus"></i> Click to zoom
+            </div>
+        </div>
+
+        <!-- Thumbnail Gallery -->
+        <div class="thumbnail-gallery">
+            {% if commodity.images.all %}
+                {% for img in commodity.images.all %}
+                    <div class="thumbnail {% if forloop.first %}active{% endif %}" onclick="changeImage('{{ img.image.url }}', this)">
+                        <img src="{{ img.image.url }}" alt="Thumbnail {{ forloop.counter }}">
+                    </div>
+                {% endfor %}
+            {% elif commodity.image %}
+                <div class="thumbnail active" onclick="changeImage('{{ commodity.image.url }}', this)">
+                    <img src="{{ commodity.image.url }}" alt="Main Image">
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Payment Methods Section -->
+        <div class="payment-methods-section">
+            <div class="payment-methods-title">
+                <i class="fas fa-credit-card"></i>
+                <span>Secure Payment Methods</span>
+            </div>
+            <div class="payment-icons">
+                <div class="payment-icon"><i class="fab fa-cc-visa"></i> Visa</div>
+                <div class="payment-icon"><i class="fab fa-cc-mastercard"></i> Mastercard</div>
+                <div class="payment-icon"><i class="fab fa-cc-amex"></i> American Express</div>
+                <div class="payment-icon"><i class="fab fa-paypal"></i> PayPal</div>
+                <div class="payment-icon"><i class="fas fa-mobile-alt"></i> Mobile Money</div>
+                <div class="payment-icon"><i class="fas fa-university"></i> Bank Transfer</div>
+            </div>
+        </div>
+
+        <!-- Product Features Section -->
+        <div class="product-features-section">
+            <div class="features-title">
+                <i class="fas fa-gem"></i>
+                <span>Key Features</span>
+            </div>
+            <div class="features-list-grid">
+                <div class="feature-item"><i class="fas fa-shield-alt"></i> Authenticity Guaranteed</div>
+                <div class="feature-item"><i class="fas fa-truck"></i> Free Delivery on Orders $50+</div>
+                <div class="feature-item"><i class="fas fa-undo-alt"></i> 30-Day Money Back Guarantee</div>
+                <div class="feature-item"><i class="fas fa-headset"></i> 24/7 Customer Support</div>
+                <div class="feature-item"><i class="fas fa-lock"></i> Secure Checkout</div>
+                <div class="feature-item"><i class="fas fa-gift"></i> Gift Wrapping Available</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="product-info-card">
+        <div class="brand-path">
+            <i class="fas fa-tag"></i> {{ commodity.category.name|default:"Premium" }} • {{ commodity.type|default:"Product" }}
+        </div>
+        
+        <h1 class="product-title">{{ commodity.name }}</h1>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div class="stat-value">{{ commodity.rating|floatformat:1|default:"0.0" }}</div>
+                <div class="stat-label">Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-eye"></i></div>
+                <div class="stat-value">{{ commodity.views }}</div>
+                <div class="stat-label">Views</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-box"></i></div>
+                <div class="stat-value">{{ commodity.stock }}</div>
+                <div class="stat-label">In Stock</div>
+            </div>
+        </div>
+
+        <!-- AJAX Add to Cart Button - WORKING -->
+        {% if commodity.stock > 0 %}
+        <button class="add-to-cart-btn" onclick="addToCart({{ commodity.id }}, '{{ commodity.name|escapejs }}')">
+            <i class="fa-solid fa-cart-shopping"></i> Add to Cart
+        </button>
+        {% else %}
+        <button class="add-to-cart-btn" disabled>
+            <i class="fas fa-ban"></i> Out of Stock
+        </button>
+        {% endif %}
+
+        <div class="description">
+            {{ commodity.description|default:"No description available for this product." }}
+        </div>
+        
+        <!-- Rating & Reviews Section -->
+        <div class="rating-section">
+            <div class="rating-header">
+                <div class="average-rating">
+                    <span class="rating-number">{{ commodity.rating|floatformat:1|default:"0.0" }}</span>
+                    <div>
+                        <div class="rating-stars">
+                            {% with rating=commodity.rating|default:0 %}
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= rating|floatformat:0 %}
+                                        <i class="fas fa-star"></i>
+                                    {% elif forloop.counter <= rating|add:0.5|floatformat:0 %}
+                                        <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endwith %}
+                        </div>
+                        <div class="rating-total">{{ reviews|length }} reviews</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Review Form -->
+            <div class="rating-form">
+                {% if user.is_authenticated %}
+                    <form method="POST" action="{% url 'BUS_SYSTEM:product_detail' commodity.id %}" id="reviewForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="submit_review" value="true">
+                        <div class="star-rating">
+                            <input type="radio" name="rating" id="star5" value="5" required><label for="star5" class="fas fa-star"></label>
+                            <input type="radio" name="rating" id="star4" value="4"><label for="star4" class="fas fa-star"></label>
+                            <input type="radio" name="rating" id="star3" value="3"><label for="star3" class="fas fa-star"></label>
+                            <input type="radio" name="rating" id="star2" value="2"><label for="star2" class="fas fa-star"></label>
+                            <input type="radio" name="rating" id="star1" value="1"><label for="star1" class="fas fa-star"></label>
+                        </div>
+                        <textarea name="comment" class="review-textarea" placeholder="Share your experience with this product..." rows="3" required></textarea>
+                        <button type="submit" class="btn-submit-review">
+                            <i class="fas fa-paper-plane"></i> Submit Review
+                        </button>
+                    </form>
+                {% else %}
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fas fa-lock" style="font-size: 48px; color: var(--gray-300);"></i>
+                        <p style="margin-top: 10px;">Please <a href="{% url 'BUS_SYSTEM:auth_system' %}" style="color: var(--accent);">login</a> to leave a review</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Reviews List -->
+            <div class="reviews-list">
+                {% for review in reviews %}
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="reviewer-name">
+                                <i class="fas fa-user-circle"></i> {{ review.user.username }}
+                            </div>
+                            <div class="review-rating">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="review-comment">{{ review.comment }}</div>
+                        <div class="review-date">{{ review.created_at|date:"F d, Y" }}</div>
+                    </div>
+                {% empty %}
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="fas fa-comment-dots" style="font-size: 48px; color: var(--gray-300);"></i>
+                        <p>No reviews yet. Be the first to review!</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <aside>
+        <div class="buy-card">
+            <div class="price-section">
+                <span class="price-label">Premium Price</span>
+                <span class="price-tag">
+                    ${{ commodity.price|floatformat:2 }}
+                    {% if commodity.discount > 0 %}
+                        <span class="price-original">${{ commodity.discount|floatformat:2 }}</span>
+                    {% endif %}
+                </span>
+            </div>
+            
+            <ul class="features-list">
+                <li><i class="fas fa-shield-alt"></i> Authenticity Guaranteed</li>
+                <li><i class="fas fa-truck"></i> Free Delivery on Orders $50+</li>
+                <li><i class="fas fa-undo-alt"></i> 30-Day Money Back Guarantee</li>
+                <li><i class="fas fa-headset"></i> 24/7 Customer Support</li>
+            </ul>
+            
+            <button class="btn-buy-now" onclick="buyNow({{ commodity.id }})">
+                <i class="fas fa-bolt"></i> Buy Now
+            </button>
+        </div>
+    </aside>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal" onclick="closeModal()">
+    <span class="close-modal">&times;</span>
+    <div class="modal-content">
+        <img id="modalImage" src="" alt="Zoomed view">
+    </div>
+</div>
+
+<script>
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Image Gallery Functions
+function changeImage(imageUrl, element) {
+    const mainImage = document.getElementById('mainImage');
+    mainImage.style.opacity = '0';
+    
+    setTimeout(() => {
+        mainImage.src = imageUrl;
+        mainImage.style.opacity = '1';
+    }, 200);
+    
+    document.querySelectorAll('.thumbnail').forEach(thumb => {
+        thumb.classList.remove('active');
+    });
+    element.classList.add('active');
+}
+
+// Modal Functions
+function openModal() {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const mainImage = document.getElementById('mainImage');
+    modalImg.src = mainImage.src;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    const modal = document.getElementById('imageModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+document.getElementById('mainMedia')?.addEventListener('click', openModal);
+
+// Toast Notification
+function showToast(message, type = 'success') {
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(toast => toast.remove());
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.style.background = type === 'success' ? '#10b981' : '#ef4444';
+    toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// AJAX Add to Cart Function - WORKING
+function addToCart(productId, productName) {
+    const url = `/cart/add/Commodity/${productId}/`;
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ quantity: 1 })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(`${productName} added to cart!`, 'success');
+            // Optional: Update cart count if you have a cart badge
+            const cartBadge = document.querySelector('.cart-badge');
+            if (cartBadge && data.cart_count) {
+                cartBadge.textContent = data.cart_count;
+            }
+        } else {
+            showToast(data.error || 'Error adding to cart', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Network error. Please try again.', 'error');
+    });
+}
+
+// Buy Now Function
+function buyNow(itemId) {
+    if (!confirm('Proceed with purchase? This will redirect you to checkout.')) return;
+    
+    fetch(`/commodity/buy-now/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Item reserved! Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = data.checkout_url || '/cart/checkout/';
+            }, 1500);
+        } else {
+            showToast(data.message || 'Purchase failed', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error processing purchase', 'error');
+    });
+}
+</script>
+{% endblock %}

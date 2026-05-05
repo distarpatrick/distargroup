@@ -1,0 +1,788 @@
+{% extends 'BUS_SYSTEM/clothes&drink_base.html' %}
+{% load static %}
+
+{% block title %}DistarGroup | Premium Beverages & Winter Wines{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Beverage Specific Styles */
+    :root {
+        --wine-accent: #722f37;
+        --brand-primary: #10b981;
+        --brand-secondary: #0f172a;
+        --text-muted: #64748b;
+        --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+        --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Toast Notification */
+    .toast-notification {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: var(--brand-primary);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Cinematic Beverage Hero */
+    .bev-hero {
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), 
+                    url("{% static 'images/we3.png' %}");
+        background-size: cover;
+        background-position: center;
+        height: 450px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        margin-bottom: 50px;
+        border-radius: 0 0 50px 50px;
+    }
+
+    .bev-hero-content h1 {
+        font-size: clamp(32px, 5vw, 64px);
+        font-weight: 800;
+        letter-spacing: -2px;
+        margin-bottom: 15px;
+    }
+
+    .bev-hero-content p {
+        color: var(--brand-primary);
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+        background: white;
+        margin: -40px 5% 30px;
+        padding: 20px 30px;
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .stats-info {
+        display: flex;
+        gap: 30px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, var(--brand-primary) 0%, #059669 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+    }
+
+    .stat-text h4 {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--brand-secondary);
+    }
+
+    .stat-text p {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .sort-controls {
+        display: flex;
+        gap: 15px;
+    }
+
+    .sort-btn {
+        padding: 10px 20px;
+        border: 1px solid #e5e5ea;
+        background: white;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .sort-btn:hover, .sort-btn.active {
+        background: var(--brand-secondary);
+        color: white;
+        border-color: var(--brand-secondary);
+    }
+
+    /* Container Layout */
+    .bev-container {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 40px;
+        padding: 0 5% 100px;
+    }
+
+    /* Enhanced Sidebar */
+    .bev-sidebar {
+        background: #fff;
+        padding: 30px;
+        border-radius: 24px;
+        box-shadow: var(--card-shadow);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+    }
+
+    .bev-sidebar h3 {
+        font-size: 18px;
+        margin-bottom: 20px;
+        color: var(--brand-secondary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .seasonal-list {
+        list-style: none;
+    }
+
+    .seasonal-list li {
+        padding: 12px 15px;
+        margin-bottom: 8px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        font-weight: 500;
+        color: var(--text-muted);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .seasonal-list li:hover, .seasonal-list li.active {
+        background: #f0fdf4;
+        color: var(--brand-primary);
+    }
+
+    .seasonal-list li.active i {
+        color: var(--brand-primary);
+    }
+
+    /* Price Filter */
+    .price-filter {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #f0f0f5;
+    }
+
+    .price-inputs {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .price-input {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #e5e5ea;
+        border-radius: 8px;
+        font-size: 12px;
+    }
+
+    /* Products Grid */
+    .bev-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    /* Enhanced Product Card */
+    .wine-card {
+        background: #fff;
+        border-radius: 30px;
+        overflow: hidden;
+        border: 1px solid #f1f5f9;
+        transition: var(--transition-smooth);
+        position: relative;
+        cursor: pointer;
+    }
+
+    .wine-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        border-color: var(--brand-primary);
+    }
+
+    .wine-tag {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: var(--brand-primary);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .wine-tag.sold-out {
+        background: #ef4444;
+    }
+
+    .wine-img-wrapper {
+        height: 280px;
+        overflow: hidden;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .wine-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform 0.5s;
+        padding: 20px;
+    }
+
+    .wine-card:hover .wine-img-wrapper img {
+        transform: scale(1.1);
+    }
+
+    .wine-info {
+        padding: 25px;
+    }
+
+    .wine-category {
+        color: var(--text-muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .wine-title {
+        font-size: 20px;
+        font-weight: 800;
+        margin: 8px 0 10px;
+        color: var(--brand-secondary);
+        line-height: 1.3;
+    }
+
+    .wine-location {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .stars {
+        color: #ffc107;
+        font-size: 13px;
+    }
+
+    .review-count {
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+
+    .wine-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .wine-price {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--brand-secondary);
+    }
+
+    .old-price {
+        font-size: 14px;
+        color: #999;
+        text-decoration: line-through;
+        margin-left: 8px;
+        font-weight: 400;
+    }
+
+    .add-to-cart-btn {
+        background: var(--brand-secondary);
+        color: white;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+    .add-to-cart-btn:hover {
+        background: var(--brand-primary);
+        transform: rotate(90deg);
+    }
+
+    .add-to-cart-btn.disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .add-to-cart-btn.disabled:hover {
+        transform: none;
+    }
+
+    /* Pagination */
+    .pagination {
+        margin-top: 50px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .page-link {
+        padding: 10px 16px;
+        border: 1px solid #e5e5ea;
+        background: white;
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--brand-secondary);
+        transition: var(--transition-smooth);
+        font-weight: 500;
+    }
+
+    .page-link:hover, .page-link.active {
+        background: var(--brand-primary);
+        color: white;
+        border-color: var(--brand-primary);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        background: white;
+        border-radius: 30px;
+    }
+
+    .empty-state i {
+        font-size: 64px;
+        color: #ccc;
+        margin-bottom: 20px;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        .bev-container {
+            grid-template-columns: 1fr;
+        }
+        .bev-sidebar {
+            position: static;
+        }
+        .stats-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .bev-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="bev-hero">
+    <div class="bev-hero-content reveal">
+        <p>Welcome to Bar Star</p>
+        <h1>The Winter & Summer<br>Drinking Collection</h1>
+        <div style="margin-top: 20px;">
+            <i class="fa-solid fa-star" style="color: gold;"></i>
+            <i class="fa-solid fa-star" style="color: gold;"></i>
+            <i class="fa-solid fa-star" style="color: gold;"></i>
+            <i class="fa-solid fa-star" style="color: gold;"></i>
+            <i class="fa-solid fa-star" style="color: gold;"></i>
+            <span style="margin-left: 10px; font-weight: 600;">Premier Selection</span>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+    <div class="stats-info">
+        <div class="stat-item">
+            <div class="stat-icon">
+                <i class="fas fa-wine-bottle"></i>
+            </div>
+            <div class="stat-text">
+                <h4>{{ total_items }}</h4>
+                <p>Premium Beverages</p>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-text">
+                <h4>4.8</h4>
+                <p>Avg Rating</p>
+            </div>
+        </div>
+    </div>
+    <div class="sort-controls">
+        <button class="sort-btn {% if current_sort == 'newest' %}active{% endif %}" data-sort="newest">Newest</button>
+        <button class="sort-btn {% if current_sort == 'price_low' %}active{% endif %}" data-sort="price_low">Price: Low to High</button>
+        <button class="sort-btn {% if current_sort == 'price_high' %}active{% endif %}" data-sort="price_high">Price: High to Low</button>
+        <button class="sort-btn {% if current_sort == 'popular' %}active{% endif %}" data-sort="popular">Most Popular</button>
+    </div>
+</div>
+
+<div class="bev-container">
+    <aside class="bev-sidebar">
+        <h3><i class="fa-solid fa-filter"></i> Collections</h3>
+        <ul class="seasonal-list">
+            <li data-category="all" class="{% if not current_category %}active{% endif %}">
+                <span><i class="fa-solid fa-wine-bottle"></i> All Beverages</span>
+                <i class="fa-solid fa-chevron-right"></i>
+            </li>
+            {% for category in beverage_categories %}
+            <li data-category="{{ category }}" class="{% if current_category == category %}active{% endif %}">
+                <span><i class="fa-solid fa-tag"></i> {{ category }}</span>
+                <i class="fa-solid fa-chevron-right"></i>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Price Filter -->
+        <div class="price-filter">
+            <h3><i class="fa-solid fa-dollar-sign"></i> Price Range</h3>
+            <div class="price-inputs">
+                <input type="number" id="minPrice" class="price-input" placeholder="Min" value="{{ current_min_price|default:'' }}">
+                <input type="number" id="maxPrice" class="price-input" placeholder="Max" value="{{ current_max_price|default:'' }}">
+                <button id="applyPrice" class="sort-btn" style="padding: 8px 15px;">Apply</button>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background: #f8fafc; border-radius: 15px;">
+            <small style="font-weight: 800; color: var(--brand-primary);">PRO TIP</small>
+            <p style="font-size: 13px; margin-top: 10px;">Champagne is perfect for more than just parties; try it with salted popcorn for a luxury movie night.</p>
+        </div>
+    </aside>
+
+    <main>
+        <div class="bev-grid">
+            {% for beverage in page_obj %}
+            <div class="wine-card" data-item-id="{{ beverage.id }}" data-item-name="{{ beverage.name }}" data-item-price="{{ beverage.price }}">
+                {% if beverage.discount > 0 %}
+                <span class="wine-tag">
+                    <i class="fas fa-tag"></i> -{{ beverage.discount|floatformat:0 }}% OFF
+                </span>
+                {% elif beverage.stock < 5 and beverage.stock > 0 %}
+                <span class="wine-tag" style="background: #f59e0b;">
+                    <i class="fas fa-exclamation-triangle"></i> Low Stock
+                </span>
+                {% elif beverage.stock == 0 %}
+                <span class="wine-tag sold-out">
+                    <i class="fas fa-ban"></i> Sold Out
+                </span>
+                {% endif %}
+                
+                <!-- FIXED IMAGE HANDLING -->
+                <div class="wine-img-wrapper">
+                    {% with beverage.images.all|first as first_image %}
+                        {% if first_image and first_image.image %}
+                            <img src="{{ first_image.image.url }}" alt="{{ beverage.name }}" loading="lazy" onerror="this.src='{% static 'images/placeholder-beverage.png' %}'">
+                        {% elif beverage.image %}
+                            <img src="{{ beverage.image.url }}" alt="{{ beverage.name }}" loading="lazy" onerror="this.src='{% static 'images/placeholder-beverage.png' %}'">
+                        {% else %}
+                            <img src="{% static 'images/placeholder-beverage.png' %}" alt="{{ beverage.name }}" loading="lazy">
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                
+                <div class="wine-info">
+                    <span class="wine-category">
+                        <i class="fas fa-wine-glass-alt"></i> {{ beverage.category.name|default:"Premium Selection" }}
+                    </span>
+                    <h3 class="wine-title">{{ beverage.name|truncatechars:35 }}</h3>
+                    <div class="wine-location">
+                        <i class="fas fa-map-marker-alt"></i> {{ beverage.location|default:"Global" }}
+                    </div>
+                    
+                    <div class="rating">
+                        <div class="stars">
+                            {% with rating=beverage.rating|default:0 %}
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= rating|floatformat:0 %}
+                                        <i class="fas fa-star"></i>
+                                    {% elif forloop.counter <= rating|add:0.5|floatformat:0 %}
+                                        <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endwith %}
+                        </div>
+                        <span class="review-count">({{ beverage.reviews.count }} reviews)</span>
+                    </div>
+                    
+                    <div class="wine-meta">
+                        <div>
+                            <span class="wine-price">${{ beverage.price|floatformat:0 }}</span>
+                            {% if beverage.discount > 0 %}
+                                <span class="old-price">${{ beverage.discount|floatformat:0 }}</span>
+                            {% endif %}
+                        </div>
+                        {% if beverage.stock > 0 %}
+                            <button class="add-to-cart-btn add-to-cart-js" data-item-id="{{ beverage.id }}" data-item-name="{{ beverage.name|escapejs }}">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        {% else %}
+                            <button class="add-to-cart-btn disabled" disabled>
+                                <i class="fa-solid fa-ban"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state" style="grid-column: 1/-1;">
+                <i class="fas fa-wine-bottle"></i>
+                <h3>No beverages found</h3>
+                <p style="color: var(--text-muted); margin-top: 10px;">Try adjusting your filters or check back later for new arrivals.</p>
+                <a href="{% url 'BUS_SYSTEM:bevarages' %}" class="sort-btn" style="display: inline-block; margin-top: 20px;">
+                    Clear Filters
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </a>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="page-link active">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">
+                    Next <i class="fas fa-chevron-right"></i>
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Get CSRF token from cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Toast Notification System
+function showToast(message, type = 'success') {
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(toast => toast.remove());
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.style.background = type === 'success' ? '#10b981' : '#ef4444';
+    toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Add to Cart with AJAX
+document.querySelectorAll('.add-to-cart-js').forEach(button => {
+    button.addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const itemId = this.dataset.itemId;
+        const itemName = this.dataset.itemName || 'Item';
+        
+        const url = `/cart/add/Commodity/${itemId}/`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ quantity: 1 })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                showToast(`${itemName} added to cart!`, 'success');
+                
+                const cartBadge = document.querySelector('.cart-count, .cart-badge');
+                if (cartBadge && data.cart_count) {
+                    cartBadge.textContent = data.cart_count;
+                    cartBadge.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        cartBadge.style.transform = 'scale(1)';
+                    }, 300);
+                }
+            } else {
+                showToast(data.error || 'Failed to add to cart', 'error');
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            showToast('Network error. Please try again.', 'error');
+        }
+    });
+});
+
+// Category Filter
+const categoryItems = document.querySelectorAll('.seasonal-list li');
+categoryItems.forEach(item => {
+    item.addEventListener('click', () => {
+        const category = item.dataset.category;
+        const currentUrl = new URL(window.location.href);
+        
+        if (category && category !== 'all') {
+            currentUrl.searchParams.set('category', category);
+        } else {
+            currentUrl.searchParams.delete('category');
+        }
+        currentUrl.searchParams.delete('page');
+        window.location.href = currentUrl.toString();
+    });
+});
+
+// Price Filter
+document.getElementById('applyPrice')?.addEventListener('click', () => {
+    const minPrice = document.getElementById('minPrice').value;
+    const maxPrice = document.getElementById('maxPrice').value;
+    const currentUrl = new URL(window.location.href);
+    
+    if (minPrice) {
+        currentUrl.searchParams.set('min_price', minPrice);
+    } else {
+        currentUrl.searchParams.delete('min_price');
+    }
+    
+    if (maxPrice) {
+        currentUrl.searchParams.set('max_price', maxPrice);
+    } else {
+        currentUrl.searchParams.delete('max_price');
+    }
+    
+    currentUrl.searchParams.delete('page');
+    window.location.href = currentUrl.toString();
+});
+
+// Sort Functionality
+document.querySelectorAll('.sort-btn[data-sort]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const sortType = btn.dataset.sort;
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('sort', sortType);
+        currentUrl.searchParams.delete('page');
+        window.location.href = currentUrl.toString();
+    });
+});
+
+// Card Click to Detail
+document.querySelectorAll('.wine-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+        if (!e.target.closest('.add-to-cart-js')) {
+            const itemId = card.dataset.itemId;
+            if (itemId) {
+                window.location.href = `/commodity/detail/${itemId}/`;
+            }
+        }
+    });
+});
+
+// Handle broken images
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.wine-img-wrapper img').forEach(img => {
+        img.addEventListener('error', function() {
+            if (this.src !== "{% static 'images/placeholder-beverage.png' %}") {
+                this.src = "{% static 'images/placeholder-beverage.png' %}";
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

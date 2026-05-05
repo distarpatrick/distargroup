@@ -1,0 +1,1257 @@
+<!-- commercial.html -->
+{% extends "BUILDING/bases.html" %}
+{% load static %}
+
+{% block title %}Commercial Properties | Office & Business Spaces{% endblock %}
+
+{% block content %}
+<style>
+    /* ========== COMMERCIAL PROPERTY DESIGN SYSTEM ========== */
+    :root {
+        --primary: #f59e0b;
+        --primary-dark: #d97706;
+        --secondary: #1e293b;
+        --accent: #8b5cf6;
+        --dark: #0f172a;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --gray-light: #94a3b8;
+        --border: #e2e8f0;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --commercial: #f59e0b;
+        --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+        --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+        --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+
+    /* ========== FILTER SECTION ========== */
+    .filter-section {
+        background: white;
+        padding: 30px 5%;
+        box-shadow: var(--shadow-sm);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        backdrop-filter: blur(10px);
+        background: rgba(255,255,255,0.95);
+        border-bottom: 2px solid var(--primary);
+    }
+
+    .filter-container {
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .filter-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .filter-title i {
+        color: var(--primary);
+        margin-right: 8px;
+    }
+
+    .stats-badge {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .stat-chip {
+        background: var(--light);
+        padding: 6px 15px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .stat-chip i {
+        margin-right: 6px;
+        color: var(--primary);
+    }
+
+    .filter-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        margin-top: 15px;
+    }
+
+    .filter-input {
+        padding: 12px 20px;
+        border: 1px solid var(--border);
+        border-radius: 50px;
+        font-size: 14px;
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(245,158,11,0.1);
+    }
+
+    .filter-select {
+        padding: 12px 20px;
+        border: 1px solid var(--border);
+        border-radius: 50px;
+        font-size: 14px;
+        background: white;
+        cursor: pointer;
+    }
+
+    .filter-btn {
+        padding: 12px 25px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .filter-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .reset-btn {
+        background: var(--light);
+        color: var(--gray);
+        border: 1px solid var(--border);
+    }
+
+    .reset-btn:hover {
+        background: var(--border);
+        color: var(--dark);
+    }
+
+    /* ========== COMMERCIAL GRID - 5 ITEMS PER ROW ========== */
+    .commercial-section {
+        padding: 40px 5% 60px;
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+
+    .section-header {
+        margin-bottom: 40px;
+        text-align: center;
+    }
+
+    .section-header h1 {
+        font-size: 40px;
+        font-weight: 800;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, var(--commercial), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .section-header p {
+        color: var(--gray);
+        font-size: 16px;
+    }
+
+    /* 5 items per row grid */
+    .commercial-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+    }
+
+    /* Responsive: 4 items on 1400px */
+    @media (max-width: 1400px) {
+        .commercial-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    /* Responsive: 3 items on tablet */
+    @media (max-width: 1100px) {
+        .commercial-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    /* Responsive: 2 items on mobile */
+    @media (max-width: 768px) {
+        .commercial-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* Responsive: 1 item on small mobile */
+    @media (max-width: 480px) {
+        .commercial-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Premium Commercial Card */
+    .commercial-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-md);
+        position: relative;
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
+        transform: translateY(30px);
+        border: 1px solid var(--border);
+    }
+
+    .commercial-card:nth-child(1) { animation-delay: 0.03s; }
+    .commercial-card:nth-child(2) { animation-delay: 0.06s; }
+    .commercial-card:nth-child(3) { animation-delay: 0.09s; }
+    .commercial-card:nth-child(4) { animation-delay: 0.12s; }
+    .commercial-card:nth-child(5) { animation-delay: 0.15s; }
+    .commercial-card:nth-child(6) { animation-delay: 0.18s; }
+    .commercial-card:nth-child(7) { animation-delay: 0.21s; }
+    .commercial-card:nth-child(8) { animation-delay: 0.24s; }
+    .commercial-card:nth-child(9) { animation-delay: 0.27s; }
+    .commercial-card:nth-child(10) { animation-delay: 0.30s; }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .commercial-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-2xl);
+        border-color: var(--primary);
+    }
+
+    .card-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        background: var(--light);
+    }
+
+    .card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .commercial-card:hover .card-image img {
+        transform: scale(1.08);
+    }
+
+    /* Status Badges */
+    .status-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 4px 8px;
+        border-radius: 50px;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 2;
+        backdrop-filter: blur(10px);
+    }
+
+    .badge-available {
+        background: rgba(16,185,129,0.9);
+        color: white;
+    }
+
+    .badge-sold {
+        background: rgba(239,68,68,0.9);
+        color: white;
+    }
+
+    .term-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 4px 8px;
+        border-radius: 50px;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 2;
+        backdrop-filter: blur(10px);
+    }
+
+    .badge-sale {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+    }
+
+    .badge-rent {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .badge-commercial {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: var(--commercial);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 50px;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 2;
+    }
+
+    /* Commercial Type Badge */
+    .commercial-type-badge {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 3px 8px;
+        border-radius: 50px;
+        font-size: 9px;
+        font-weight: 600;
+        z-index: 2;
+        backdrop-filter: blur(5px);
+    }
+
+    /* Discount Badge */
+    .discount-badge {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        background: var(--accent);
+        color: white;
+        padding: 3px 6px;
+        border-radius: 50px;
+        font-size: 9px;
+        font-weight: 700;
+        z-index: 2;
+    }
+
+    .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.4) 100%);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .commercial-card:hover .image-overlay {
+        opacity: 1;
+    }
+
+    .quick-view {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 9px;
+        font-weight: 600;
+        color: var(--dark);
+        opacity: 0;
+        transition: all 0.3s;
+        text-decoration: none;
+        z-index: 3;
+        white-space: nowrap;
+    }
+
+    .commercial-card:hover .quick-view {
+        opacity: 1;
+        bottom: 15px;
+    }
+
+    .quick-view:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* Card Content */
+    .card-content {
+        padding: 12px;
+    }
+
+    .property-type {
+        display: inline-block;
+        font-size: 8px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--primary);
+        margin-bottom: 4px;
+    }
+
+    .property-title {
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 4px;
+        color: var(--dark);
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .property-location {
+        font-size: 10px;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .property-location i {
+        color: var(--primary);
+        font-size: 9px;
+    }
+
+    /* Features Grid */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        padding: 8px 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 8px;
+    }
+
+    .feature-item {
+        text-align: center;
+    }
+
+    .feature-value {
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--dark);
+        display: block;
+    }
+
+    .feature-label {
+        font-size: 7px;
+        color: var(--gray);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    /* Commercial Specific Features */
+    .commercial-features {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 8px;
+        font-size: 8px;
+        color: var(--gray);
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .commercial-features span {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        background: var(--light);
+        padding: 2px 6px;
+        border-radius: 10px;
+    }
+
+    /* Price Section */
+    .price-section {
+        margin-bottom: 8px;
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .current-price {
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .price-period {
+        font-size: 9px;
+        color: var(--gray);
+        font-weight: 400;
+    }
+
+    .price-per-sqft {
+        font-size: 9px;
+        color: var(--gray-light);
+        font-weight: 400;
+    }
+
+    .original-price {
+        font-size: 10px;
+        text-decoration: line-through;
+        color: var(--gray-light);
+    }
+
+    /* Realtor Info */
+    .realtor-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 0;
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .realtor-avatar {
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 11px;
+    }
+
+    .realtor-details {
+        flex: 1;
+        overflow: hidden;
+    }
+
+    .realtor-name {
+        font-weight: 700;
+        font-size: 10px;
+        color: var(--dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .realtor-contact {
+        font-size: 8px;
+        color: var(--gray);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+    }
+
+    .btn-details {
+        flex: 1;
+        padding: 6px;
+        background: var(--light);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        color: var(--dark);
+        font-weight: 600;
+        font-size: 9px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    .btn-details:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 6px;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 9px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-buy {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        box-shadow: 0 2px 6px rgba(245,158,11,0.3);
+    }
+
+    .btn-rent {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        box-shadow: 0 2px 6px rgba(16,185,129,0.3);
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+    }
+
+    .btn-disabled {
+        background: var(--light);
+        color: var(--gray);
+        cursor: not-allowed;
+        border: 1px solid var(--border);
+        box-shadow: none;
+    }
+
+    .btn-disabled:hover {
+        transform: none;
+        filter: none;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 28px;
+        border: 2px dashed var(--border);
+        grid-column: 1 / -1;
+    }
+
+    .empty-icon {
+        font-size: 60px;
+        color: var(--border);
+        margin-bottom: 15px;
+    }
+
+    /* Pagination */
+    .pagination {
+        margin-top: 50px;
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .page-link {
+        min-width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--dark);
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.3s;
+        padding: 0 12px;
+    }
+
+    .page-link:hover, .page-link.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Search Results Counter */
+    .search-results-count {
+        background: var(--primary);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    /* Loading Animation */
+    .loading {
+        display: none;
+        text-align: center;
+        padding: 40px;
+        grid-column: 1 / -1;
+    }
+
+    .loading.active {
+        display: block;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--border);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .section-header h1 {
+            font-size: 28px;
+        }
+        
+        .filter-grid {
+            flex-direction: column;
+        }
+        
+        .filter-input, .filter-select, .filter-btn {
+            width: 100%;
+        }
+        
+        .stats-badge {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .filter-header {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <div class="filter-container">
+        <div class="filter-header">
+            <div class="filter-title">
+                <i class="fas fa-building"></i> Commercial & Business Spaces
+            </div>
+            <div class="stats-badge">
+                <div class="stat-chip">
+                    <i class="fas fa-building"></i> <span id="totalCount">{{ total_commercial }}</span> Properties
+                </div>
+                <div class="stat-chip">
+                    <i class="fas fa-tag"></i> {{ available_sale }} For Sale
+                </div>
+                <div class="stat-chip">
+                    <i class="fas fa-key"></i> {{ available_rent }} For Lease
+                </div>
+            </div>
+        </div>
+        
+        <form method="GET" action="" id="filterForm">
+            <div class="filter-grid">
+                <input type="text" name="search" id="liveSearch" class="filter-input" placeholder="🔍 Search commercial spaces by title, location, or realtor..." value="{{ search_query }}" style="flex: 2;" autocomplete="off">
+                
+                <select name="term" id="termFilter" class="filter-select">
+                    <option value="">All Terms</option>
+                    <option value="sale" {% if term_filter == 'sale' %}selected{% endif %}>For Sale</option>
+                    <option value="rent" {% if term_filter == 'rent' %}selected{% endif %}>For Lease</option>
+                </select>
+                
+                <select name="commercial_type" id="commercialTypeFilter" class="filter-select">
+                    <option value="">All Commercial Types</option>
+                    <option value="office" {% if commercial_type_filter == 'office' %}selected{% endif %}>Office Space</option>
+                    <option value="retail" {% if commercial_type_filter == 'retail' %}selected{% endif %}>Retail Store</option>
+                    <option value="restaurant" {% if commercial_type_filter == 'restaurant' %}selected{% endif %}>Restaurant/Cafe</option>
+                    <option value="hotel" {% if commercial_type_filter == 'hotel' %}selected{% endif %}>Hotel/Hospitality</option>
+                    <option value="mixed_use" {% if commercial_type_filter == 'mixed_use' %}selected{% endif %}>Mixed-Use</option>
+                    <option value="medical" {% if commercial_type_filter == 'medical' %}selected{% endif %}>Medical/Clinic</option>
+                    <option value="educational" {% if commercial_type_filter == 'educational' %}selected{% endif %}>Educational</option>
+                </select>
+                
+                <input type="number" name="min_area" id="minArea" class="filter-input" placeholder="Min Sq Ft" value="{{ min_area }}" style="width: 100px;">
+                <input type="number" name="max_area" id="maxArea" class="filter-input" placeholder="Max Sq Ft" value="{{ max_area }}" style="width: 100px;">
+                
+                <input type="number" name="min_price" id="minPrice" class="filter-input" placeholder="Min $" value="{{ min_price }}" style="width: 100px;">
+                <input type="number" name="max_price" id="maxPrice" class="filter-input" placeholder="Max $" value="{{ max_price }}" style="width: 100px;">
+                
+                <button type="submit" class="filter-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                
+                <button type="button" id="resetFiltersBtn" class="filter-btn reset-btn">
+                    <i class="fas fa-times"></i> Reset
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Commercial Properties Section -->
+<div class="commercial-section">
+    <div class="section-header">
+        <h1>Premium Commercial Spaces</h1>
+        <p>Prime locations for your business - Offices, retail spaces, and commercial properties</p>
+        <div id="searchResultsInfo" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p style="margin-top: 12px; color: var(--gray);">Loading commercial properties...</p>
+    </div>
+
+    <div class="commercial-grid" id="commercialGrid">
+        {% for property in commercial_properties %}
+        <div class="commercial-card" data-title="{{ property.title|lower }}" data-location="{{ property.location|lower }}" data-realtor="{{ property.realtor|lower }}" data-term="{{ property.property_term|lower }}" data-commercial-type="{{ property.commercial_type|default:property.property_type|lower }}" data-area="{{ property.plot_area|default:0 }}" data-price="{{ property.price }}">
+            <div class="card-image">
+                {% with property.images.all|first as first_image %}
+                    {% if first_image %}
+                        <img src="{{ first_image.image.url }}" alt="{{ property.title }}" loading="lazy">
+                    {% else %}
+                        <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i class="fas fa-store fa-3x" style="color: white;"></i>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                
+                <div class="image-overlay"></div>
+                
+                <!-- Commercial Type Badge -->
+                <div class="badge-commercial">
+                    <i class="fas fa-building"></i> {{ property.commercial_type|default:property.property_type|default:"Commercial" }}
+                </div>
+                
+                <!-- Commercial Subtype Badge -->
+                <div class="commercial-type-badge">
+                    <i class="fas fa-tag"></i> {{ property.property_type|default:"Commercial" }}
+                </div>
+                
+                <!-- Status Badge -->
+                <div class="status-badge {% if property.is_available %}badge-available{% else %}badge-sold{% endif %}">
+                    <i class="fas {% if property.is_available %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                    {% if property.is_available %}Available{% else %}Sold/Leased{% endif %}
+                </div>
+                
+                <!-- Term Badge -->
+                <div class="term-badge {% if property.property_term|lower == 'rent' %}badge-rent{% else %}badge-sale{% endif %}">
+                    {% if property.property_term|lower == 'rent' %}
+                        <i class="fas fa-key"></i> For Lease
+                    {% else %}
+                        <i class="fas fa-tag"></i> For Sale
+                    {% endif %}
+                </div>
+                
+                <!-- Discount Badge -->
+                {% if property.discount and property.discount > 0 %}
+                <div class="discount-badge">
+                    <i class="fas fa-percent"></i> {{ property.discount|floatformat:0 }} OFF
+                </div>
+                {% endif %}
+                
+                <!-- FIXED: Changed from commercial_detail to building_detail -->
+                <a href="{% url 'BUILDING:building_detail' property.id %}" class="quick-view">
+                    <i class="fas fa-eye"></i> Quick View
+                </a>
+            </div>
+            
+            <div class="card-content">
+                <div class="property-type">
+                    <i class="fas fa-tag"></i> {{ property.property_type|default:"Commercial" }}
+                </div>
+                <h3 class="property-title" title="{{ property.title }}">{{ property.title|truncatechars:30 }}</h3>
+                <div class="property-location">
+                    <i class="fas fa-map-marker-alt"></i> {{ property.location|default:"Kigali, Rwanda"|truncatechars:25 }}
+                </div>
+                
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <span class="feature-value">{{ property.plot_area|default:"0" }}</span>
+                        <span class="feature-label">Sq Ft</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-value">{{ property.offices|default:property.bedrooms|default:"0" }}</span>
+                        <span class="feature-label">Offices</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-value">{{ property.bathrooms|default:"0" }}</span>
+                        <span class="feature-label">Restrooms</span>
+                    </div>
+                </div>
+                
+                <!-- Commercial Specific Features -->
+                <div class="commercial-features">
+                    {% if property.parking and property.parking != 'No' %}
+                        <span><i class="fas fa-parking"></i> {{ property.parking }}</span>
+                    {% endif %}
+                    {% if property.reception %}
+                        <span><i class="fas fa-concierge-bell"></i> Reception</span>
+                    {% endif %}
+                    {% if property.security %}
+                        <span><i class="fas fa-shield-alt"></i> Security</span>
+                    {% endif %}
+                    {% if property.elevator %}
+                        <span><i class="fas fa-arrow-up"></i> Elevator</span>
+                    {% endif %}
+                    {% if property.signage %}
+                        <span><i class="fas fa-sign"></i> Signage</span>
+                    {% endif %}
+                </div>
+                
+                <div class="price-section">
+                    <span class="current-price">${{ property.price|floatformat:0 }}</span>
+                    {% if property.property_term|lower == 'rent' %}
+                        <span class="price-period">/month</span>
+                    {% endif %}
+                    <span class="price-per-sqft">(${{ property.price_per_sqft|default:property.price|floatformat:0 }}/sq ft)</span>
+                    {% if property.discount and property.discount > 0 %}
+                        <span class="original-price">${{ property.discount|floatformat:0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="realtor-info">
+                    <div class="realtor-avatar">
+                        {{ property.realtor|slice:":1"|upper }}
+                    </div>
+                    <div class="realtor-details">
+                        <div class="realtor-name">{{ property.realtor|truncatechars:15 }}</div>
+                        <div class="realtor-contact">
+                            <i class="fas fa-phone"></i> {{ property.phone|slice:":10" }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <!-- FIXED: Changed from commercial_detail to building_detail -->
+                    <a href="{% url 'BUILDING:building_detail' property.id %}" class="btn-details">
+                        <i class="fas fa-info-circle"></i> Details
+                    </a>
+                    {% if property.is_available %}
+                        <!-- FIXED: Changed from purchase_commercial to initiate_payment -->
+                        <a href="{% url 'BUILDING:initiate_payment' property.id %}" 
+                           class="btn-action {% if property.property_term|lower == 'rent' %}btn-rent{% else %}btn-buy{% endif %}">
+                            {% if property.property_term|lower == 'rent' %}
+                                <i class="fas fa-file-signature"></i> Lease
+                            {% else %}
+                                <i class="fas fa-shopping-cart"></i> Purchase
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <button disabled class="btn-action btn-disabled">
+                            <i class="fas fa-times-circle"></i> Unavailable
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-building"></i>
+            </div>
+            <h3 style="font-size: 22px; margin-bottom: 8px;">No Commercial Properties Found</h3>
+            <p style="color: var(--gray); margin-bottom: 15px;">We couldn't find any commercial spaces matching your criteria.</p>
+            <button onclick="resetAllFilters()" class="btn-action btn-buy" style="display: inline-block; width: auto; padding: 10px 25px;">
+                <i class="fas fa-undo-alt"></i> View All Properties
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if commercial_properties.has_other_pages %}
+    <div class="pagination" id="pagination">
+        {% if commercial_properties.has_previous %}
+        <a href="?page={{ commercial_properties.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        {% endif %}
+        
+        {% for i in commercial_properties.paginator.page_range %}
+            {% if commercial_properties.number == i %}
+            <span class="page-link active">{{ i }}</span>
+            {% elif i > commercial_properties.number|add:'-3' and i < commercial_properties.number|add:'3' %}
+            <a href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">{{ i }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if commercial_properties.has_next %}
+        <a href="?page={{ commercial_properties.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Live search functionality
+    let searchTimeout;
+    const searchInput = document.getElementById('liveSearch');
+    const termFilter = document.getElementById('termFilter');
+    const commercialTypeFilter = document.getElementById('commercialTypeFilter');
+    const minArea = document.getElementById('minArea');
+    const maxArea = document.getElementById('maxArea');
+    const minPrice = document.getElementById('minPrice');
+    const maxPrice = document.getElementById('maxPrice');
+    const resetBtn = document.getElementById('resetFiltersBtn');
+    const commercialGrid = document.getElementById('commercialGrid');
+    const loading = document.getElementById('loading');
+    const totalCountSpan = document.getElementById('totalCount');
+    const searchResultsInfo = document.getElementById('searchResultsInfo');
+    
+    // Update total count display
+    function updateTotalCount(count) {
+        if (totalCountSpan) {
+            totalCountSpan.textContent = count;
+        }
+    }
+    
+    // Live search and filter function
+    function filterProperties() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const termValue = termFilter ? termFilter.value.toLowerCase() : '';
+        const commercialTypeValue = commercialTypeFilter ? commercialTypeFilter.value.toLowerCase() : '';
+        const minAreaValue = minArea ? parseFloat(minArea.value) : null;
+        const maxAreaValue = maxArea ? parseFloat(maxArea.value) : null;
+        const minPriceValue = minPrice ? parseFloat(minPrice.value) : null;
+        const maxPriceValue = maxPrice ? parseFloat(maxPrice.value) : null;
+        
+        if (!commercialGrid) return;
+        
+        let visibleCount = 0;
+        const cards = commercialGrid.querySelectorAll('.commercial-card');
+        
+        cards.forEach(card => {
+            const title = card.getAttribute('data-title') || '';
+            const location = card.getAttribute('data-location') || '';
+            const realtor = card.getAttribute('data-realtor') || '';
+            const term = card.getAttribute('data-term') || '';
+            const commercialType = card.getAttribute('data-commercial-type') || '';
+            const area = parseFloat(card.getAttribute('data-area')) || 0;
+            const price = parseFloat(card.getAttribute('data-price')) || 0;
+            
+            let showCard = true;
+            
+            // Search filter (live typing)
+            if (searchTerm) {
+                const matchesSearch = title.includes(searchTerm) || 
+                                     location.includes(searchTerm) || 
+                                     realtor.includes(searchTerm);
+                if (!matchesSearch) showCard = false;
+            }
+            
+            // Term filter
+            if (showCard && termValue && term !== termValue) {
+                showCard = false;
+            }
+            
+            // Commercial type filter
+            if (showCard && commercialTypeValue && !commercialType.includes(commercialTypeValue)) {
+                showCard = false;
+            }
+            
+            // Area range filter
+            if (showCard && minAreaValue !== null && !isNaN(minAreaValue)) {
+                if (area < minAreaValue) showCard = false;
+            }
+            if (showCard && maxAreaValue !== null && !isNaN(maxAreaValue)) {
+                if (area > maxAreaValue) showCard = false;
+            }
+            
+            // Price range filter
+            if (showCard && minPriceValue !== null && !isNaN(minPriceValue)) {
+                if (price < minPriceValue) showCard = false;
+            }
+            if (showCard && maxPriceValue !== null && !isNaN(maxPriceValue)) {
+                if (price > maxPriceValue) showCard = false;
+            }
+            
+            // Show/hide card with animation
+            if (showCard) {
+                card.style.display = '';
+                visibleCount++;
+                card.style.animation = 'fadeInUp 0.5s ease forwards';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Update total count
+        updateTotalCount(visibleCount);
+        
+        // Show/hide empty state
+        const emptyState = commercialGrid.querySelector('.empty-state');
+        if (visibleCount === 0 && !emptyState) {
+            const noResultsDiv = document.createElement('div');
+            noResultsDiv.className = 'empty-state';
+            noResultsDiv.innerHTML = `
+                <div class="empty-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 style="font-size: 22px; margin-bottom: 8px;">No Matching Properties</h3>
+                <p style="color: var(--gray); margin-bottom: 15px;">No commercial properties found matching "${searchTerm || 'your filters'}"</p>
+                <button onclick="resetAllFilters()" class="btn-action btn-buy" style="display: inline-block; width: auto; padding: 10px 25px;">
+                    <i class="fas fa-undo-alt"></i> Clear Filters
+                </button>
+            `;
+            commercialGrid.appendChild(noResultsDiv);
+        } else if (visibleCount > 0 && emptyState) {
+            emptyState.remove();
+        }
+        
+        // Update search results info
+        if (searchResultsInfo) {
+            if (searchTerm || termValue || commercialTypeValue || minAreaValue || maxAreaValue || minPriceValue || maxPriceValue) {
+                searchResultsInfo.innerHTML = `<span class="search-results-count">${visibleCount} properties found</span>`;
+            } else {
+                searchResultsInfo.innerHTML = '';
+            }
+        }
+    }
+    
+    // Debounced search function for live typing
+    function debouncedSearch() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            filterProperties();
+        }, 300);
+    }
+    
+    // Reset all filters
+    function resetAllFilters() {
+        if (searchInput) searchInput.value = '';
+        if (termFilter) termFilter.value = '';
+        if (commercialTypeFilter) commercialTypeFilter.value = '';
+        if (minArea) minArea.value = '';
+        if (maxArea) maxArea.value = '';
+        if (minPrice) minPrice.value = '';
+        if (maxPrice) maxPrice.value = '';
+        
+        filterProperties();
+        
+        if (window.history && window.history.pushState) {
+            const url = new URL(window.location.href);
+            url.search = '';
+            window.history.pushState({}, '', url);
+        }
+    }
+    
+    // Event listeners for live search
+    if (searchInput) searchInput.addEventListener('input', debouncedSearch);
+    if (termFilter) termFilter.addEventListener('change', filterProperties);
+    if (commercialTypeFilter) commercialTypeFilter.addEventListener('change', filterProperties);
+    if (minArea) minArea.addEventListener('input', debouncedSearch);
+    if (maxArea) maxArea.addEventListener('input', debouncedSearch);
+    if (minPrice) minPrice.addEventListener('input', debouncedSearch);
+    if (maxPrice) maxPrice.addEventListener('input', debouncedSearch);
+    if (resetBtn) resetBtn.addEventListener('click', resetAllFilters);
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add data attributes to cards for filtering
+        const cards = document.querySelectorAll('.commercial-card');
+        cards.forEach(card => {
+            const title = card.querySelector('.property-title')?.innerText?.toLowerCase() || '';
+            const location = card.querySelector('.property-location')?.innerText?.toLowerCase() || '';
+            const realtor = card.querySelector('.realtor-name')?.innerText?.toLowerCase() || '';
+            const termBadge = card.querySelector('.term-badge')?.innerText?.toLowerCase() || '';
+            const commercialTypeBadge = card.querySelector('.badge-commercial')?.innerText?.toLowerCase() || '';
+            
+            card.setAttribute('data-title', title);
+            card.setAttribute('data-location', location);
+            card.setAttribute('data-realtor', realtor);
+            card.setAttribute('data-term', termBadge.includes('lease') ? 'rent' : 'sale');
+            card.setAttribute('data-commercial-type', commercialTypeBadge);
+            
+            const areaSpan = card.querySelector('.feature-value');
+            if (areaSpan) {
+                const areaText = areaSpan.innerText.replace(',', '');
+                card.setAttribute('data-area', parseFloat(areaText) || 0);
+            }
+            
+            const priceSpan = card.querySelector('.current-price');
+            if (priceSpan) {
+                const priceText = priceSpan.innerText.replace('$', '').replace(',', '');
+                card.setAttribute('data-price', parseFloat(priceText) || 0);
+            }
+        });
+        
+        // Smooth scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.commercial-card').forEach(card => {
+            observer.observe(card);
+        });
+        
+        // Loading animation on form submit
+        const filterForm = document.getElementById('filterForm');
+        if (filterForm) {
+            filterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                loading.classList.add('active');
+                if (commercialGrid) commercialGrid.style.opacity = '0.5';
+                
+                setTimeout(() => {
+                    filterProperties();
+                    loading.classList.remove('active');
+                    if (commercialGrid) commercialGrid.style.opacity = '1';
+                }, 500);
+            });
+        }
+    });
+</script>
+{% endblock %}

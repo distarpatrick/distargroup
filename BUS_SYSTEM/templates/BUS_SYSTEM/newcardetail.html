@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{ vehicle.brand }} {{ vehicle.model }}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+.detail-container{width:90%;margin:40px auto;}
+.main-media img,video{width:100%;border-radius:20px;}
+.thumb-grid{display:flex;gap:10px;margin-top:15px;}
+.thumb-grid img{width:90px;height:70px;object-fit:cover;border-radius:10px;cursor:pointer;}
+.specs{margin-top:30px;display:grid;grid-template-columns:repeat(2,1fr);gap:15px;}
+.specs div{background:#f9fafb;padding:14px;border-radius:12px;}
+</style>
+</head>
+
+<body>
+
+<div class="detail-container">
+
+<div class="main-media">
+    {% for media in vehicle.images.all %}
+        {% if forloop.first and media.image %}
+            <img src="{{ media.image.url }}">
+        {% endif %}
+    {% endfor %}
+</div>
+
+<div class="thumb-grid">
+    {% for media in vehicle.images.all %}
+        {% if media.image %}
+            <img src="{{ media.image.url }}">
+        {% endif %}
+    {% endfor %}
+</div>
+
+<h2>{{ vehicle.brand }} {{ vehicle.model }}</h2>
+<h3>${{ vehicle.price }}</h3>
+
+<div class="specs">
+    <div>Fuel: {{ vehicle.fuel_type }}</div>
+    <div>Transmission: {{ vehicle.transmission }}</div>
+    <div>Mileage: {{ vehicle.mileage }} km</div>
+    <div>Engine: {{ vehicle.engine_capacity }} cc</div>
+    <div>Condition: {{ vehicle.condition }}</div>
+    <div>Color: {{ vehicle.color }}</div>
+</div>
+
+<p style="margin-top:20px;">{{ vehicle.description }}</p>
+
+<h3>Seller</h3>
+<p>{{ vehicle.seller_name }} | {{ vehicle.phone }} | {{ vehicle.email }}</p>
+
+</div>
+
+</body>
+</html>

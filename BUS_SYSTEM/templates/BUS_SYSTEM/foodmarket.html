@@ -1,0 +1,450 @@
+{% extends 'BUS_SYSTEM/clothes&drink_base.html' %}
+{% load static %}
+
+{% block title %}DistarGroup | Food Market & Groceries{% endblock %}
+
+{% block extra_css %}
+    <style>
+        :root {
+            --amazon-bg: #e3e6e6;
+            --banner-yellow: #f7e36a;
+            --accent-red: #cc0c39;
+            --link-blue: #007185;
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --transition-speed: 1.2s;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--amazon-bg); color: #111; overflow-x: hidden; line-height: 1.5; }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Product Card Enhancements */
+        .product-item {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .product-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            background: #ffd814;
+            border: none;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #f7ca00;
+            transform: scale(1.02);
+        }
+
+        .stock-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+        }
+
+        .rating-stars {
+            color: #ffa41c;
+            font-size: 12px;
+            margin: 5px 0;
+        }
+
+        .location-badge {
+            font-size: 11px;
+            color: var(--link-blue);
+            margin-top: 5px;
+        }
+
+        /* Hero Slider */
+        .hero-slider {
+            position: relative;
+            height: 620px;
+            background: linear-gradient(to bottom, var(--banner-yellow) 0%, var(--banner-yellow) 70%, var(--amazon-bg) 100%);
+            overflow: hidden;
+        }
+
+        .slider-controls {
+            position: absolute;
+            top: 220px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .arrow-btn {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid #ddd;
+            font-size: 2.5rem;
+            width: 50px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .arrow-btn:hover { background: white; border-color: #333; transform: scale(1.05); }
+
+        .hero-track {
+            display: flex;
+            transition: transform var(--transition-speed) cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            width: 100%;
+        }
+
+        .hero-page {
+            min-width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 60px 40px 0;
+        }
+
+        .hero-card {
+            background: white;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            border-radius: 2px;
+        }
+
+        .hero-card h2 { font-size: 1.25rem; margin-bottom: 12px; height: 3.2rem; overflow: hidden; font-weight: 700; }
+        .hero-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #f9f9f9; border-radius: 2px; }
+        
+        .quad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex-grow: 1; }
+        .quad-grid img { width: 100%; height: 100%; }
+
+        .see-more { margin-top: auto; color: var(--link-blue); text-decoration: none; font-size: 0.85rem; padding-top: 15px; font-weight: 600; transition: color 0.2s; }
+        .see-more:hover { text-decoration: underline; color: #c45500; }
+
+        /* Section Containers */
+        .section-container { max-width: 1500px; margin: 40px auto; padding: 25px; background: white; border-radius: 4px; box-shadow: var(--card-shadow); }
+        .section-header { border-bottom: 1px solid #ddd; margin-bottom: 20px; padding-bottom: 12px; }
+        .section-header h2 { font-size: 1.4rem; font-weight: 700; }
+
+        .product-scroll { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: thin; }
+        .product-item { min-width: 220px; border: 1px solid #f0f0f0; padding: 15px; text-align: left; transition: transform 0.2s; }
+        .product-item:hover { transform: translateY(-5px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .product-item img { max-width: 100%; margin-bottom: 10px; height: 180px; object-fit: cover; }
+
+        .badge { background: var(--accent-red); color: white; font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 2px; margin-bottom: 8px; display: inline-block; }
+        .price { color: #111; font-size: 1.2rem; font-weight: bold; margin-top: 5px; display: block; }
+
+        .phone-layout { display: grid; grid-template-columns: 3fr 1fr; gap: 25px; }
+        .phone-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .promo-banner { overflow: hidden; border-radius: 4px; }
+        .promo-banner img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .promo-banner:hover img { transform: scale(1.03); }
+
+        .whatsapp-btn {
+            position: fixed; bottom: 30px; left: 30px; background: #25d366; color: white;
+            padding: 14px 28px; border-radius: 50px; display: flex; align-items: center;
+            gap: 12px; text-decoration: none; box-shadow: 0 6px 20px rgba(0,0,0,0.3); z-index: 1000;
+            font-weight: bold; transition: background 0.3s;
+        }
+        .whatsapp-btn:hover { background: #128c7e; }
+
+        @media (max-width: 1024px) {
+            .phone-layout { grid-template-columns: 1fr; }
+            .hero-page { grid-template-columns: 1fr 1fr; padding: 40px 20px 0; }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-slider">
+    <div class="slider-controls">
+        <button class="arrow-btn" onclick="slideHero(-1)" aria-label="Previous">&#10094;</button>
+        <button class="arrow-btn" onclick="slideHero(1)" aria-label="Next">&#10095;</button>
+    </div>
+
+    <div class="hero-track" id="heroTrack">
+        <div class="hero-page">
+            <div class="hero-card">
+                <h2>Fresh Groceries</h2>
+                <div class="quad-grid">
+                    <img src="{% static 'images/food1.webp' %}"><img src="{% static 'images/food3.webp' %}">
+                    <img src="{% static 'images/food2.webp' %}"><img src="{% static 'images/food4.webp' %}">
+                </div>
+                <a href="#featured-products" class="see-more">Shop all items</a>
+            </div>
+            <div class="hero-card"><h2>Organic Products</h2><img src="{% static 'images/food5.webp' %}"><a href="#featured-products" class="see-more">Shop Organic</a></div>
+            <div class="hero-card"><h2>Sauce</h2><img src="{% static 'images/food6.webp' %}"><a href="#featured-products" class="see-more">Explore Drinks</a></div>
+            <div class="hero-card"><h2>Snacks & Treats</h2><img src="{% static 'images/snack.jpg' %}"><a href="#featured-products" class="see-more">Shop now</a></div>
+        </div>
+
+        <div class="hero-page">
+            <div class="hero-card"><h2>Fresh Fruits</h2><img src="{% static 'images/food8.webp' %}"><a href="#featured-products" class="see-more">Shop Fruits</a></div>
+            <div class="hero-card">
+                <h2>Vegetables</h2>
+                <div class="quad-grid">
+                    <img src="{% static 'images/food9.webp' %}"><img src="{% static 'images/food10.webp' %}">
+                    <img src="{% static 'images/food11.webp' %}"><img src="{% static 'images/food12.webp' %}">
+                </div>
+                <a href="#featured-products" class="see-more">View more</a>
+            </div>
+            <div class="hero-card"><h2>Dairy Products</h2><img src="{% static 'images/food13.webp' %}"><a href="#featured-products" class="see-more">Browse Dairy</a></div>
+            <div class="hero-card"><h2>Bakery Fresh</h2><img src="{% static 'images/food14.webp' %}"><a href="#featured-products" class="see-more">Shop Bakery</a></div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Products Section -->
+<div class="section-container" id="featured-products">
+    <div class="section-header">
+        <h2>Featured Food Products</h2>
+    </div>
+    <div class="product-scroll">
+        {% for product in featured_products %}
+        <div class="product-item" data-product-id="{{ product.id }}">
+            {% if product.discount > 0 %}
+            <span class="badge">{{ product.discount|floatformat:0 }}% off</span>
+            {% endif %}
+            <span class="stock-badge">Stock: {{ product.stock }}</span>
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            <p><strong>{{ product.name|truncatechars:40 }}</strong></p>
+            <div class="rating-stars">
+                {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= product.rating %}
+                        ★
+                    {% else %}
+                        ☆
+                    {% endif %}
+                {% endfor %}
+                <span style="color: #666;">({{ product.reviews.count }})</span>
+            </div>
+            <div class="location-badge">
+                <i class="fas fa-map-marker-alt"></i> {{ product.location|default:"Kigali" }}
+            </div>
+            <span class="price">
+                {% if product.discount > 0 %}
+                <span style="text-decoration: line-through; font-size: 12px; color: #999;">USD {{ product.price }}</span><br>
+                Rwf {{ product.get_discounted_price|floatformat:0 }}
+                {% else %}
+                Rwf {{ product.price|floatformat:0 }}
+                {% endif %}
+            </span>
+            {% if product.stock > 0 %}
+            <button class="add-to-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name|escapejs }}', {{ product.get_discounted_price }})">
+                <i class="fas fa-cart-plus"></i> Add to Cart
+            </button>
+            {% else %}
+            <button class="add-to-cart-btn" disabled style="background: #ccc; cursor: not-allowed;">
+                Out of Stock
+            </button>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p>No featured products available.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- All Food Products Section -->
+<div class="section-container">
+    <div class="section-header">
+        <h2>All Food Products</h2>
+    </div>
+    <div class="phone-layout">
+        <div class="phone-grid">
+            {% for product in all_products %}
+            <div class="product-item" data-product-id="{{ product.id }}">
+                {% if product.discount > 0 %}
+                <span class="badge">{{ product.discount|floatformat:0 }}% off</span>
+                {% endif %}
+                <span class="stock-badge">Stock: {{ product.stock }}</span>
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                <p><strong>{{ product.name|truncatechars:35 }}</strong></p>
+                <div class="rating-stars">
+                    {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= product.rating %}
+                            ★
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <span class="price">
+                    {% if product.discount > 0 %}
+                    <span style="text-decoration: line-through; font-size: 12px; color: #999;">Rwf {{ product.price }}</span><br>
+                    Rwf {{ product.get_discounted_price|floatformat:0 }}
+                    {% else %}
+                    Rwf {{ product.price|floatformat:0 }}
+                    {% endif %}
+                </span>
+                {% if product.stock > 0 %}
+                <button class="add-to-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name|escapejs }}', {{ product.get_discounted_price }})">
+                    <i class="fas fa-cart-plus"></i> Add to Cart
+                </button>
+                {% else %}
+                <button class="add-to-cart-btn" disabled style="background: #ccc; cursor: not-allowed;">
+                    Out of Stock
+                </button>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p>No food products available.</p>
+            {% endfor %}
+        </div>
+        <div class="promo-banner">
+            <img src="{% static 'images/distarlogo.png' %}" alt="Promo Banner">
+        </div>
+    </div>
+</div>
+
+<a href="https://wa.me/250780000000" class="whatsapp-btn">
+    <span>💬</span> WhatsApp Order
+</a>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Hero Slider Functionality
+    let heroIndex = 0;
+    const totalHeroPages = 2;
+    const heroTrack = document.getElementById('heroTrack');
+    
+    function slideHero(dir) {
+        heroIndex += dir;
+        
+        if (heroIndex >= totalHeroPages) heroIndex = 0;
+        if (heroIndex < 0) heroIndex = totalHeroPages - 1;
+        
+        updateSlider();
+        resetAutoSlide();
+    }
+
+    function updateSlider() {
+        const percentage = (heroIndex * 100);
+        heroTrack.style.transform = `translateX(-${percentage}%)`;
+    }
+
+    let autoSlide = setInterval(() => slideHero(1), 5000);
+
+    function resetAutoSlide() {
+        clearInterval(autoSlide);
+        autoSlide = setInterval(() => slideHero(1), 5000);
+    }
+
+    // Add to Cart Function - Updated to match URL pattern
+    function addToCart(productId, productName, price) {
+        // Get CSRF token from cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Use the correct URL pattern: /cart/add/Commodity/{product_id}/
+        const url = `/cart/add/Commodity/${productId}/`;
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                quantity: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(`${productName} added to cart!`, 'success');
+                
+                // Update cart count in navbar if exists
+                const cartCount = document.querySelector('.cart-count');
+                if (cartCount) {
+                    cartCount.textContent = data.cart_count;
+                }
+                
+                // Optional: Update cart icon with animation
+                const cartIcon = document.querySelector('.cart-icon');
+                if (cartIcon) {
+                    cartIcon.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        cartIcon.style.transform = 'scale(1)';
+                    }, 300);
+                }
+            } else {
+                showToast(data.error || 'Error adding to cart', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Network error. Please try again.', 'error');
+        });
+    }
+
+    // Toast Notification Function
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.style.background = type === 'success' ? '#10b981' : '#ef4444';
+        toast.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            ${message}
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.3s';
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 3000);
+    }
+</script>
+{% endblock %}

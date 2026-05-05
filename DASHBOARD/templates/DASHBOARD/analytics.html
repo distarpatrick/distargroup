@@ -1,0 +1,140 @@
+{% extends 'USERPROFILE/base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Goods Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial; background: #f5f7fb; margin: 0; padding: 0; }
+        header { background: #4a90e2; color: white; padding: 20px; text-align: center; }
+        nav { background: #fff; display: flex; justify-content: center; gap: 20px; padding: 10px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        nav a { text-decoration: none; color: #4a90e2; font-weight: bold; }
+        .container { padding: 20px; }
+        .cards { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px; }
+        .card { background: #fff; flex: 1 1 200px; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+        .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; }
+        canvas { max-width: 100%; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>DistarGroup Goods Analytics</h1>
+    </header>
+
+    <div class="container">
+        <!-- Summary Cards -->
+        <div class="cards">
+            <div class="card">
+                <h3>Total Orders This Week</h3>
+                <p>{{ weekly_orders_count }}</p>
+            </div>
+            <div class="card">
+                <h3>Unique Users Ordered</h3>
+                <p>{{ unique_users_ordered }}</p>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts">
+            <div class="card">
+                <h3>Uploaded Goods per Type</h3>
+                <canvas id="uploadedChart"></canvas>
+            </div>
+            <div class="card">
+                <h3>Available vs Sold Stock</h3>
+                <canvas id="stockChart"></canvas>
+            </div>
+            <div class="card">
+                <h3>Total Revenue per Type</h3>
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+   <script>
+    const types = {{ goods_types|safe }};
+    
+    const uploaded = [
+        {% for key, value in totals_uploaded.items %}
+            {{ value }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    ];
+    
+    const stock = [
+        {% for key, value in total_stock.items %}
+            {{ value }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    ];
+    
+    const sold = [
+        {% for key, value in sold_stock.items %}
+            {{ value }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    ];
+    
+    const revenue = [
+        {% for key, value in total_revenue.items %}
+            {{ value }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    ];
+
+    // Uploaded Goods Chart
+    new Chart(document.getElementById('uploadedChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: types,
+            datasets: [{
+                label: 'Uploaded Goods',
+                data: uploaded,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    // Available vs Sold Stock Chart
+    new Chart(document.getElementById('stockChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: types,
+            datasets: [
+                {
+                    label: 'Available Stock',
+                    data: stock,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                },
+                {
+                    label: 'Sold Stock',
+                    data: sold,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                }
+            ]
+        },
+        options: { responsive: true }
+    });
+
+    // Revenue Chart
+    new Chart(document.getElementById('revenueChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: types,
+            datasets: [{
+                label: 'Revenue',
+                data: revenue,
+                fill: true,
+                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                borderColor: 'rgba(255, 206, 86, 1)',
+                tension: 0.3
+            }]
+        },
+        options: { responsive: true }
+    });
+</script>
+</body>
+</html>
+{% endblock %}

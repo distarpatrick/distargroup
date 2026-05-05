@@ -1,0 +1,1137 @@
+{% extends 'BUS_SYSTEM/baseone.html' %}
+{% load static %}
+
+{% block title %}{{ house.title }} | DistarGroup Real Estate{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #10b981;
+        --primary-dark: #059669;
+        --dark: #0f172a;
+        --slate: #64748b;
+        --slate-light: #f1f5f9;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    }
+
+    /* Global Styles */
+    .house-container { 
+        padding: 40px 4%; 
+        max-width: 1400px; 
+        margin: 0 auto;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Enhanced Gallery Styles - Showing full image sides */
+    .gallery-grid { 
+        display: grid; 
+        grid-template-columns: 2.5fr 1fr; 
+        gap: 20px; 
+        height: 600px; 
+        margin-bottom: 40px; 
+        border-radius: 24px; 
+        overflow: hidden; 
+        position: relative;
+        background: #000;
+    }
+
+    .main-stage { 
+        position: relative; 
+        width: 100%; 
+        height: 100%; 
+        overflow: hidden;
+        cursor: pointer;
+        background: #1a1a1a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .main-img { 
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+        transition: transform 0.5s ease, opacity 0.4s ease;
+        background: #1a1a1a;
+    }
+
+    /* For images that don't fit the aspect ratio, show them fully */
+    .main-img.portrait {
+        width: auto;
+        height: 100%;
+        max-width: 100%;
+    }
+
+    .main-img.landscape {
+        width: 100%;
+        height: auto;
+        max-height: 100%;
+    }
+
+    .main-stage:hover .main-img {
+        transform: scale(1.02);
+    }
+
+    /* Slider Arrows */
+    .slider-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255,255,255,0.95);
+        border: none;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .slider-arrow:hover { 
+        background: var(--primary); 
+        color: white;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .arrow-left { left: 20px; }
+    .arrow-right { right: 20px; }
+
+    /* Image Counter Badge */
+    .image-counter {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0,0,0,0.75);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+        z-index: 10;
+        font-family: monospace;
+    }
+
+    /* Side Images - Showing full images */
+    .side-images { 
+        display: grid; 
+        grid-template-rows: repeat(3, 1fr); 
+        gap: 20px; 
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+
+    .side-images::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .side-images::-webkit-scrollbar-track {
+        background: var(--slate-light);
+        border-radius: 10px;
+    }
+
+    .side-images::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 10px;
+    }
+
+    .side-img-wrapper {
+        position: relative;
+        overflow: hidden;
+        border-radius: 16px;
+        cursor: pointer;
+        background: #1a1a1a;
+        min-height: 0;
+        aspect-ratio: 4/3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .side-img { 
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: all 0.3s ease;
+    }
+
+    /* For side images that need to show full content */
+    .side-img.contain {
+        object-fit: contain;
+        background: #1a1a1a;
+    }
+
+    .side-img-wrapper:hover .side-img {
+        transform: scale(1.05);
+    }
+
+    .side-img-wrapper::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.3);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .side-img-wrapper:hover::after {
+        opacity: 1;
+    }
+
+    /* More images overlay */
+    .more-images-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        backdrop-filter: blur(4px);
+        z-index: 2;
+    }
+
+    /* Thumbnail strip for better navigation */
+    .thumbnail-strip {
+        margin-top: 20px;
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding: 10px 0;
+        scrollbar-width: thin;
+    }
+
+    .thumbnail-strip::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .thumbnail {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        opacity: 0.6;
+        border: 2px solid transparent;
+    }
+
+    .thumbnail:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+
+    .thumbnail.active {
+        opacity: 1;
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Floating Action Button */
+    .floating-action-btn {
+        position: fixed;
+        right: 4%;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .btn-floating {
+        padding: 16px 32px;
+        border-radius: 60px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        box-shadow: var(--shadow-xl);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .btn-floating:hover { 
+        transform: translateX(-5px) scale(1.05);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .float-rent { 
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: white; 
+    }
+
+    .float-sale { 
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white; 
+    }
+
+    /* Enhanced Detail Layout */
+    .detail-layout { 
+        display: grid; 
+        grid-template-columns: 1.8fr 1fr; 
+        gap: 50px; 
+        margin-top: 20px;
+    }
+
+    /* Status Badge */
+    .status-badge { 
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 20px; 
+        border-radius: 50px; 
+        font-weight: 800; 
+        font-size: 13px; 
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-sale { 
+        background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+        color: #166534; 
+    }
+
+    .badge-rent { 
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #1e40af; 
+    }
+
+    .house-title { 
+        font-size: 42px; 
+        font-weight: 800; 
+        color: var(--dark); 
+        margin-bottom: 12px;
+        line-height: 1.2;
+    }
+
+    .location-text {
+        font-size: 16px;
+        color: var(--slate);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Features Grid */
+    .features-grid { 
+        display: grid; 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 25px; 
+        padding: 35px; 
+        background: white; 
+        border-radius: 24px; 
+        box-shadow: var(--shadow-md);
+        margin-bottom: 40px;
+        border: 1px solid var(--slate-light);
+        transition: transform 0.3s ease;
+    }
+
+    .features-grid:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .feature-item { 
+        text-align: center;
+        padding: 15px;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+        background: var(--slate-light);
+        transform: translateY(-3px);
+    }
+
+    .feature-item i { 
+        font-size: 32px; 
+        color: var(--primary); 
+        margin-bottom: 12px; 
+        display: block;
+    }
+
+    .feature-item span {
+        display: block;
+        font-size: 14px;
+        color: var(--slate);
+        margin-bottom: 5px;
+    }
+
+    .feature-item strong {
+        font-size: 18px;
+        color: var(--dark);
+        font-weight: 700;
+    }
+
+    /* Description Card */
+    .desc-card {
+        background: white;
+        padding: 35px;
+        border-radius: 24px;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 40px;
+        border: 1px solid var(--slate-light);
+    }
+
+    .desc-card h3 {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 20px;
+    }
+
+    .desc-card p {
+        color: var(--slate);
+        line-height: 1.7;
+        font-size: 16px;
+    }
+
+    /* Amenities Section */
+    .amenities-section {
+        background: white;
+        padding: 35px;
+        border-radius: 24px;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--slate-light);
+    }
+
+    .amenities-section h3 {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 25px;
+    }
+
+    .amenities-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .amenity-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .amenity-item:hover {
+        background: var(--slate-light);
+        transform: translateX(5px);
+    }
+
+    .amenity-item i {
+        color: var(--primary);
+        font-size: 18px;
+        width: 24px;
+    }
+
+    /* Sidebar Card */
+    .sidebar-area {
+        position: sticky;
+        top: 100px;
+        height: fit-content;
+    }
+
+    .sidebar-card {
+        background: white;
+        padding: 35px;
+        border-radius: 24px;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--slate-light);
+        text-align: center;
+    }
+
+    .price-large {
+        font-size: 48px;
+        font-weight: 800;
+        color: var(--primary);
+        margin-bottom: 10px;
+    }
+
+    .price-sub {
+        color: var(--slate);
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+
+    .btn-action {
+        width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-primary {
+        background: green;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: darkgreen;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 2px solid var(--primary);
+        color: var(--primary);
+    }
+
+    .btn-outline:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Related Properties */
+    .related-section {
+        margin-top: 70px;
+        padding-top: 50px;
+        border-top: 2px solid var(--slate-light);
+    }
+
+    .related-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .related-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+    }
+
+    .related-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .related-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .related-img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .related-info {
+        padding: 20px;
+    }
+
+    .related-info h4 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--dark);
+    }
+
+    .related-price {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--primary);
+        margin: 10px 0;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.95);
+        z-index: 1000;
+        cursor: pointer;
+    }
+
+    .modal-content {
+        position: relative;
+        max-width: 95%;
+        max-height: 95%;
+        margin: auto;
+        top: 50%;
+        transform: translateY(-50%);
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-img {
+        max-width: 100%;
+        max-height: 90vh;
+        object-fit: contain;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 40px;
+        color: white;
+        font-size: 40px;
+        cursor: pointer;
+        transition: 0.3s;
+        z-index: 1001;
+    }
+
+    .close-modal:hover {
+        color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .gallery-grid { 
+            height: 450px; 
+            grid-template-columns: 1fr; 
+        }
+        
+        .side-images { 
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto;
+            gap: 10px;
+            height: 120px;
+        }
+        
+        .detail-layout { 
+            grid-template-columns: 1fr; 
+            gap: 30px;
+        }
+        
+        .floating-action-btn { 
+            display: none; 
+        }
+        
+        .house-title { 
+            font-size: 32px; 
+        }
+        
+        .features-grid { 
+            grid-template-columns: repeat(2, 1fr); 
+        }
+        
+        .amenities-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .features-grid { 
+            grid-template-columns: 1fr; 
+            padding: 20px;
+        }
+        
+        .related-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .desc-card, .amenities-section {
+            padding: 25px;
+        }
+        
+        .thumbnail-strip {
+            display: none;
+        }
+    }
+
+    /* Loading Animation */
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Floating Action Buttons -->
+<div class="floating-action-btn">
+    {% if house.property_term|lower == 'rent' %}
+        <a href="{% url 'BUILDING:initiate_payment' house.id %}" class="btn-floating float-rent" id="rentNowBtn">
+            <i class="fa-solid fa-key"></i> RENT NOW
+            <span style="font-size: 12px; opacity: 0.8;">→</span>
+        </a>
+    {% else %}
+        <a href="{% url 'BUILDING:initiate_payment' house.id %}" class="btn-floating float-sale" id="buyNowBtn">
+            <i class="fa-solid fa-cart-shopping"></i> BUY NOW
+            <span style="font-size: 12px; opacity: 0.8;">→</span>
+        </a>
+    {% endif %}
+</div>
+
+<div class="house-container">
+    <!-- Header Section -->
+    <div class="house-header">
+        <span class="status-badge {% if house.property_term == 'Sale' %}badge-sale{% else %}badge-rent{% endif %}">
+            <i class="fa-solid {% if house.property_term == 'Sale' %}fa-tag{% else %}fa-calendar-alt{% endif %}"></i>
+            For {{ house.property_term }}
+        </span>
+        <h1 class="house-title">{{ house.title }}</h1>
+        <p class="location-text">
+            <i class="fa-solid fa-location-dot"></i> 
+            {{ house.location }} 
+            {% if house.year_built %}
+            • Built in {{ house.year_built }}
+            {% endif %}
+            {% if house.property_type %}
+            • {{ house.get_property_type_display }}
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Gallery Section - Showing full images -->
+    <div class="gallery-grid">
+        <div class="main-stage">
+            <button class="slider-arrow arrow-left" onclick="changeImage(-1)" aria-label="Previous image">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <img src="{{ house.images.first.image.url }}" class="main-img" id="mainImg" alt="{{ house.title }}" loading="lazy">
+            <button class="slider-arrow arrow-right" onclick="changeImage(1)" aria-label="Next image">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+            <div class="image-counter">
+                <span id="currentImgIndex">1</span> / <span id="totalImages">{{ house.images.all|length }}</span>
+            </div>
+        </div>
+        <div class="side-images">
+            {% for img in house.images.all|slice:":6" %}
+            <div class="side-img-wrapper" onclick="setMainImage('{{ img.image.url }}', {{ forloop.counter0 }})">
+                <img src="{{ img.image.url }}" class="side-img" alt="Property image {{ forloop.counter }}" loading="lazy">
+                {% if forloop.counter == 3 and house.images.all|length > 6 %}
+                <div class="more-images-overlay">
+                    +{{ house.images.all|length|add:"-3" }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Thumbnail Strip for better navigation -->
+    <div class="thumbnail-strip" id="thumbnailStrip">
+        {% for img in house.images.all %}
+        <img src="{{ img.image.url }}" class="thumbnail" onclick="setMainImage('{{ img.image.url }}', {{ forloop.counter0 }})" data-index="{{ forloop.counter0 }}" alt="Thumbnail {{ forloop.counter }}">
+        {% endfor %}
+    </div>
+
+    <!-- Main Content Layout -->
+    <div class="detail-layout">
+        <div class="content-area">
+            <!-- Features Grid -->
+            <div class="features-grid">
+                <div class="feature-item">
+                    <i class="fa-solid fa-bed"></i>
+                    <span>Bedrooms</span>
+                    <strong>{{ house.bedrooms }} Rooms</strong>
+                </div>
+                <div class="feature-item">
+                    <i class="fa-solid fa-bath"></i>
+                    <span>Bathrooms</span>
+                    <strong>{{ house.bathrooms }} Units</strong>
+                </div>
+                <div class="feature-item">
+                    <i class="fa-solid fa-vector-square"></i>
+                    <span>Plot Area</span>
+                    <strong>{{ house.plot_area }} Sqm</strong>
+                </div>
+                {% if house.garage %}
+                <div class="feature-item">
+                    <i class="fa-solid fa-car"></i>
+                    <span>Garage</span>
+                    <strong>{{ house.garage }} Spaces</strong>
+                </div>
+                {% endif %}
+                {% if house.floor_number %}
+                <div class="feature-item">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Floor</span>
+                    <strong>{{ house.floor_number }}</strong>
+                </div>
+                {% endif %}
+                <div class="feature-item">
+                    <i class="fa-solid fa-calendar-alt"></i>
+                    <span>Year Built</span>
+                    <strong>{{ house.year_built }}</strong>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="desc-card">
+                <h3><i class="fa-solid fa-info-circle"></i> About this Property</h3>
+                <p>{{ house.description|default:"This premium property offers a modern lifestyle with all essential amenities included. Perfectly located in a prime area, this property combines comfort, convenience, and luxury living." }}</p>
+                {% if house.features %}
+                <div style="margin-top: 20px;">
+                    <strong>Key Features:</strong>
+                    <ul style="margin-top: 10px; list-style: none; padding-left: 0;">
+                        {% for feature in house.features_list %}
+                        <li style="margin-bottom: 8px;"><i class="fa-solid fa-check-circle" style="color: var(--primary); margin-right: 8px;"></i> {{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Amenities -->
+            <div class="amenities-section">
+                <h3><i class="fa-solid fa-star"></i> Amenities & Facilities</h3>
+                <div class="amenities-grid">
+                    <div class="amenity-item">
+                        <i class="fa-solid fa-wifi"></i>
+                        <span>High-Speed Internet</span>
+                    </div>
+                    <div class="amenity-item">
+                        <i class="fa-solid fa-tv"></i>
+                        <span>Cable TV Ready</span>
+                    </div>
+                    <div class="amenity-item">
+                        <i class="fa-solid fa-snowplow"></i>
+                        <span>Air Conditioning</span>
+                    </div>
+                    <div class="amenity-item">
+                        <i class="fa-solid fa-fire-extinguisher"></i>
+                        <span>Fire Safety System</span>
+                    </div>
+                    <div class="amenity-item">
+                        <i class="fa-solid fa-shield-alt"></i>
+                        <span>24/7 Security</span>
+                    </div>
+                    <div class="amenity-item">
+                        <i class="fa-solid fa-dumbbell"></i>
+                        <span>Fitness Center</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar-area">
+            <div class="sidebar-card">
+                <div class="price-large">USD {{ house.price|floatformat:0 }}</div>
+                <p class="price-sub">
+                    {% if house.property_term == 'Rent' %}
+                    per month • utilities included
+                    {% else %}
+                    one-time payment • tax included
+                    {% endif %}
+                </p>
+                
+                <button class="btn-action btn-primary" onclick="scrollToContact()">
+                    <i class="fa-solid fa-calendar-check"></i> Schedule a Tour
+                </button>
+                
+                <button class="btn-action btn-outline" onclick="window.location.href='tel:{{ house.phone }}'">
+                    <i class="fa-solid fa-phone"></i> Call {{ house.phone }}
+                </button>
+                
+                <hr style="margin: 20px 0; border-color: var(--slate-light);">
+                
+                <div style="text-align: left;">
+                    <p style="margin-bottom: 10px;"><strong>Property ID:</strong> #{{ house.id }}</p>
+                    <p style="margin-bottom: 10px;"><strong>Status:</strong> 
+                        <span style="color: var(--primary);">Available</span>
+                    </p>
+                    <p><strong>Last Updated:</strong> {{ house.created_at|date:"M d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Properties -->
+    {% if related_buildings %}
+    <div class="related-section">
+        <h3 class="related-title">Similar Properties You Might Like</h3>
+        <div class="related-grid">
+            {% for related in related_buildings %}
+            <div class="related-card" onclick="window.location.href='{% url 'BUILDING:building_detail' related.id %}'">
+                {% if related.images.first %}
+                <img src="{{ related.images.first.image.url }}" class="related-img" alt="{{ related.title }}" loading="lazy">
+                {% endif %}
+                <div class="related-info">
+                    <h4>{{ related.title|truncatechars:30 }}</h4>
+                    <p style="color: var(--slate); font-size: 14px;">
+                        <i class="fa-solid fa-location-dot"></i> {{ related.location|truncatechars:25 }}
+                    </p>
+                    <div class="related-price">USD {{ related.price|floatformat:0 }}</div>
+                    <div style="display: flex; gap: 10px; font-size: 14px; color: var(--slate);">
+                        <span><i class="fa-solid fa-bed"></i> {{ related.bedrooms }}</span>
+                        <span><i class="fa-solid fa-bath"></i> {{ related.bathrooms }}</span>
+                        <span><i class="fa-solid fa-vector-square"></i> {{ related.plot_area }}m²</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Gallery Modal -->
+<div id="galleryModal" class="modal" onclick="closeGalleryModal()">
+    <span class="close-modal">&times;</span>
+    <div class="modal-content">
+        <img id="modalImage" class="modal-img" alt="Gallery image">
+        <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 30px;">
+            <button onclick="event.stopPropagation(); changeModalImage(-1)" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; margin: 0 15px;">←</button>
+            <span id="modalCounter">1 / {{ house.images.all|length }}</span>
+            <button onclick="event.stopPropagation(); changeModalImage(1)" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; margin: 0 15px;">→</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Image Gallery Data
+    const images = [
+        {% for img in house.images.all %} "{{ img.image.url }}", {% endfor %}
+    ];
+    let currentIndex = 0;
+    let modalIndex = 0;
+    const mainImg = document.getElementById('mainImg');
+    let autoSlideInterval;
+
+    // Detect and set appropriate image sizing
+    function setImageFit(imgElement) {
+        if (!imgElement || !imgElement.complete) return;
+        
+        const img = imgElement;
+        const container = img.parentElement;
+        
+        if (img.naturalWidth > img.naturalHeight) {
+            // Landscape image
+            img.classList.add('landscape');
+            img.classList.remove('portrait');
+        } else {
+            // Portrait image
+            img.classList.add('portrait');
+            img.classList.remove('landscape');
+        }
+    }
+
+    // Initialize gallery
+    function initGallery() {
+        updateGallery();
+        startAutoSlide();
+        updateThumbnails();
+        
+        // Set image fit on load
+        if (mainImg) {
+            mainImg.onload = function() { setImageFit(mainImg); };
+            setImageFit(mainImg);
+            mainImg.addEventListener('click', () => openGalleryModal());
+        }
+        
+        // Set fit for side images
+        document.querySelectorAll('.side-img').forEach(img => {
+            img.onload = function() { 
+                if (img.naturalWidth > img.naturalHeight) {
+                    img.classList.add('contain');
+                }
+            };
+        });
+    }
+
+    // Update thumbnail active state
+    function updateThumbnails() {
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        thumbnails.forEach((thumb, idx) => {
+            if (idx === currentIndex) {
+                thumb.classList.add('active');
+                thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            } else {
+                thumb.classList.remove('active');
+            }
+        });
+    }
+
+    // Change main image
+    function changeImage(direction) {
+        currentIndex += direction;
+        if (currentIndex < 0) currentIndex = images.length - 1;
+        if (currentIndex >= images.length) currentIndex = 0;
+        updateGallery();
+        resetAutoSlide();
+    }
+
+    // Set specific main image
+    function setMainImage(src, index) {
+        currentIndex = index;
+        updateGallery();
+        resetAutoSlide();
+    }
+
+    // Update gallery display
+    function updateGallery() {
+        if (!mainImg) return;
+        
+        mainImg.style.opacity = '0';
+        setTimeout(() => {
+            mainImg.src = images[currentIndex];
+            mainImg.style.opacity = '1';
+            document.getElementById('currentImgIndex').textContent = currentIndex + 1;
+            updateThumbnails();
+            
+            // Re-evaluate image fit after load
+            mainImg.onload = function() { setImageFit(mainImg); };
+        }, 200);
+    }
+
+    // Auto-slide functionality
+    function startAutoSlide() {
+        autoSlideInterval = setInterval(() => {
+            changeImage(1);
+        }, 5000);
+    }
+
+    function resetAutoSlide() {
+        clearInterval(autoSlideInterval);
+        startAutoSlide();
+    }
+
+    // Modal gallery functions
+    function openGalleryModal() {
+        const modal = document.getElementById('galleryModal');
+        const modalImg = document.getElementById('modalImage');
+        modalIndex = currentIndex;
+        modalImg.src = images[modalIndex];
+        document.getElementById('modalCounter').textContent = `${modalIndex + 1} / ${images.length}`;
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeGalleryModal() {
+        document.getElementById('galleryModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function changeModalImage(direction) {
+        modalIndex += direction;
+        if (modalIndex < 0) modalIndex = images.length - 1;
+        if (modalIndex >= images.length) modalIndex = 0;
+        document.getElementById('modalImage').src = images[modalIndex];
+        document.getElementById('modalCounter').textContent = `${modalIndex + 1} / ${images.length}`;
+    }
+
+    // Scroll to contact section
+    function scrollToContact() {
+        alert('Contact agent: {{ house.phone }}');
+    }
+
+    // Smooth scroll for action buttons
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
+    // Lazy loading images with IntersectionObserver
+    if ('IntersectionObserver' in window) {
+        const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src || img.src;
+                    img.classList.remove('lazy');
+                    imageObserver.unobserve(img);
+                }
+            });
+        });
+        
+        lazyImages.forEach(img => imageObserver.observe(img));
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        initGallery();
+        
+        // Add animation to elements as they scroll into view
+        const animateElements = document.querySelectorAll('.features-grid, .desc-card, .amenities-section, .sidebar-card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        animateElements.forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(el);
+        });
+    });
+
+    // Handle keyboard navigation for modal
+    document.addEventListener('keydown', (e) => {
+        if (document.getElementById('galleryModal').style.display === 'block') {
+            if (e.key === 'ArrowLeft') {
+                changeModalImage(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeModalImage(1);
+            } else if (e.key === 'Escape') {
+                closeGalleryModal();
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,1204 @@
+<!-- apartment_list.html -->
+{% extends "BUILDING/bases.html" %}
+{% load static %}
+
+{% block title %}Luxury Apartments | Premium Real Estate{% endblock %}
+
+{% block content %}
+<style>
+    /* ========== PREMIUM APARTMENT DESIGN SYSTEM ========== */
+    :root {
+        --primary: #00d27f;
+        --primary-dark: #00b86f;
+        --secondary: #001f3f;
+        --accent: #ff6b35;
+        --dark: #0a0a2a;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --gray-light: #94a3b8;
+        --border: #e2e8f0;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+        --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+        --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+
+    /* ========== FILTER SECTION ========== */
+    .filter-section {
+        background: white;
+        padding: 30px 5%;
+        box-shadow: var(--shadow-sm);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        backdrop-filter: blur(10px);
+        background: rgba(255,255,255,0.95);
+    }
+
+    .filter-container {
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .filter-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .filter-title i {
+        color: var(--primary);
+        margin-right: 8px;
+    }
+
+    .stats-badge {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .stat-chip {
+        background: var(--light);
+        padding: 6px 15px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .stat-chip i {
+        margin-right: 6px;
+        color: var(--primary);
+    }
+
+    .filter-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        margin-top: 15px;
+    }
+
+    .filter-input {
+        padding: 12px 20px;
+        border: 1px solid var(--border);
+        border-radius: 50px;
+        font-size: 14px;
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0,210,127,0.1);
+    }
+
+    .filter-select {
+        padding: 12px 20px;
+        border: 1px solid var(--border);
+        border-radius: 50px;
+        font-size: 14px;
+        background: white;
+        cursor: pointer;
+    }
+
+    .filter-btn {
+        padding: 12px 25px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .filter-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .reset-btn {
+        background: var(--light);
+        color: var(--gray);
+        border: 1px solid var(--border);
+    }
+
+    .reset-btn:hover {
+        background: var(--border);
+        color: var(--dark);
+    }
+
+    /* ========== APARTMENT GRID - 5 ITEMS PER ROW ========== */
+    .apartments-section {
+        padding: 40px 5% 60px;
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+
+    .section-header {
+        margin-bottom: 40px;
+        text-align: center;
+    }
+
+    .section-header h1 {
+        font-size: 40px;
+        font-weight: 800;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, var(--dark), var(--primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .section-header p {
+        color: var(--gray);
+        font-size: 16px;
+    }
+
+    /* 5 items per row grid */
+    .apartment-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+    }
+
+    /* Responsive: 4 items on 1400px */
+    @media (max-width: 1400px) {
+        .apartment-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    /* Responsive: 3 items on tablet */
+    @media (max-width: 1100px) {
+        .apartment-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    /* Responsive: 2 items on mobile */
+    @media (max-width: 768px) {
+        .apartment-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* Responsive: 1 item on small mobile */
+    @media (max-width: 480px) {
+        .apartment-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Premium Apartment Card - Compact for 5 items */
+    .apartment-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-md);
+        position: relative;
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .apartment-card:nth-child(1) { animation-delay: 0.03s; }
+    .apartment-card:nth-child(2) { animation-delay: 0.06s; }
+    .apartment-card:nth-child(3) { animation-delay: 0.09s; }
+    .apartment-card:nth-child(4) { animation-delay: 0.12s; }
+    .apartment-card:nth-child(5) { animation-delay: 0.15s; }
+    .apartment-card:nth-child(6) { animation-delay: 0.18s; }
+    .apartment-card:nth-child(7) { animation-delay: 0.21s; }
+    .apartment-card:nth-child(8) { animation-delay: 0.24s; }
+    .apartment-card:nth-child(9) { animation-delay: 0.27s; }
+    .apartment-card:nth-child(10) { animation-delay: 0.30s; }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .apartment-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-2xl);
+    }
+
+    .card-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        background: var(--light);
+    }
+
+    .card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .apartment-card:hover .card-image img {
+        transform: scale(1.08);
+    }
+
+    /* Status Badges - Compact */
+    .status-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 4px 8px;
+        border-radius: 50px;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 2;
+        backdrop-filter: blur(10px);
+    }
+
+    .badge-available {
+        background: rgba(16,185,129,0.9);
+        color: white;
+    }
+
+    .badge-sold {
+        background: rgba(239,68,68,0.9);
+        color: white;
+    }
+
+    .term-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 4px 8px;
+        border-radius: 50px;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 2;
+        backdrop-filter: blur(10px);
+    }
+
+    .badge-sale {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+    }
+
+    .badge-rent {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+    }
+
+    /* Discount Badge */
+    .discount-badge {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        background: var(--accent);
+        color: white;
+        padding: 3px 6px;
+        border-radius: 50px;
+        font-size: 9px;
+        font-weight: 700;
+        z-index: 2;
+    }
+
+    .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.4) 100%);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .apartment-card:hover .image-overlay {
+        opacity: 1;
+    }
+
+    .quick-view {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 9px;
+        font-weight: 600;
+        color: var(--dark);
+        opacity: 0;
+        transition: all 0.3s;
+        text-decoration: none;
+        z-index: 3;
+        white-space: nowrap;
+    }
+
+    .apartment-card:hover .quick-view {
+        opacity: 1;
+        bottom: 15px;
+    }
+
+    .quick-view:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* Card Content - Compact */
+    .card-content {
+        padding: 12px;
+    }
+
+    .property-type {
+        display: inline-block;
+        font-size: 8px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--primary);
+        margin-bottom: 4px;
+    }
+
+    .property-title {
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 4px;
+        color: var(--dark);
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .property-location {
+        font-size: 10px;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .property-location i {
+        color: var(--primary);
+        font-size: 9px;
+    }
+
+    /* Features Grid - Compact */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        padding: 8px 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 8px;
+    }
+
+    .feature-item {
+        text-align: center;
+    }
+
+    .feature-value {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--dark);
+        display: block;
+    }
+
+    .feature-label {
+        font-size: 7px;
+        color: var(--gray);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    /* Price Section - Compact */
+    .price-section {
+        margin-bottom: 8px;
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .current-price {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .price-period {
+        font-size: 9px;
+        color: var(--gray);
+        font-weight: 400;
+    }
+
+    .original-price {
+        font-size: 10px;
+        text-decoration: line-through;
+        color: var(--gray-light);
+    }
+
+    /* Realtor Info - Compact */
+    .realtor-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 0;
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .realtor-avatar {
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 11px;
+    }
+
+    .realtor-details {
+        flex: 1;
+        overflow: hidden;
+    }
+
+    .realtor-name {
+        font-weight: 700;
+        font-size: 10px;
+        color: var(--dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .realtor-contact {
+        font-size: 8px;
+        color: var(--gray);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Additional Features - Compact */
+    .additional-features {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-size: 8px;
+        color: var(--gray);
+        flex-wrap: wrap;
+    }
+
+    .additional-features span {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    /* Action Buttons - Compact */
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+    }
+
+    .btn-details {
+        flex: 1;
+        padding: 6px;
+        background: var(--light);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        color: var(--dark);
+        font-weight: 600;
+        font-size: 9px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    .btn-details:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 6px;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 9px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-buy {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        box-shadow: 0 2px 6px rgba(0,210,127,0.3);
+    }
+
+    .btn-rent {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        box-shadow: 0 2px 6px rgba(59,130,246,0.3);
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+    }
+
+    .btn-disabled {
+        background: var(--light);
+        color: var(--gray);
+        cursor: not-allowed;
+        border: 1px solid var(--border);
+        box-shadow: none;
+    }
+
+    .btn-disabled:hover {
+        transform: none;
+        filter: none;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 28px;
+        border: 2px dashed var(--border);
+        grid-column: 1 / -1;
+    }
+
+    .empty-icon {
+        font-size: 60px;
+        color: var(--border);
+        margin-bottom: 15px;
+    }
+
+    /* Pagination */
+    .pagination {
+        margin-top: 50px;
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .page-link {
+        min-width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--dark);
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.3s;
+        padding: 0 12px;
+    }
+
+    .page-link:hover, .page-link.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Live Search Results Counter */
+    .search-results-count {
+        background: var(--primary);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    /* Loading Animation */
+    .loading {
+        display: none;
+        text-align: center;
+        padding: 40px;
+        grid-column: 1 / -1;
+    }
+
+    .loading.active {
+        display: block;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--border);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .section-header h1 {
+            font-size: 28px;
+        }
+        
+        .filter-grid {
+            flex-direction: column;
+        }
+        
+        .filter-input, .filter-select, .filter-btn {
+            width: 100%;
+        }
+        
+        .stats-badge {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .filter-header {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <div class="filter-container">
+        <div class="filter-header">
+            <div class="filter-title">
+                <i class="fas fa-building"></i> Find Your Perfect Apartment
+            </div>
+            <div class="stats-badge">
+                <div class="stat-chip">
+                    <i class="fas fa-home"></i> <span id="totalCount">{{ total_apartments }}</span> Available
+                </div>
+                <div class="stat-chip">
+                    <i class="fas fa-tag"></i> {{ available_sale }} For Sale
+                </div>
+                <div class="stat-chip">
+                    <i class="fas fa-key"></i> {{ available_rent }} For Rent
+                </div>
+            </div>
+        </div>
+        
+        <form method="GET" action="" id="filterForm">
+            <div class="filter-grid">
+                <input type="text" name="search" id="liveSearch" class="filter-input" placeholder="🔍 Type to search apartments by title, location or realtor..." value="{{ search_query }}" style="flex: 2;" autocomplete="off">
+                
+                <select name="term" id="termFilter" class="filter-select">
+                    <option value="">All Terms</option>
+                    <option value="sale" {% if term_filter == 'sale' %}selected{% endif %}>For Sale</option>
+                    <option value="rent" {% if term_filter == 'rent' %}selected{% endif %}>For Rent</option>
+                </select>
+                
+                <select name="bedrooms" id="bedroomsFilter" class="filter-select">
+                    <option value="">Any Bedrooms</option>
+                    <option value="1" {% if bedrooms_filter == '1' %}selected{% endif %}>1 Bedroom</option>
+                    <option value="2" {% if bedrooms_filter == '2' %}selected{% endif %}>2 Bedrooms</option>
+                    <option value="3" {% if bedrooms_filter == '3' %}selected{% endif %}>3 Bedrooms</option>
+                    <option value="4" {% if bedrooms_filter == '4' %}selected{% endif %}>4+ Bedrooms</option>
+                </select>
+                
+                <input type="number" name="min_price" id="minPrice" class="filter-input" placeholder="Min $" value="{{ min_price }}" style="width: 100px;">
+                <input type="number" name="max_price" id="maxPrice" class="filter-input" placeholder="Max $" value="{{ max_price }}" style="width: 100px;">
+                
+                <button type="submit" class="filter-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                
+                <button type="button" id="resetFiltersBtn" class="filter-btn reset-btn">
+                    <i class="fas fa-times"></i> Reset
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Apartments Section -->
+<div class="apartments-section">
+    <div class="section-header">
+        <h1>Luxury Apartments Collection</h1>
+        <p>Discover premium apartments in Rwanda's most desirable locations</p>
+        <div id="searchResultsInfo" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p style="margin-top: 12px; color: var(--gray);">Loading apartments...</p>
+    </div>
+
+    <div class="apartment-grid" id="apartmentGrid">
+        {% for apartment in apartments %}
+        <div class="apartment-card" data-title="{{ apartment.title|lower }}" data-location="{{ apartment.location|lower }}" data-realtor="{{ apartment.realtor|lower }}" data-term="{{ apartment.property_term|lower }}" data-bedrooms="{{ apartment.bedrooms }}" data-price="{{ apartment.price }}">
+            <div class="card-image">
+                {% with apartment.images.all|first as first_image %}
+                    {% if first_image %}
+                        <img src="{{ first_image.image.url }}" alt="{{ apartment.title }}" loading="lazy">
+                    {% else %}
+                        <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg, #f0f0f0, #e0e0e0);">
+                            <i class="fas fa-building fa-3x" style="color: #ccc;"></i>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                
+                <div class="image-overlay"></div>
+                
+                <!-- Status Badge -->
+                <div class="status-badge {% if apartment.is_available %}badge-available{% else %}badge-sold{% endif %}">
+                    <i class="fas {% if apartment.is_available %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                    {% if apartment.is_available %}Available{% else %}Sold{% endif %}
+                </div>
+                
+                <!-- Term Badge -->
+                <div class="term-badge {% if apartment.property_term|lower == 'rent' %}badge-rent{% else %}badge-sale{% endif %}">
+                    {% if apartment.property_term|lower == 'rent' %}
+                        <i class="fas fa-key"></i> Rent
+                    {% else %}
+                        <i class="fas fa-tag"></i> Sale
+                    {% endif %}
+                </div>
+                
+                <!-- Discount Badge -->
+                {% if apartment.discount and apartment.discount > 0 %}
+                <div class="discount-badge">
+                    <i class="fas fa-percent"></i> {{ apartment.discount|floatformat:0 }} OFF
+                </div>
+                {% endif %}
+                
+                <a href="{% url 'BUILDING:building_detail' apartment.id %}" class="quick-view">
+                    <i class="fas fa-eye"></i> Quick View
+                </a>
+            </div>
+            
+            <div class="card-content">
+                <div class="property-type">
+                    <i class="fas fa-tag"></i> {{ apartment.property_type|default:"Apartment" }}
+                </div>
+                <h3 class="property-title" title="{{ apartment.title }}">{{ apartment.title|truncatechars:30 }}</h3>
+                <div class="property-location">
+                    <i class="fas fa-map-marker-alt"></i> {{ apartment.location|default:"Kigali, Rwanda"|truncatechars:25 }}
+                </div>
+                
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <span class="feature-value">{{ apartment.bedrooms|default:"0" }}</span>
+                        <span class="feature-label">Beds</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-value">{{ apartment.bathrooms|default:"0" }}</span>
+                        <span class="feature-label">Baths</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-value">{{ apartment.plot_area|default:"0" }}</span>
+                        <span class="feature-label">Sq Ft</span>
+                    </div>
+                </div>
+                
+                <!-- Additional Features -->
+                <div class="additional-features">
+                    {% if apartment.furnished and apartment.furnished != 'No' %}
+                        <span><i class="fas fa-couch"></i> {{ apartment.furnished }}</span>
+                    {% endif %}
+                    {% if apartment.parking and apartment.parking != 'No' %}
+                        <span><i class="fas fa-parking"></i> {{ apartment.parking }}</span>
+                    {% endif %}
+                    {% if apartment.balcony and apartment.balcony != 'No' %}
+                        <span><i class="fas fa-umbrella-beach"></i> {{ apartment.balcony }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="price-section">
+                    <span class="current-price">${{ apartment.price|floatformat:0 }}</span>
+                    {% if apartment.property_term|lower == 'rent' %}
+                        <span class="price-period">/mo</span>
+                    {% endif %}
+                    {% if apartment.discount and apartment.discount > 0 %}
+                        <span class="original-price">${{ apartment.discount|floatformat:0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="realtor-info">
+                    <div class="realtor-avatar">
+                        {{ apartment.realtor|slice:":1"|upper }}
+                    </div>
+                    <div class="realtor-details">
+                        <div class="realtor-name">{{ apartment.realtor|truncatechars:15 }}</div>
+                        <div class="realtor-contact">
+                            <i class="fas fa-phone"></i> {{ apartment.phone|slice:":10" }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="{% url 'BUILDING:initiate_payment' apartment.id %}" class="btn-details">
+                        <i class="fas fa-info-circle"></i> Details
+                    </a>
+                    {% if apartment.is_available %}
+                        <a href="#" 
+                           class="btn-action {% if apartment.property_term|lower == 'rent' %}btn-rent{% else %}btn-buy{% endif %}">
+                            {% if apartment.property_term|lower == 'rent' %}
+                                <i class="fas fa-key"></i> Rent
+                            {% else %}
+                                <i class="fas fa-shopping-cart"></i> Buy
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <button disabled class="btn-action btn-disabled">
+                            <i class="fas fa-times-circle"></i> Sold
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-building"></i>
+            </div>
+            <h3 style="font-size: 22px; margin-bottom: 8px;">No Apartments Found</h3>
+            <p style="color: var(--gray); margin-bottom: 15px;">We couldn't find any apartments matching your criteria.</p>
+            <button onclick="resetAllFilters()" class="btn-action btn-buy" style="display: inline-block; width: auto; padding: 10px 25px;">
+                <i class="fas fa-undo-alt"></i> View All
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if apartments.has_other_pages %}
+    <div class="pagination" id="pagination">
+        {% if apartments.has_previous %}
+        <a href="?page={{ apartments.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        {% endif %}
+        
+        {% for i in apartments.paginator.page_range %}
+            {% if apartments.number == i %}
+            <span class="page-link active">{{ i }}</span>
+            {% elif i > apartments.number|add:'-3' and i < apartments.number|add:'3' %}
+            <a href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">{{ i }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if apartments.has_next %}
+        <a href="?page={{ apartments.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Live search functionality
+    let searchTimeout;
+    const searchInput = document.getElementById('liveSearch');
+    const termFilter = document.getElementById('termFilter');
+    const bedroomsFilter = document.getElementById('bedroomsFilter');
+    const minPrice = document.getElementById('minPrice');
+    const maxPrice = document.getElementById('maxPrice');
+    const resetBtn = document.getElementById('resetFiltersBtn');
+    const apartmentGrid = document.getElementById('apartmentGrid');
+    const loading = document.getElementById('loading');
+    const totalCountSpan = document.getElementById('totalCount');
+    const searchResultsInfo = document.getElementById('searchResultsInfo');
+    
+    // Store original apartment cards
+    let originalCards = [];
+    
+    // Initialize original cards on page load
+    function initOriginalCards() {
+        if (apartmentGrid) {
+            originalCards = Array.from(apartmentGrid.querySelectorAll('.apartment-card'));
+            updateTotalCount(originalCards.length);
+        }
+    }
+    
+    // Update total count display
+    function updateTotalCount(count) {
+        if (totalCountSpan) {
+            totalCountSpan.textContent = count;
+        }
+    }
+    
+    // Live search and filter function
+    function filterApartments() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const termValue = termFilter ? termFilter.value.toLowerCase() : '';
+        const bedroomsValue = bedroomsFilter ? bedroomsFilter.value : '';
+        const minPriceValue = minPrice ? parseFloat(minPrice.value) : null;
+        const maxPriceValue = maxPrice ? parseFloat(maxPrice.value) : null;
+        
+        if (!apartmentGrid) return;
+        
+        let visibleCount = 0;
+        const cards = apartmentGrid.querySelectorAll('.apartment-card');
+        
+        cards.forEach(card => {
+            const title = card.getAttribute('data-title') || '';
+            const location = card.getAttribute('data-location') || '';
+            const realtor = card.getAttribute('data-realtor') || '';
+            const term = card.getAttribute('data-term') || '';
+            const bedrooms = parseInt(card.getAttribute('data-bedrooms')) || 0;
+            const price = parseFloat(card.getAttribute('data-price')) || 0;
+            
+            let showCard = true;
+            
+            // Search filter (live typing)
+            if (searchTerm) {
+                const matchesSearch = title.includes(searchTerm) || 
+                                     location.includes(searchTerm) || 
+                                     realtor.includes(searchTerm);
+                if (!matchesSearch) showCard = false;
+            }
+            
+            // Term filter
+            if (showCard && termValue && term !== termValue) {
+                showCard = false;
+            }
+            
+            // Bedrooms filter
+            if (showCard && bedroomsValue) {
+                const bedroomsNum = parseInt(bedroomsValue);
+                if (bedroomsValue === '4') {
+                    if (bedrooms < 4) showCard = false;
+                } else {
+                    if (bedrooms !== bedroomsNum) showCard = false;
+                }
+            }
+            
+            // Price range filter
+            if (showCard && minPriceValue !== null && !isNaN(minPriceValue)) {
+                if (price < minPriceValue) showCard = false;
+            }
+            if (showCard && maxPriceValue !== null && !isNaN(maxPriceValue)) {
+                if (price > maxPriceValue) showCard = false;
+            }
+            
+            // Show/hide card with animation
+            if (showCard) {
+                card.style.display = '';
+                visibleCount++;
+                // Add fade-in animation for newly visible cards
+                card.style.animation = 'fadeInUp 0.5s ease forwards';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Update total count
+        updateTotalCount(visibleCount);
+        
+        // Show/hide empty state
+        const emptyState = apartmentGrid.querySelector('.empty-state');
+        if (visibleCount === 0 && !emptyState) {
+            // Create empty state if no results
+            const noResultsDiv = document.createElement('div');
+            noResultsDiv.className = 'empty-state';
+            noResultsDiv.innerHTML = `
+                <div class="empty-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 style="font-size: 22px; margin-bottom: 8px;">No Matching Apartments</h3>
+                <p style="color: var(--gray); margin-bottom: 15px;">No apartments found matching "${searchTerm || 'your filters'}"</p>
+                <button onclick="resetAllFilters()" class="btn-action btn-buy" style="display: inline-block; width: auto; padding: 10px 25px;">
+                    <i class="fas fa-undo-alt"></i> Clear Filters
+                </button>
+            `;
+            apartmentGrid.appendChild(noResultsDiv);
+        } else if (visibleCount > 0 && emptyState) {
+            emptyState.remove();
+        }
+        
+        // Update search results info
+        if (searchResultsInfo) {
+            if (searchTerm || termValue || bedroomsValue || minPriceValue || maxPriceValue) {
+                searchResultsInfo.innerHTML = `<span class="search-results-count">${visibleCount} results found</span>`;
+            } else {
+                searchResultsInfo.innerHTML = '';
+            }
+        }
+    }
+    
+    // Debounced search function for live typing
+    function debouncedSearch() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            filterApartments();
+        }, 300); // 300ms delay for better performance
+    }
+    
+    // Reset all filters
+    function resetAllFilters() {
+        if (searchInput) searchInput.value = '';
+        if (termFilter) termFilter.value = '';
+        if (bedroomsFilter) bedroomsFilter.value = '';
+        if (minPrice) minPrice.value = '';
+        if (maxPrice) maxPrice.value = '';
+        
+        // Show all cards
+        filterApartments();
+        
+        // Update URL without filters (optional)
+        if (window.history && window.history.pushState) {
+            const url = new URL(window.location.href);
+            url.search = '';
+            window.history.pushState({}, '', url);
+        }
+    }
+    
+    // Event listeners for live search
+    if (searchInput) {
+        searchInput.addEventListener('input', debouncedSearch);
+    }
+    
+    if (termFilter) {
+        termFilter.addEventListener('change', filterApartments);
+    }
+    
+    if (bedroomsFilter) {
+        bedroomsFilter.addEventListener('change', filterApartments);
+    }
+    
+    if (minPrice) {
+        minPrice.addEventListener('input', debouncedSearch);
+    }
+    
+    if (maxPrice) {
+        maxPrice.addEventListener('input', debouncedSearch);
+    }
+    
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetAllFilters);
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        initOriginalCards();
+        
+        // Add data attributes to cards for filtering
+        const cards = document.querySelectorAll('.apartment-card');
+        cards.forEach(card => {
+            const title = card.querySelector('.property-title')?.innerText?.toLowerCase() || '';
+            const location = card.querySelector('.property-location')?.innerText?.toLowerCase() || '';
+            const realtor = card.querySelector('.realtor-name')?.innerText?.toLowerCase() || '';
+            const termBadge = card.querySelector('.term-badge')?.innerText?.toLowerCase() || '';
+            const bedroomsSpan = card.querySelector('.feature-value')?.innerText || '0';
+            
+            card.setAttribute('data-title', title);
+            card.setAttribute('data-location', location);
+            card.setAttribute('data-realtor', realtor);
+            card.setAttribute('data-term', termBadge.includes('rent') ? 'rent' : 'sale');
+            card.setAttribute('data-bedrooms', parseInt(bedroomsSpan) || 0);
+            
+            const priceSpan = card.querySelector('.current-price');
+            if (priceSpan) {
+                const priceText = priceSpan.innerText.replace('$', '').replace(',', '');
+                card.setAttribute('data-price', parseFloat(priceText) || 0);
+            }
+        });
+        
+        // Smooth scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.apartment-card').forEach(card => {
+            observer.observe(card);
+        });
+        
+        // Loading animation on form submit
+        const filterForm = document.getElementById('filterForm');
+        if (filterForm) {
+            filterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                loading.classList.add('active');
+                if (apartmentGrid) apartmentGrid.style.opacity = '0.5';
+                
+                // Simulate loading then filter
+                setTimeout(() => {
+                    filterApartments();
+                    loading.classList.remove('active');
+                    if (apartmentGrid) apartmentGrid.style.opacity = '1';
+                }, 500);
+            });
+        }
+    });
+</script>
+{% endblock %}

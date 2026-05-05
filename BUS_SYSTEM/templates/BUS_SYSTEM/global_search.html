@@ -1,0 +1,770 @@
+{% extends 'BUS_SYSTEM/baseone.html' %}
+{% load static %}
+
+{% block title %}Results for "{{ query }}" | DistarGroup{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --card-bg: #ffffff;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --border-color: #f1f5f9;
+        --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
+        --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.08);
+    }
+
+    /* Live Search Styles */
+    .live-search-container {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .search-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    
+    .live-search-input {
+        width: 100%;
+        padding: 16px 50px 16px 20px;
+        font-size: 16px;
+        border: 2px solid var(--border-color);
+        border-radius: 50px;
+        background: white;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+    
+    .live-search-input:focus {
+        outline: none;
+        border-color: var(--brand-green);
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+    }
+    
+    .search-loading {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: none;
+    }
+    
+    .search-loading.active {
+        display: block;
+    }
+    
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--border-color);
+        border-top-color: var(--brand-green);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .clear-search {
+        position: absolute;
+        right: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: var(--text-muted);
+        display: none;
+        padding: 0 5px;
+    }
+    
+    .clear-search.show {
+        display: block;
+    }
+    
+    .search-results-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        margin-top: 10px;
+        max-height: 500px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1000;
+        border: 1px solid var(--border-color);
+    }
+    
+    .search-results-dropdown.active {
+        display: block;
+    }
+    
+    .dropdown-section {
+        padding: 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .dropdown-section-title {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+    
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px;
+        text-decoration: none;
+        color: var(--text-main);
+        transition: background 0.2s;
+        border-radius: 12px;
+    }
+    
+    .dropdown-item:hover {
+        background: #f8fafc;
+    }
+    
+    .dropdown-item-img {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+    
+    .dropdown-item-info {
+        flex: 1;
+    }
+    
+    .dropdown-item-title {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+    
+    .dropdown-item-price {
+        font-size: 13px;
+        color: var(--brand-green);
+        font-weight: 700;
+    }
+    
+    .dropdown-item-location {
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+    
+    .dropdown-item-badge {
+        font-size: 9px;
+        padding: 2px 8px;
+        border-radius: 50px;
+        background: #f1f5f9;
+        font-weight: 700;
+    }
+    
+    .view-all-results {
+        padding: 12px;
+        text-align: center;
+        background: #f8fafc;
+        font-weight: 600;
+        color: var(--brand-green);
+        text-decoration: none;
+        display: block;
+    }
+    
+    .no-results-dropdown {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-muted);
+    }
+    
+    .search-header {
+        padding: 60px 0 40px;
+        text-align: center;
+        background: white;
+        margin-bottom: 40px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .search-header h1 { font-size: 2rem; font-weight: 800; color: var(--brand-dark); }
+    .query-text { color: var(--brand-green); font-style: italic; }
+
+    /* Modern Section Dividers */
+    .section-divider {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin: 50px 0 25px;
+    }
+    .section-divider h2 {
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-muted);
+        white-space: nowrap;
+        font-weight: 700;
+    }
+    .section-divider .line { height: 1px; background: var(--border-color); flex: 1; }
+
+    /* Product Grid */
+    .search-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 25px;
+    }
+
+    /* Entire Card is a Link */
+    .result-link { text-decoration: none; color: inherit; display: block; }
+
+    .result-card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .result-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--brand-green);
+    }
+
+    .img-wrapper {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .result-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .result-card:hover .result-img { transform: scale(1.08); }
+
+    .card-content { padding: 18px; flex-grow: 1; display: flex; flex-direction: column; }
+
+    /* Specific Badges */
+    .type-badge {
+        position: absolute; top: 12px; left: 12px;
+        font-size: 10px; font-weight: 800; padding: 5px 12px;
+        border-radius: 50px; text-transform: uppercase; z-index: 2;
+        background: rgba(255,255,255,0.95); backdrop-filter: blur(4px);
+        box-shadow: var(--shadow-sm);
+    }
+    .badge-prop { color: #2563eb; }
+    .badge-veh { color: #d97706; }
+    .badge-com { color: var(--brand-green); }
+
+    .result-title {
+        font-size: 16px; font-weight: 700; color: var(--brand-dark);
+        margin-bottom: 8px; line-height: 1.4;
+    }
+
+    .meta-row {
+        display: flex; align-items: center; gap: 12px;
+        font-size: 13px; color: var(--text-muted); margin-bottom: 15px;
+    }
+
+    .price-tag {
+        margin-top: auto; font-size: 18px; font-weight: 800;
+        color: var(--brand-dark); display: flex; align-items: baseline; gap: 4px;
+    }
+    .price-tag small { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+    /* Quick Action Button */
+    .quick-view-btn {
+        margin-top: 15px; padding: 10px; width: 100%;
+        border-radius: 10px; border: none; background: #f8fafc;
+        color: var(--brand-dark); font-weight: 700; font-size: 13px;
+        transition: 0.2s; cursor: pointer;
+    }
+    .result-card:hover .quick-view-btn { background: var(--brand-green); color: white; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Live Search Bar -->
+<div class="search-header" style="padding: 30px 0 20px;">
+    <div class="main-container">
+        <div class="live-search-container">
+            <div class="search-input-wrapper">
+                <input 
+                    type="text" 
+                    id="liveSearchInput" 
+                    class="live-search-input" 
+                    placeholder="🔍 Search for properties, vehicles, commodities..." 
+                    autocomplete="off"
+                    value="{{ query }}"
+                >
+                <div class="search-loading" id="searchLoading">
+                    <div class="spinner"></div>
+                </div>
+                <button class="clear-search" id="clearSearch">✕</button>
+            </div>
+            <div class="search-results-dropdown" id="searchDropdown"></div>
+        </div>
+    </div>
+</div>
+
+<div class="search-header">
+    <div class="main-container">
+        <h1>Results for <span class="query-text" id="mainQueryText">"{{ query }}"</span></h1>
+        <p style="color: var(--text-muted); margin-top: 10px;" id="resultsSummary">
+            We found matches in 
+            {% if buildings %}Properties{% endif %}
+            {% if vehicles %}, Vehicles{% endif %}
+            {% if commodities %}, and General Items{% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="main-container" style="padding-bottom: 100px;" id="mainResultsContainer">
+{% if not buildings and not vehicles and not commodities %}
+    <div style="text-align: center; padding: 100px 20px;" id="noResultsMessage">
+        <div style="font-size: 60px; margin-bottom: 20px;">🔍</div>
+        <h2 style="color: var(--brand-dark);">No matches in this platform</h2>
+        <p style="color: var(--text-muted);">Try a broader keyword or check your spelling.</p>
+        <a href="{% url 'BUS_SYSTEM:mainpage' %}" style="display: inline-block; margin-top: 25px; padding: 12px 30px; background: var(--brand-green); color: white; border-radius: 50px; text-decoration: none; font-weight: 700;">Back to Marketplace</a>
+    </div>
+{% else %}
+
+    {% if buildings %}
+    <div class="section-divider" id="buildingsSection">
+        <h2>Real Estate & Property</h2>
+        <div class="line"></div>
+    </div>
+    <div class="search-grid" id="buildingsGrid">
+        {% for item in buildings %}
+        <a href="{% url 'BUS_SYSTEM:product_detail' item.id %}" class="result-link">
+            <div class="result-card">
+                <div class="img-wrapper">
+                    <span class="type-badge badge-prop">{{ item.property_type }}</span>
+                    {% if item.images.first %}
+                    <img src="{{ item.images.first.image.url }}" class="result-img" alt="{{ item.title }}">
+                    {% endif %}
+                </div>
+                <div class="card-content">
+                    <h3 class="result-title">{{ item.title }}</h3>
+                    <div class="meta-row">
+                        <span><i class="fa fa-map-marker-alt"></i> {{ item.location }}</span>
+                    </div>
+                    <div class="price-tag">
+                        {{ item.price|floatformat:0 }} <small>RWF</small>
+                    </div>
+                    <button class="quick-view-btn">View Details</button>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if vehicles %}
+    <div class="section-divider" id="vehiclesSection">
+        <h2>Motors & Transport</h2>
+        <div class="line"></div>
+    </div>
+    <div class="search-grid" id="vehiclesGrid">
+        {% for item in vehicles %}
+        <a href="{% url 'BUS_SYSTEM:product_detail' item.id %}" class="result-link">
+            <div class="result-card">
+                <div class="img-wrapper">
+                    <span class="type-badge badge-veh">{{ item.get_product_type_display }}</span>
+                    {% if item.images.first %}
+                    <img src="{{ item.images.first.image.url }}" class="result-img" alt="{{ item.model }}">
+                    {% endif %}
+                </div>
+                <div class="card-content">
+                    <h3 class="result-title">{{ item.brand }} {{ item.model }}</h3>
+                    <div class="meta-row">
+                        <span><i class="fa fa-calendar-alt"></i> {{ item.year }}</span>
+                        <span><i class="fa fa-road"></i> {{ item.mileage }}km</span>
+                    </div>
+                    <div class="price-tag">
+                        {{ item.price|floatformat:0 }} <small>RWF</small>
+                    </div>
+                    <button class="quick-view-btn">Check Condition</button>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if commodities %}
+    <div class="section-divider" id="commoditiesSection">
+        <h2>General Commodities</h2>
+        <div class="line"></div>
+    </div>
+    <div class="search-grid" id="commoditiesGrid">
+        {% for item in commodities %}
+        <a href="{% url 'BUS_SYSTEM:product_detail' item.id %}" class="result-link">
+            <div class="result-card">
+                <div class="img-wrapper">
+                    <span class="type-badge badge-com">{{ item.get_type_display }}</span>
+                    <img src="{{ item.image.url }}" class="result-img" alt="{{ item.name }}">
+                </div>
+                <div class="card-content">
+                    <h3 class="result-title">{{ item.name }}</h3>
+                    <div class="meta-row">
+                        <span><i class="fa fa-store"></i> {{ item.location }}</span>
+                    </div>
+                    <div class="price-tag">
+                        {{ item.price|floatformat:0 }} <small>RWF</small>
+                    </div>
+                    <button class="quick-view-btn">Add to Bag</button>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+{% endif %}
+</div>
+
+<script>
+    // Live Search Functionality
+    const searchInput = document.getElementById('liveSearchInput');
+    const searchDropdown = document.getElementById('searchDropdown');
+    const searchLoading = document.getElementById('searchLoading');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const mainQueryText = document.getElementById('mainQueryText');
+    const resultsSummary = document.getElementById('resultsSummary');
+    const mainResultsContainer = document.getElementById('mainResultsContainer');
+    const noResultsMessage = document.getElementById('noResultsMessage');
+    
+    let debounceTimer;
+    let currentQuery = '{{ query }}';
+    
+    // Update URL without reload
+    function updateURL(query) {
+        const url = new URL(window.location.href);
+        if (query) {
+            url.searchParams.set('q', query);
+        } else {
+            url.searchParams.delete('q');
+        }
+        window.history.pushState({}, '', url);
+    }
+    
+    // Show/Hide clear button
+    function toggleClearButton() {
+        if (searchInput.value.length > 0) {
+            clearSearchBtn.classList.add('show');
+        } else {
+            clearSearchBtn.classList.remove('show');
+        }
+    }
+    
+    // Clear search
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        toggleClearButton();
+        searchDropdown.classList.remove('active');
+        if (currentQuery) {
+            performSearch('');
+        }
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+            searchDropdown.classList.remove('active');
+        }
+    });
+    
+    // Perform search
+    async function performSearch(query) {
+        if (!query || query.length < 2) {
+            if (query.length === 0) {
+                // Reload page with empty query to show all results
+                window.location.href = window.location.pathname;
+            }
+            searchDropdown.classList.remove('active');
+            return;
+        }
+        
+        searchLoading.classList.add('active');
+        currentQuery = query;
+        
+        try {
+            const response = await fetch(`/BUS_SYSTEM/global-search-api/?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+            
+            updateURL(query);
+            renderDropdownResults(data, query);
+            updateMainResults(data, query);
+            
+        } catch (error) {
+            console.error('Search error:', error);
+        } finally {
+            searchLoading.classList.remove('active');
+        }
+    }
+    
+    // Render dropdown results
+    function renderDropdownResults(data, query) {
+        const hasResults = data.buildings.length > 0 || data.vehicles.length > 0 || data.commodities.length > 0;
+        
+        if (!hasResults) {
+            searchDropdown.innerHTML = `
+                <div class="no-results-dropdown">
+                    <div style="font-size: 40px; margin-bottom: 10px;">🔍</div>
+                    <p>No results found for "${query}"</p>
+                    <small style="color: var(--text-muted);">Try different keywords</small>
+                </div>
+            `;
+            searchDropdown.classList.add('active');
+            return;
+        }
+        
+        let html = '';
+        
+        // Buildings
+        if (data.buildings.length > 0) {
+            html += `
+                <div class="dropdown-section">
+                    <div class="dropdown-section-title">🏠 Properties (${data.buildings.length})</div>
+                    ${data.buildings.slice(0, 3).map(item => `
+                        <a href="/BUS_SYSTEM/product/${item.id}/" class="dropdown-item">
+                            <img src="${item.image}" class="dropdown-item-img" alt="${item.title}">
+                            <div class="dropdown-item-info">
+                                <div class="dropdown-item-title">${item.title}</div>
+                                <div class="dropdown-item-price">${Number(item.price).toLocaleString()} RWF</div>
+                                <div class="dropdown-item-location">📍 ${item.location}</div>
+                            </div>
+                            <span class="dropdown-item-badge">${item.property_type}</span>
+                        </a>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // Vehicles
+        if (data.vehicles.length > 0) {
+            html += `
+                <div class="dropdown-section">
+                    <div class="dropdown-section-title">🚗 Vehicles (${data.vehicles.length})</div>
+                    ${data.vehicles.slice(0, 3).map(item => `
+                        <a href="/BUS_SYSTEM/product/${item.id}/" class="dropdown-item">
+                            <img src="${item.image}" class="dropdown-item-img" alt="${item.model}">
+                            <div class="dropdown-item-info">
+                                <div class="dropdown-item-title">${item.brand} ${item.model} (${item.year})</div>
+                                <div class="dropdown-item-price">${Number(item.price).toLocaleString()} RWF</div>
+                                <div class="dropdown-item-location">📍 ${item.location}</div>
+                            </div>
+                            <span class="dropdown-item-badge">${item.vehicle_type}</span>
+                        </a>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // Commodities
+        if (data.commodities.length > 0) {
+            html += `
+                <div class="dropdown-section">
+                    <div class="dropdown-section-title">📦 Commodities (${data.commodities.length})</div>
+                    ${data.commodities.slice(0, 3).map(item => `
+                        <a href="/BUS_SYSTEM/product/${item.id}/" class="dropdown-item">
+                            <img src="${item.image}" class="dropdown-item-img" alt="${item.name}">
+                            <div class="dropdown-item-info">
+                                <div class="dropdown-item-title">${item.name}</div>
+                                <div class="dropdown-item-price">${Number(item.price).toLocaleString()} RWF</div>
+                                <div class="dropdown-item-location">📍 ${item.location}</div>
+                            </div>
+                            <span class="dropdown-item-badge">${item.type}</span>
+                        </a>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // View all link
+        html += `
+            <a href="/BUS_SYSTEM/global-search/?q=${encodeURIComponent(query)}" class="view-all-results">
+                View all ${data.total_count} results →
+            </a>
+        `;
+        
+        searchDropdown.innerHTML = html;
+        searchDropdown.classList.add('active');
+    }
+    
+    // Update main results area
+    function updateMainResults(data, query) {
+        mainQueryText.innerHTML = `"${query}"`;
+        
+        // Update summary
+        const categories = [];
+        if (data.buildings.length > 0) categories.push('Properties');
+        if (data.vehicles.length > 0) categories.push('Vehicles');
+        if (data.commodities.length > 0) categories.push('Commodities');
+        
+        if (categories.length > 0) {
+            resultsSummary.innerHTML = `We found ${data.total_count} matches in ${categories.join(', ')}`;
+        } else {
+            resultsSummary.innerHTML = `No matches found for "${query}"`;
+        }
+        
+        // Update buildings section
+        const buildingsSection = document.getElementById('buildingsSection');
+        const buildingsGrid = document.getElementById('buildingsGrid');
+        if (buildingsGrid && data.buildings.length > 0) {
+            if (buildingsSection) buildingsSection.style.display = 'flex';
+            buildingsGrid.innerHTML = data.buildings.map(item => `
+                <a href="/BUS_SYSTEM/product/${item.id}/" class="result-link">
+                    <div class="result-card">
+                        <div class="img-wrapper">
+                            <span class="type-badge badge-prop">${item.property_type}</span>
+                            <img src="${item.image}" class="result-img" alt="${item.title}">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="result-title">${escapeHtml(item.title)}</h3>
+                            <div class="meta-row">
+                                <span><i class="fa fa-map-marker-alt"></i> ${escapeHtml(item.location)}</span>
+                            </div>
+                            <div class="price-tag">
+                                ${Number(item.price).toLocaleString()} <small>RWF</small>
+                            </div>
+                            <button class="quick-view-btn">View Details</button>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
+        } else if (buildingsGrid) {
+            if (buildingsSection) buildingsSection.style.display = 'none';
+            buildingsGrid.innerHTML = '';
+        }
+        
+        // Update vehicles section
+        const vehiclesSection = document.getElementById('vehiclesSection');
+        const vehiclesGrid = document.getElementById('vehiclesGrid');
+        if (vehiclesGrid && data.vehicles.length > 0) {
+            if (vehiclesSection) vehiclesSection.style.display = 'flex';
+            vehiclesGrid.innerHTML = data.vehicles.map(item => `
+                <a href="/BUS_SYSTEM/product/${item.id}/" class="result-link">
+                    <div class="result-card">
+                        <div class="img-wrapper">
+                            <span class="type-badge badge-veh">${item.product_type_display}</span>
+                            <img src="${item.image}" class="result-img" alt="${item.model}">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="result-title">${escapeHtml(item.brand)} ${escapeHtml(item.model)}</h3>
+                            <div class="meta-row">
+                                <span><i class="fa fa-calendar-alt"></i> ${item.year}</span>
+                                <span><i class="fa fa-road"></i> ${Number(item.mileage).toLocaleString()}km</span>
+                            </div>
+                            <div class="price-tag">
+                                ${Number(item.price).toLocaleString()} <small>RWF</small>
+                            </div>
+                            <button class="quick-view-btn">Check Condition</button>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
+        } else if (vehiclesGrid) {
+            if (vehiclesSection) vehiclesSection.style.display = 'none';
+            vehiclesGrid.innerHTML = '';
+        }
+        
+        // Update commodities section
+        const commoditiesSection = document.getElementById('commoditiesSection');
+        const commoditiesGrid = document.getElementById('commoditiesGrid');
+        if (commoditiesGrid && data.commodities.length > 0) {
+            if (commoditiesSection) commoditiesSection.style.display = 'flex';
+            commoditiesGrid.innerHTML = data.commodities.map(item => `
+                <a href="/BUS_SYSTEM/product/${item.id}/" class="result-link">
+                    <div class="result-card">
+                        <div class="img-wrapper">
+                            <span class="type-badge badge-com">${item.type_display}</span>
+                            <img src="${item.image}" class="result-img" alt="${item.name}">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="result-title">${escapeHtml(item.name)}</h3>
+                            <div class="meta-row">
+                                <span><i class="fa fa-store"></i> ${escapeHtml(item.location)}</span>
+                            </div>
+                            <div class="price-tag">
+                                ${Number(item.price).toLocaleString()} <small>RWF</small>
+                            </div>
+                            <button class="quick-view-btn">Add to Bag</button>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
+        } else if (commoditiesGrid) {
+            if (commoditiesSection) commoditiesSection.style.display = 'none';
+            commoditiesGrid.innerHTML = '';
+        }
+        
+        // Show/hide no results message
+        const noResultsDiv = document.getElementById('noResultsMessage');
+        if (noResultsDiv) {
+            if (data.buildings.length === 0 && data.vehicles.length === 0 && data.commodities.length === 0) {
+                noResultsDiv.style.display = 'block';
+            } else {
+                noResultsDiv.style.display = 'none';
+            }
+        }
+    }
+    
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Input event with debounce
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value;
+        toggleClearButton();
+        
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            if (query.length >= 2) {
+                performSearch(query);
+            } else if (query.length === 0) {
+                window.location.href = window.location.pathname;
+            } else {
+                searchDropdown.classList.remove('active');
+            }
+        }, 300);
+    });
+    
+    // Handle Enter key
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const query = searchInput.value;
+            if (query.length >= 2) {
+                window.location.href = `/BUS_SYSTEM/global-search/?q=${encodeURIComponent(query)}`;
+            }
+        }
+    });
+    
+    // Initialize
+    toggleClearButton();
+</script>
+{% endblock %}

@@ -1,0 +1,517 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DistarGroup | Secure Access</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #001f3f;
+            --accent: #00d27f;
+            --link-blue: #1b5ea9;
+            --error: #ff4757;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto; 
+        }
+
+        .auth-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh; 
+            background: white;
+        }
+
+        .side-visual {
+            flex: 1.2;
+            position: relative;
+            background: url("{% static 'images/loginimage.png' %}") center center no-repeat;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            color: white;
+        }
+
+        .side-visual::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 31, 63, 0.85) 0%, rgba(0, 210, 127, 0.4) 100%);
+        }
+
+        .side-content {
+            position: relative;
+            z-index: 2;
+            max-width: 500px;
+        }
+
+        .side-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .side-content p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .side-form {
+            flex: 0.8;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            position: relative;
+            min-height: 100vh; 
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-box {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-box img {
+            width: 110px;
+            margin-bottom: 15px;
+        }
+
+        .logo-box h2 {
+            font-size: 24px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .logo-box p {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* ROLE SELECTION DESIGN */
+        .role-selection {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .role-card {
+            flex: 1;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+            background: #f8fafc;
+            position: relative;
+        }
+
+        .role-card i {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 18px;
+            color: #94a3b8;
+        }
+
+        .role-card span {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        .role-card.active {
+            border-color: var(--link-blue);
+            background: #eff6ff;
+        }
+
+        .role-card.active i, .role-card.active span {
+            color: var(--link-blue);
+        }
+
+        /* INPUT STYLING */
+        .input-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #f8fafc;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--link-blue);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(27, 94, 169, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-google {
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            color: #334155;
+            margin-bottom: 25px;
+        }
+
+        .btn-login { background: var(--primary); color: white; }
+        .btn-login:hover { background: #002d5c; transform: translateY(-2px); }
+
+        .btn-register { background: var(--accent); color: white; }
+        .btn-register:hover { background: #00b36b; transform: translateY(-2px); }
+
+        .divider {
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            line-height: 0.1em;
+            margin: 20px 0 30px;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .auth-footer {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .link-btn {
+            color: var(--link-blue);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 850px) {
+            .side-visual { display: none; }
+            .side-form { flex: 1; width: 100%; background: #f8fafc; }
+            .form-container { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-wrapper">
+        <div class="side-visual">
+            <div class="side-content">
+                <h1>Seamless Shopping Experience.</h1>
+                <p>Join DistarGroup to unlock exclusive deals on vehicles, luxury properties, and everyday essentials.</p>
+            </div>
+        </div>
+
+        <div class="side-form">
+            <div class="form-container">
+                {% if messages %}
+                <div class="messages-container" style="margin-bottom: 20px;">
+                    {% for message in messages %}
+                        <div class="alert" style="background: #fff5f5; color: #ff4757; padding: 12px; border-radius: 10px; border: 1.5px solid #feb2b2; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="logo-box">
+                    <img src="{% static 'images/distarlogo.png' %}" alt="DistarGroup">
+                    <h2 id="formTitle">Sign In</h2>
+                    <p id="formSubTitle">Please enter your details to continue</p>
+                </div>
+
+                <div id="socialBox">
+                   <button type="button" class="btn-google">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" width="18">
+                        Continue with Google
+                    </button>
+                    <div class="divider"><span>OR</span></div>
+                </div>
+
+                <form method="POST" action="{% url 'BUS_SYSTEM:auth_system' %}" id="loginForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="login">
+                    
+                    <div class="input-group">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" name="username" placeholder="Username" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" name="password" placeholder="Password" required>
+                    </div>
+
+                    <button type="submit" class="btn-login">Sign In <i class="fa-solid fa-arrow-right-long"></i></button>
+                    
+                    <div class="auth-footer">
+                        <span class="link-btn" onclick="toggleForm('forgot')">Forgot Password?</span>
+                        <span class="link-btn" onclick="toggleForm('register')">New here? <strong>Create Account</strong></span>
+                    </div>
+                </form>
+
+                <form method="POST" action="{% url 'BUS_SYSTEM:auth_system' %}" id="registerForm" class="hidden">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="register">
+                    
+                    <p style="font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 10px;">I want to join as a:</p>
+                    <div class="role-selection">
+                        <label class="role-card active" id="cardCust" onclick="setRole('customer')">
+                            <i class="fa-solid fa-bag-shopping"></i>
+                            <span>Customer</span>
+                            <input type="radio" name="role" value="customer" id="roleCust" checked hidden>
+                        </label>
+                        
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fa-solid fa-user-tag"></i>
+                        <input type="text" name="username" placeholder="Choose Username" pattern="[A-Za-z0-9]{3,}" title="Username must be at least 3 characters (letters and numbers only)" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" name="email" placeholder="Email Address" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" name="password1" placeholder="Password" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-shield-check"></i>
+                        <input type="password" name="password2" placeholder="Confirm Password" required>
+                    </div>
+
+                    <button type="submit" class="btn-register">Create Account</button>
+                    
+                    <div class="auth-footer">
+                        <span class="link-btn" onclick="toggleForm('login')">Already have an account? <strong>Sign In</strong></span>
+                    </div>
+                </form>
+
+                <form method="POST" action="{% url 'BUS_SYSTEM:auth_system' %}" id="forgotForm" class="hidden">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="forgot">
+                    <div class="input-group">
+                        <i class="fa-solid fa-at"></i>
+                        <input type="email" name="email" placeholder="Enter registered email" required>
+                    </div>
+                    <button type="submit" class="btn-login">Send Reset Link</button>
+                    <div class="auth-footer">
+                        <span class="link-btn" onclick="toggleForm('login')">Back to Login</span>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to get CSRF token from cookies
+        function getCSRFToken() {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, 10) === ('csrftoken' + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(10));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Function to set the role when clicking on role cards
+        function setRole(role) {
+            const roleCust = document.getElementById('roleCust');
+            const roleSell = document.getElementById('roleSell');
+            const cardCust = document.getElementById('cardCust');
+            const cardSell = document.getElementById('cardSell');
+            
+            if(role === 'customer') {
+                roleCust.checked = true;
+                roleSell.checked = false;
+                cardCust.classList.add('active');
+                cardSell.classList.remove('active');
+                console.log('Selected role: CUSTOMER');
+                console.log('Customer radio checked:', roleCust.checked);
+                console.log('Seller radio checked:', roleSell.checked);
+            } else if(role === 'seller') {
+                roleSell.checked = true;
+                roleCust.checked = false;
+                cardSell.classList.add('active');
+                cardCust.classList.remove('active');
+                console.log('Selected role: SELLER');
+                console.log('Customer radio checked:', roleCust.checked);
+                console.log('Seller radio checked:', roleSell.checked);
+            }
+        }
+
+        // Function to toggle between login, register, and forgot password forms
+        function toggleForm(type) {
+            const login = document.getElementById('loginForm');
+            const register = document.getElementById('registerForm');
+            const forgot = document.getElementById('forgotForm');
+            const social = document.getElementById('socialBox');
+            const title = document.getElementById('formTitle');
+            const sub = document.getElementById('formSubTitle');
+
+            // Hide all forms
+            login.classList.add('hidden');
+            register.classList.add('hidden');
+            forgot.classList.add('hidden');
+
+            // Show selected form
+            if(type === 'register') {
+                register.classList.remove('hidden');
+                social.classList.add('hidden');
+                title.innerText = "Create Account";
+                sub.innerText = "Start your premium shopping journey";
+            } else if(type === 'forgot') {
+                forgot.classList.remove('hidden');
+                social.classList.add('hidden');
+                title.innerText = "Reset Password";
+                sub.innerText = "We'll help you get back into your account";
+            } else {
+                login.classList.remove('hidden');
+                social.classList.remove('hidden');
+                title.innerText = "Sign In";
+                sub.innerText = "Please enter your details to continue";
+            }
+        }
+
+        // Debug function to check form data before submission
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check all forms for CSRF tokens
+            const forms = document.querySelectorAll('form');
+            forms.forEach((form, index) => {
+                const csrfToken = form.querySelector('input[name="csrfmiddlewaretoken"]');
+                if (!csrfToken) {
+                    console.error(`Form ${index + 1} is missing CSRF token!`);
+                } else {
+                    console.log(`Form ${index + 1} has CSRF token:`, csrfToken.value ? csrfToken.value.substring(0, 20) + '...' : 'EMPTY');
+                }
+            });
+
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', function(e) {
+                    const csrfToken = this.querySelector('input[name="csrfmiddlewaretoken"]');
+                    if (!csrfToken || !csrfToken.value) {
+                        console.error('CSRF token is missing from register form!');
+                        e.preventDefault();
+                        alert('Security token missing. Please refresh the page and try again.');
+                        return;
+                    }
+                    
+                    const selectedRole = document.querySelector('input[name="role"]:checked');
+                    console.log('=== REGISTRATION FORM SUBMISSION ===');
+                    console.log('CSRF Token present:', !!csrfToken.value);
+                    console.log('Selected role value:', selectedRole ? selectedRole.value : 'No role selected!');
+                    
+                    if (!selectedRole) {
+                        console.error('ERROR: No role selected!');
+                        e.preventDefault();
+                        alert('Please select a role (Customer or Seller)');
+                    } else {
+                        console.log('SUCCESS: Submitting with role:', selectedRole.value);
+                    }
+                });
+            }
+
+            // Auto-toggle forms based on messages
+            {% if messages %}
+                {% for message in messages %}
+                    const msg = "{{ message }}".toLowerCase();
+                    console.log('Message from server:', msg);
+                    if (msg.includes("passwords") || msg.includes("taken") || msg.includes("account created") || msg.includes("welcome")) {
+                        if (msg.includes("account created") || msg.includes("welcome")) {
+                            console.log('Account creation success detected');
+                        } else {
+                            toggleForm('register');
+                        }
+                    }
+                    if (msg.includes("reset link")) {
+                        toggleForm('forgot');
+                    }
+                {% endfor %}
+            {% endif %}
+        });
+    </script>
+</body>
+</html>

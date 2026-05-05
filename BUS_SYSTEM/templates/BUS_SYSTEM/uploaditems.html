@@ -1,0 +1,313 @@
+{% extends 'USERPROFILE/base.html' %}
+{% load static %}
+
+{% block title %}Sell on DistarGroup{% endblock %}
+
+{% block content %}
+<div class="distar-seller-theme">
+    <style>
+        .distar-seller-theme {
+            --brand-gold: #FFD700;
+            --brand-navy: #001F3F;
+            --brand-green: #00D27F;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            
+            background-color: #f4f7f9;
+            padding-bottom: 80px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Hero / Header Section */
+        .seller-hero {
+            background: linear-gradient(135deg, var(--brand-navy) 0%, #003366 100%);
+            padding: 100px 20px 160px 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .seller-hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .seller-hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        /* Floating Dashboard Grid */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: -80px auto 0 auto;
+            padding: 0 20px;
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .upload-card {
+            background: var(--glass-bg);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            text-decoration: none !important;
+            color: var(--brand-navy) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: var(--transition-smooth);
+            border: 1px solid rgba(255,255,255,0.4);
+            backdrop-filter: blur(10px);
+            display: block;
+        }
+
+        .upload-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            background: #ffffff;
+        }
+
+        .icon-circle {
+            width: 90px;
+            height: 90px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px auto;
+            font-size: 2.5rem;
+            color: var(--brand-green);
+            box-shadow: 0 5px 15px rgba(0, 210, 127, 0.2);
+            transition: var(--transition-smooth);
+        }
+
+        .upload-card:hover .icon-circle {
+            background: var(--brand-green);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .upload-card h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .upload-card p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .btn-action {
+            display: inline-block;
+            margin-top: 20px;
+            font-weight: 600;
+            color: var(--brand-green);
+            border-bottom: 2px solid transparent;
+            transition: 0.3s;
+        }
+
+        .upload-card:hover .btn-action {
+            border-bottom-color: var(--brand-green);
+        }
+
+        /* Support Section */
+        .support-header {
+            text-align: center;
+            margin: 100px 0 50px 0;
+        }
+
+        .support-header h2 {
+            font-size: 2.2rem;
+            color: var(--brand-navy);
+            font-weight: 700;
+        }
+
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .staff-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: var(--transition-smooth);
+        }
+
+        .staff-card:hover {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .staff-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 4px solid #f0f0f0;
+        }
+
+        .staff-card h3 {
+            margin-bottom: 5px;
+            color: var(--brand-navy);
+        }
+
+        .staff-card .role {
+            color: var(--brand-green);
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .staff-card p {
+            font-size: 0.9rem;
+            color: #777;
+            margin: 5px 0;
+        }
+
+        .contact-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 20px;
+            background: #f0f4f8;
+            border-radius: 50px;
+            text-decoration: none;
+            color: var(--brand-navy);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+
+        .contact-link:hover {
+            background: var(--brand-navy);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .seller-hero h1 { font-size: 2rem; }
+            .dashboard-container { margin-top: -50px; }
+        }
+    </style>
+
+    <header class="seller-hero">
+        <h1>Monetize Your Assets</h1>
+        <p>Join East Africa's leading marketplace. Upload your products and connect with thousands of active buyers in minutes.</p>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="upload-grid">
+            <a href="{% url 'BUS_SYSTEM:submit_vehicle' %}" class="upload-card">
+                <div class="icon-circle">
+                    <i class="fas fa-car"></i>
+                </div>
+                <h3>Upload Vehicle Listing</h3>
+                <p>Sell your car, motorcycle, or truck. We provide the best visibility for automotive sales.</p>
+                <div class="btn-action">Start Selling <i class="fas fa-chevron-right"></i></div>
+            </a>
+
+            <a href="{% url 'BUS_SYSTEM:submit_property' %}" class="upload-card">
+                <div class="icon-circle">
+                    <i class="fas fa-house-user"></i>
+                </div>
+                <h3>Upload Real Estate</h3>
+                <p>Post houses, apartments, or plots. High-quality listings attract premium buyers.</p>
+                <div class="btn-action">List Property <i class="fas fa-chevron-right"></i></div>
+            </a>
+
+            <a href="{% url 'BUS_SYSTEM:add_product' %}" class="upload-card">
+                <div class="icon-circle">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h3>Upload Market Products</h3>
+                <p>Electronics, furniture, fashion, and more. Simple tools to manage your inventory.</p>
+                <div class="btn-action">Add Product <i class="fas fa-chevron-right"></i></div>
+            </a>
+
+            <a href="{% url 'FASHIONITEM:submit_fashion' %}" class="upload-card">
+                <div class="icon-circle">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h3>Upload Fashion Item</h3>
+                <p>We’ve introduced another great product for you.Explore the latest addition now. Don’t miss your chance to try it!</p>
+                <div class="btn-action">Add Fashions <i class="fas fa-chevron-right"></i></div>
+            </a>
+        </div>
+
+        <div class="support-header">
+            <h2>Support & Assistance</h2>
+            <p>Our dedicated IT team is here to help you set up your shop.</p>
+        </div>
+
+        <div class="staff-grid">
+            <div class="staff-card">
+                <img src="{% static 'images/patrick.png' %}" alt="IT Patrick" class="staff-img">
+                <h3>IT Patrick</h3>
+                <span class="role">Lead Technical Assistant</span>
+                <p><i class="fas fa-map-marker-alt"></i> Kigali, Rwanda</p>
+                <a href="tel:+250788123456" class="contact-link"><i class="fas fa-phone-alt"></i> Call Patrick</a>
+            </a>
+            </div>
+
+            <div class="staff-card">
+                <img src="{% static 'images/mutabazi.jpeg' %}" alt="IT Distar" class="staff-img">
+                <h3>IT Distar</h3>
+                <span class="role">System Administrator</span>
+                <p><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</p>
+                <a href="tel:+254700987654" class="contact-link"><i class="fas fa-phone-alt"></i> Call Distar</a>
+            </div>
+
+            <div class="staff-card">
+                <img src="{% static 'images/joyause.jpeg' %}" alt="IT JOYEUSE" class="staff-img">
+                <h3>IT JOYEUSE</h3>
+                <span class="role">Technical Support</span>
+                <p><i class="fas fa-map-marker-alt"></i> Kigali, Rw</p>
+                <a href="tel:+255712345678" class="contact-link"><i class="fas fa-phone-alt"></i> Call JOYEUSE</a>
+            </div>
+
+            <div class="staff-card">
+                <img src="{% static 'images/patrick.png' %}" alt="MUCYO James" class="staff-img">
+                <h3>System Analyst</h3>
+                <span class="role">Lead Technical Assistant</span>
+                <p><i class="fas fa-map-marker-alt"></i> Kigali, Rwanda</p>
+                <a href="tel:+250788123456" class="contact-link"><i class="fas fa-phone-alt"></i> Call Patrick</a>
+            </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // Animations on scroll
+    document.addEventListener('DOMContentLoaded', () => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.upload-card, .staff-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+    });
+</script>
+{% endblock %}

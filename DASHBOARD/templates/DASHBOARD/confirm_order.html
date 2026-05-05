@@ -1,0 +1,133 @@
+{% extends 'USERPROFILE/base.html' %}
+{% block content %}
+
+<style>
+    .verify-page {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        padding: 20px;
+    }
+
+    .glass-card {
+        background: white;
+        padding: 40px;
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(30, 95, 168, 0.1);
+        border: 1px solid #e2e8f0;
+        max-width: 450px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .otp-container {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 30px 0;
+    }
+
+    .otp-input {
+        width: 50px;
+        height: 60px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        color: #1e5fa8;
+        transition: all 0.3s;
+    }
+
+    .otp-input:focus {
+        border-color: #1e5fa8;
+        box-shadow: 0 0 0 4px rgba(30, 95, 168, 0.1);
+        outline: none;
+        transform: translateY(-2px);
+    }
+
+    .verify-btn {
+        width: 100%;
+        background: #1e5fa8;
+        color: white;
+        padding: 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .verify-btn:hover { background: #15467d; }
+
+    .order-preview {
+        background: #f1f5f9;
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+        color: #64748b;
+    }
+</style>
+
+<div class="verify-page">
+    <div class="glass-card">
+        <div style="font-size: 3rem; color: #1e5fa8; margin-bottom: 15px;">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2 style="font-weight: 800; color: #1e293b;">Confirm Payment</h2>
+        <p style="color: #64748b; font-size: 0.9rem;">We sent a 6-digit code to your registered device for Order #{{ order.id }}</p>
+
+        <div class="order-preview">
+            <strong>Amount to Pay:</strong> {{ order.total_price }} RWF
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="otp-container" id="otp-inputs">
+                <input type="text" name="digit1" class="otp-input" maxlength="1" pattern="\d*" required autofocus>
+                <input type="text" name="digit2" class="otp-input" maxlength="1" pattern="\d*" required>
+                <input type="text" name="digit3" class="otp-input" maxlength="1" pattern="\d*" required>
+                <input type="text" name="digit4" class="otp-input" maxlength="1" pattern="\d*" required>
+                <input type="text" name="digit5" class="otp-input" maxlength="1" pattern="\d*" required>
+                <input type="text" name="digit6" class="otp-input" maxlength="1" pattern="\d*" required>
+            </div>
+
+            <button type="submit" class="verify-btn">
+                <span>Verify & Complete Payment</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <p style="margin-top: 25px; font-size: 0.8rem; color: #94a3b8;">
+            Didn't receive the code? <a href="#" style="color: #1e5fa8; font-weight: 600;">Resend Code</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    // Logic to move cursor to next input automatically
+    const inputs = document.querySelectorAll('.otp-input');
+    
+    inputs.forEach((input, index) => {
+        input.addEventListener('keyup', (e) => {
+            if (e.key >= 0 && e.key <= 9) {
+                if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            } else if (e.key === 'Backspace') {
+                if (index > 0) {
+                    inputs[index - 1].focus();
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

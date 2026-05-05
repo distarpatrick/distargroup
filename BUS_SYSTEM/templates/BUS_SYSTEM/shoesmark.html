@@ -1,0 +1,432 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Price and detail of Latest Version</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+    background: #fff;
+    color: #111;
+}
+
+/* ================= HEADER ================= */
+.page-header {
+    padding: 30px 40px 10px;
+}
+
+.breadcrumb {
+    font-size: 14px;
+    color: #020202;
+    margin-bottom: 8px;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+/* ================= TOP BAR ================= */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 40px 20px;
+}
+
+.top-bar-right span {
+    margin-left: 20px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* ================= LAYOUT ================= */
+.layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 30px;
+}
+
+
+/* FILTERS  */
+/* ===== FIXED / STICKY FILTER SIDEBAR ===== */
+.filters {
+    position: sticky;        
+    top: 20px;              
+    height: calc(100vh - 40px);
+    overflow-y: auto;      
+
+    background: gray;  
+    padding: 20px;
+    border-right: 1px solid #ddd;
+}
+
+
+.filter-section {
+    margin-bottom: 25px;
+}
+
+.filter-section h4 {
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+
+.toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toggle input {
+    width: 40px;
+    height: 22px;
+}
+
+.filter-section ul {
+    list-style: none;
+}
+
+.filter-section li {
+    margin-bottom: 10px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.filter-section li  a {
+    text-decoration:none;
+    color:black;
+
+}
+.filter-section h4  a {
+    text-decoration:none;
+    color:black;
+
+}
+.filter-section li a:hover{
+    color:white
+}
+.filter-section h4 a:hover{
+    color:white
+}
+
+/*  PRODUCTS  */
+.products {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+/* CARD */
+.card {
+    cursor: pointer;
+}
+
+.card-img {
+    background: #f5f5f5;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+}
+
+.card-img img {
+    width: 100%;
+}
+
+.colors {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+}
+
+.best {
+    color: #d32f2f;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.card h3 {
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.card p {
+    color: #757575;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.price {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.old {
+    text-decoration: line-through;
+    color: #757575;
+    margin-right: 6px;
+}
+
+.off {
+    color: #007d48;
+    font-weight: 600;
+}
+
+/* RESPONSIVE  */
+@media (max-width: 1000px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .filters {
+        border-right: none;
+    }
+
+    .products {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .products {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="breadcrumb">High  / Quality</div>
+    <div class="page-title">Your Smartness, Our Royality</div>
+</div>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+    <div></div>
+    <div class="top-bar-right">
+        <span><i class="fa fa-sliders"></i> Hide Filters</span>
+        <span>Sort By <i class="fa fa-chevron-down"></i></span>
+    </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="layout">
+
+    <!-- FILTERS -->
+    <aside class="filters">
+
+        <div class="filter-section toggle">
+            <h4>Pick Up Today</h4>
+            <input type="checkbox">
+        </div>
+
+        <div class="filter-section">
+            <ul>
+                <li><a href="{% url 'BUS_SYSTEM:shoesmarket' %}">Latest Version</a></li>
+                <li><a href="f">Low Top</a></li>
+                <li><a href="f">High Top</a></li>
+                <li><a href="f">Skate boarding</a></li>
+                <li><a href="f"> Brand</a></li>
+            </ul>
+        </div>
+
+        <div class="filter-section">
+            <h4><a href="f">Gender</h4>
+        </div>
+
+        <div class="filter-section">
+            <h4><a href="f">Kids</a></h4>
+        </div>
+
+        <div class="filter-section">
+            <h4><a href="{% url 'BUS_SYSTEM:clothesmarket' %}">Stock</a></h4>
+        </div>
+
+        <div class="filter-section">
+            <h4><a href="f">Sale & Offers</a></h4>
+        </div>
+
+    </aside>
+
+    <!-- PRODUCTS -->
+    <section class="products">
+
+        <!-- Card 1 -->
+        <div class="card">
+            <div class="card-img">
+                <img src="{% static 'images/shoe1.png' %}">
+            </div>
+
+            <div class="colors">
+                <div class="dot" style="background:#666"></div>
+                <div class="dot" style="background:#0a7d46"></div>
+                <div class="dot" style="background:#ddd"></div>
+                <div class="dot" style="background:#555"></div>
+                <span>+4</span>
+            </div>
+
+            <div class="best">Best Seller</div>
+            <h3>Luxury </h3>
+            <p>Men's Shoes</p>
+            <div class="price">$120</div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card">
+            <div class="card-img">
+                <img src="{% static 'images/shoe2.png' %}">
+            </div>
+
+            <div class="colors">
+                <div class="dot" style="background:#ddd"></div>
+                <div class="dot" style="background:#bbb"></div>
+                <div class="dot" style="background:#7a5a2e"></div>
+                <span>+1</span>
+            </div>
+
+            <div class="best">Italian</div>
+            <h3>XZK Company</h3>
+            <p>Men's Shoes</p>
+            <div class="price">
+                <span class="old">$105</span>
+                $87.97 <span class="off">29% off</span>
+            </div>
+        </div>
+        <!-- Card 1 -->
+        <div class="card">
+            <div class="card-img">
+                <img src="{% static 'images/shoe7.png' %}">
+            </div>
+
+            <div class="colors">
+                <div class="dot" style="background:#666"></div>
+                <div class="dot" style="background:#0a7d46"></div>
+                <div class="dot" style="background:#ddd"></div>
+                <div class="dot" style="background:#555"></div>
+                <span>+4</span>
+            </div>
+
+            <div class="best">Addidas</div>
+            <h3>Claasic</h3>
+            <p>Men's Shoes</p>
+            <div class="price">$104</div>
+        </div>
+        <!-- Card 1 -->
+        <div class="card">
+            <div class="card-img">
+                <img src="{% static 'images/shoe4.png' %}">
+            </div>
+
+            <div class="colors">
+                <div class="dot" style="background:#666"></div>
+                <div class="dot" style="background:#0a7d46"></div>
+                <div class="dot" style="background:#ddd"></div>
+                <div class="dot" style="background:#555"></div>
+                <span>+4</span>
+            </div>
+
+            <div class="best">Campus</div>
+            <h3>Retro SE</h3>
+            <p>Men's Shoes</p>
+            <div class="price">$56</div>
+        </div>
+        <!-- Card 1 -->
+        <div class="card">
+            <div class="card-img">
+                <img src="{% static 'images/shoe5.png' %}">
+            </div>
+
+            <div class="colors">
+                <div class="dot" style="background:#666"></div>
+                <div class="dot" style="background:#0a7d46"></div>
+                <div class="dot" style="background:#ddd"></div>
+                <div class="dot" style="background:#555"></div>
+                <span>+4</span>
+            </div>
+
+            <div class="best">Best</div>
+            <h3>Nike Dunk </h3>
+            <p>Men's Shoes</p>
+            <div class="price">$99</div>
+        </div>
+        <!-- Card 1 -->
+        <div class="card">
+            <div class="card-img">
+                <img src="{% static 'images/shoe6.png' %}">
+            </div>
+
+            <div class="colors">
+                <div class="dot" style="background:#666"></div>
+                <div class="dot" style="background:#0a7d46"></div>
+                <div class="dot" style="background:#ddd"></div>
+                <div class="dot" style="background:#555"></div>
+                <span>+4</span>
+            </div>
+
+            <div class="best">Friendo</div>
+            <h3>Nike Low </h3>
+            <p>Men's Shoes</p>
+            <div class="price">$187</div>
+        </div>
+        <!-- Card 1 -->
+        <div class="card">
+            <div class="card-img">
+                <img src="{% static 'images/shoe7.png' %}">
+            </div>
+
+            <div class="colors">
+                <div class="dot" style="background:#666"></div>
+                <div class="dot" style="background:#0a7d46"></div>
+                <div class="dot" style="background:#ddd"></div>
+                <div class="dot" style="background:#555"></div>
+                <span>+4</span>
+            </div>
+
+            <div class="best">commercial</div>
+            <h3>Retro SE</h3>
+            <p>Men's Shoes</p>
+            <div class="price">$160</div>
+        </div>
+
+
+        <!-- Card 3 -->
+        <div class="card">
+            <div class="card-img">
+                <img src="{% static 'images/shoe3.png' %}">
+            </div>
+
+            <div class="best">Seller</div>
+            <h3>Nike Dunk Low SE "LNY"</h3>
+            <p>Men's Shoes</p>
+            <div class="price">$130</div>
+        </div>
+
+    </section>
+
+</div>
+
+<script>
+// (Optional future filtering / sorting logic goes here)
+</script>
+
+</body>
+</html>

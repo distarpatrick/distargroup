@@ -1,0 +1,1003 @@
+{% extends 'USERPROFILE/base.html' %}
+{% load static %}
+{% block title %}Secure Checkout | DistarGroup{% endblock %}
+{% block content %}
+<style>
+    :root {
+        --primary: #001f3f;
+        --accent: #00d27f;
+        --accent-dark: #00b86f;
+        --light-bg: #f8fafc;
+        --border: #e2e8f0;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+        --danger: #dc2626;
+        --warning: #f59e0b;
+        --success: #10b981;
+    }
+
+    .main-container {
+        max-width: 1200px;
+        margin: 120px auto 60px;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 30px;
+    }
+
+    .section-card { 
+        background: #fff; 
+        padding: 30px; 
+        border-radius: 20px; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: fit-content; 
+    }
+    
+    .section-card:hover {
+        box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    }
+    
+    h2 { 
+        margin-top: 0; 
+        font-size: 1.5rem; 
+        color: var(--primary); 
+        display: flex; 
+        align-items: center; 
+        gap: 10px; 
+        margin-bottom: 20px;
+        position: relative;
+    }
+    
+    h2:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: var(--accent);
+        border-radius: 2px;
+    }
+
+    /* PAYMENT METHOD SELECTOR */
+    .payment-grid { 
+        display: grid; 
+        grid-template-columns: repeat(4, 1fr); 
+        gap: 12px; 
+        margin: 25px 0; 
+    }
+    
+    .payment-option {
+        border: 2px solid var(--border); 
+        border-radius: 14px; 
+        padding: 15px 5px;
+        text-align: center; 
+        cursor: pointer; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        color: var(--text-muted);
+        background: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .payment-option::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(0,210,127,0.1);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .payment-option:hover::before {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .payment-option i { 
+        font-size: 26px; 
+        margin-bottom: 8px; 
+        display: block;
+        transition: transform 0.3s ease;
+    }
+    
+    .payment-option:hover i {
+        transform: scale(1.1);
+    }
+    
+    .payment-option span { 
+        font-size: 0.75rem; 
+        font-weight: 700; 
+        text-transform: uppercase; 
+        letter-spacing: 0.5px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .payment-option.active { 
+        border-color: var(--accent); 
+        background: linear-gradient(135deg, #f0fff4 0%, #e6f9ef 100%);
+        color: var(--accent);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,210,127,0.25);
+    }
+    
+    .payment-option.active i {
+        transform: scale(1.05);
+    }
+
+    /* PAYMENT PANELS - ADVANCED SLIDE EFFECT */
+    .payment-panel {
+        display: none;
+        background: linear-gradient(135deg, #fafcff 0%, #ffffff 100%);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 28px;
+        margin-top: 20px;
+        opacity: 0;
+        transform: translateY(-30px) scale(0.98);
+        transition: all 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+    }
+    
+    .payment-panel.active {
+        display: block;
+        animation: slideInUp 0.6s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+    }
+    
+    @keyframes slideInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(-40px) scale(0.96);
+        }
+        50% {
+            opacity: 0.5;
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* FORM STYLES */
+    .input-group { 
+        margin-bottom: 22px; 
+        position: relative;
+    }
+    
+    .input-group label { 
+        display: block; 
+        font-size: 0.85rem; 
+        font-weight: 600; 
+        margin-bottom: 8px;
+        color: var(--text-dark);
+        letter-spacing: 0.3px;
+        transition: color 0.3s ease;
+    }
+    
+    .input-group label i {
+        margin-right: 8px;
+        color: var(--accent);
+        font-size: 0.9rem;
+    }
+    
+    input[type="text"], 
+    input[type="email"], 
+    input[type="password"],
+    input[type="tel"],
+    input[type="number"],
+    select, 
+    textarea {
+        width: 100%; 
+        padding: 12px 16px; 
+        border: 2px solid var(--border); 
+        border-radius: 12px; 
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    input:focus, select:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(0,210,127,0.1);
+        transform: translateY(-1px);
+    }
+    
+    input.valid {
+        border-color: var(--success);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 18px;
+    }
+    
+    input.invalid {
+        border-color: var(--danger);
+    }
+    
+    .row-2cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+    
+    .row-3cols {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+    
+    .security-badge {
+        background: linear-gradient(135deg, #f1f5f9 0%, #eef2ff 100%);
+        padding: 14px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.85; }
+    }
+    
+    .security-badge i {
+        color: var(--accent);
+        font-size: 1rem;
+    }
+    
+    .continue-btn {
+        width: 100%; 
+        background: linear-gradient(135deg, var(--primary) 0%, #002b5c 100%);
+        color: white; 
+        border: none; 
+        padding: 18px;
+        font-size: 1rem; 
+        border-radius: 14px; 
+        cursor: pointer; 
+        font-weight: 700; 
+        margin-top: 25px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .continue-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .continue-btn:hover::before {
+        left: 100%;
+    }
+    
+    .continue-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0,31,63,0.3);
+    }
+    
+    .continue-btn:disabled { 
+        background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+        cursor: not-allowed;
+        opacity: 0.7;
+        transform: none;
+    }
+    
+    .summary-card { 
+        position: sticky; 
+        top: 100px;
+        transition: all 0.3s ease;
+    }
+    
+    .cart-item { 
+        display: flex; 
+        gap: 15px; 
+        padding: 15px 0; 
+        border-bottom: 1px solid var(--border);
+        transition: transform 0.2s ease;
+    }
+    
+    .cart-item:hover {
+        transform: translateX(5px);
+    }
+    
+    .cart-item img { 
+        width: 60px; 
+        height: 60px; 
+        object-fit: cover; 
+        border-radius: 10px; 
+        background: #f8fafc;
+        transition: transform 0.3s ease;
+    }
+    
+    .cart-item:hover img {
+        transform: scale(1.05);
+    }
+    
+    hr {
+        margin: 30px 0;
+        border: 0;
+        border-top: 2px solid var(--border);
+    }
+    
+    .checkout-form .input-group:first-child {
+        margin-top: 0;
+    }
+    
+    /* Tooltip styles */
+    .tooltip-icon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background: var(--text-muted);
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        font-size: 11px;
+        line-height: 16px;
+        cursor: help;
+        margin-left: 6px;
+        position: relative;
+    }
+    
+    .tooltip-icon:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--primary);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        white-space: nowrap;
+        z-index: 1000;
+        margin-bottom: 5px;
+    }
+    
+    /* Loading spinner */
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .fa-spin-custom {
+        animation: spin 1s linear infinite;
+    }
+    
+    /* Success message */
+    .success-message {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--success);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        animation: slideInRight 0.5s ease;
+        z-index: 1000;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @media (max-width: 900px) { 
+        .main-container { 
+            grid-template-columns: 1fr; 
+            margin-top: 100px;
+        } 
+        .payment-grid { 
+            grid-template-columns: repeat(2, 1fr); 
+        }
+        .row-2cols, .row-3cols {
+            grid-template-columns: 1fr;
+        }
+        .summary-card {
+            position: relative;
+            top: 0;
+        }
+    }
+</style>
+
+<div class="main-container">
+    {% if cart_items %}
+        <div class="section-card">
+            <form method="POST" action="{% url 'CART:checkout' %}" id="checkoutForm">
+                {% csrf_token %}
+                
+                <h2><i class="fa-solid fa-truck-fast"></i> Shipping Details</h2>
+                <div class="checkout-form">
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-location-dot"></i> Delivery Address / Landmark</label>
+                        <input type="text" name="address" placeholder="e.g. Near Kigali Heights, KG 7 Ave" required>
+                        <small style="color: var(--text-muted); font-size: 0.7rem;">We'll deliver to this address within 2-3 business days</small>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-phone"></i> Phone Number</label>
+                        <input type="tel" name="phone" placeholder="078XXXXXXX" pattern="[0-9]{10,12}" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-regular fa-note-sticky"></i> Order Notes (Optional)</label>
+                        <textarea name="notes" rows="2" placeholder="Special delivery instructions or notes"></textarea>
+                    </div>
+                </div>
+
+                <hr>
+
+                <h2><i class="fa-solid fa-credit-card"></i> Payment Method</h2>
+                <input type="hidden" name="payment_method" id="selectedMethod" value="card">
+
+                <div class="payment-grid">
+                    <div class="payment-option active" onclick="switchPayment(this, 'card')">
+                        <i class="fa-solid fa-credit-card"></i><span>Card</span>
+                    </div>
+                    <div class="payment-option" onclick="switchPayment(this, 'momo')">
+                        <i class="fa-solid fa-mobile-screen"></i><span>Mobile Money</span>
+                    </div>
+                    <div class="payment-option" onclick="switchPayment(this, 'bank')">
+                        <i class="fa-solid fa-university"></i><span>Bank Transfer</span>
+                    </div>
+                    <div class="payment-option" onclick="switchPayment(this, 'paypal')">
+                        <i class="fa-brands fa-paypal"></i><span>PayPal</span>
+                    </div>
+                </div>
+
+                <!-- CARD PAYMENT PANEL -->
+                <div id="panel-card" class="payment-panel active">
+                    <div class="input-group">
+                        <label><i class="fa-regular fa-id-card"></i> Cardholder Name</label>
+                        <input type="text" name="card_name" placeholder="John Doe" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-regular fa-credit-card"></i> Card Number</label>
+                        <input type="text" name="card_number" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                        <small style="color: var(--text-muted); font-size: 0.7rem;">We accept Visa, Mastercard, and American Express</small>
+                    </div>
+                    <div class="row-2cols">
+                        <div class="input-group">
+                            <label><i class="fa-regular fa-calendar"></i> Expiry Date <span class="tooltip-icon" data-tooltip="Format: MM/YY">?</span></label>
+                            <input type="text" name="expiry" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fa-solid fa-lock"></i> CVV <span class="tooltip-icon" data-tooltip="3-4 digit security code on back of card">?</span></label>
+                            <input type="password" name="cvv" placeholder="123" maxlength="4" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-key"></i> Card PIN (for verification)</label>
+                        <input type="password" name="card_pin" placeholder="Enter 4-6 digit PIN" maxlength="6" pattern="[0-9]{4,6}" required>
+                        <small style="color: var(--text-muted); font-size: 0.7rem;">Your PIN is encrypted using 256-bit SSL security</small>
+                    </div>
+                    <div class="security-badge">
+                        <i class="fa-solid fa-shield-haltered"></i>
+                        <span>256-bit encrypted | PCI DSS Level 1 compliant</span>
+                        <i class="fa-brands fa-cc-visa"></i>
+                        <i class="fa-brands fa-cc-mastercard"></i>
+                    </div>
+                </div>
+
+                <!-- MOBILE MONEY PANEL -->
+                <div id="panel-momo" class="payment-panel">
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-building"></i> Mobile Money Provider</label>
+                        <select name="momo_provider" required>
+                            <option value="">Select Provider</option>
+                            <option value="MTN">MTN Mobile Money (MoMo)</option>
+                            <option value="Airtel">Airtel Money</option>
+                            <option value="Tigo">Tigo Cash</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-phone"></i> Mobile Number</label>
+                        <input type="tel" name="momo_number" placeholder="0788XXXXXX" pattern="[0-9]{10,12}" required>
+                        <small style="color: var(--text-muted); font-size: 0.7rem;">Enter the number registered with your mobile money account</small>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-user"></i> Account Holder Name</label>
+                        <input type="text" name="momo_name" placeholder="Full name as registered" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-fingerprint"></i> Mobile Money PIN</label>
+                        <input type="password" name="momo_pin" placeholder="Enter 4-6 digit PIN" maxlength="6" pattern="[0-9]{4,6}" required>
+                        <small style="color: var(--text-muted); font-size: 0.7rem;">Your PIN is used to authorize the transaction from your mobile wallet</small>
+                    </div>
+                    <div class="security-badge">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                        <span>You'll receive a confirmation SMS within 30 seconds</span>
+                    </div>
+                </div>
+
+                <!-- BANK TRANSFER PANEL -->
+                <div id="panel-bank" class="payment-panel">
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-building-columns"></i> Bank Name</label>
+                        <select name="bank_name" required>
+                            <option value="">Select Bank</option>
+                            <option value="BK">Bank of Kigali (BK)</option>
+                            <option value="Equity">Equity Bank</option>
+                            <option value="I&M">I&M Bank</option>
+                            <option value="Access">Access Bank</option>
+                            <option value="KCB">KCB Bank</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-regular fa-credit-card"></i> Account Number</label>
+                        <input type="text" name="bank_account" placeholder="Enter your account number" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-user"></i> Account Holder Name</label>
+                        <input type="text" name="bank_holder" placeholder="Name on account" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-key"></i> Transaction PIN / OTP</label>
+                        <input type="password" name="bank_pin" placeholder="Enter 4-6 digit transaction PIN" maxlength="6" pattern="[0-9]{4,6}" required>
+                        <small style="color: var(--text-muted); font-size: 0.7rem;">One-time password or your bank transaction PIN</small>
+                    </div>
+                    <div class="security-badge">
+                        <i class="fa-solid fa-university"></i>
+                        <span><strong>Bank Details:</strong> Distar Group - BK Account: 10002345678</span>
+                        <br>
+                        <span>Reference: Your Order ID will be sent after confirmation</span>
+                    </div>
+                </div>
+
+                <!-- PAYPAL PANEL -->
+                <div id="panel-paypal" class="payment-panel">
+                    <div class="input-group">
+                        <label><i class="fa-regular fa-envelope"></i> PayPal Email</label>
+                        <input type="email" name="paypal_email" placeholder="your@email.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-user"></i> Full Name (PayPal account)</label>
+                        <input type="text" name="paypal_fullname" placeholder="John Carter" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-key"></i> PayPal Security PIN</label>
+                        <input type="password" name="paypal_pin" placeholder="6-digit secure PIN" maxlength="6" pattern="[0-9]{6}" required>
+                        <small style="color: var(--text-muted); font-size: 0.7rem;">Your PayPal PIN for transaction confirmation (if enabled)</small>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-location-dot"></i> Billing Address</label>
+                        <input type="text" name="paypal_billing" placeholder="Street, City, Zip Code">
+                    </div>
+                    <div class="security-badge">
+                        <i class="fa-brands fa-paypal"></i>
+                        <span>PayPal Buyer Protection | 24/7 Fraud Monitoring</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="continue-btn" id="submitBtn">
+                    <span id="btnText"><i class="fa-solid fa-lock"></i> Confirm & Pay ${{ cart_total|floatformat:2 }}</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- ORDER SUMMARY - PRESERVED WITH CORRECT DJANGO TEMPLATE SYNTAX -->
+        <div class="section-card summary-card">
+            <h2>Order Summary</h2>
+            {% for item in cart_items %}
+            <div class="cart-item">
+                <img src="{{ item.image }}" alt="{{ item.name }}">
+                <div style="flex:1">
+                    <span style="font-weight:600; display: block;">{{ item.name }}</span>
+                    <small style="color: var(--text-muted);">Qty: {{ item.quantity }}</small>
+                </div>
+                <strong style="color: var(--accent);">${{ item.price|floatformat:2 }}</strong>
+            </div>
+            {% endfor %}
+            <div style="margin-top:20px; border-top: 2px dashed var(--border); padding-top:20px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
+                    <span>Subtotal</span>
+                    <span>${{ cart_total|floatformat:2 }}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
+                    <span>Tax (8%)</span>
+                    <span>${{ tax_amount|default:0|floatformat:2 }}</span>
+                </div>
+                <div style="border-top: 2px solid var(--border); margin-top: 15px; padding-top: 15px;">
+                    <div style="display:flex; justify-content:space-between; font-size:1.4rem; font-weight:800;">
+                        <span>Total</span>
+                        <span style="color: var(--accent);">${{ total_with_tax|default:cart_total|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 20px; padding: 12px; background: #f8fafc; border-radius: 10px; text-align: center;">
+                <i class="fa-regular fa-clock"></i> Estimated delivery: 2-3 business days
+            </div>
+        </div>
+    {% else %}
+        <div class="section-card" style="grid-column: span 2; text-align: center;">
+            <i class="fa-solid fa-cart-shopping fa-4x" style="color: var(--border); margin-bottom: 20px;"></i>
+            <h3>Your cart is empty</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Looks like you haven't added any items to your cart yet.</p>
+            <a href="/" class="continue-btn" style="display: inline-block; width: auto; text-decoration: none; padding: 12px 30px;">Start Shopping</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Enhanced switchPayment function with slide animation and tracking
+    function switchPayment(element, method) {
+        // Update hidden input value
+        document.getElementById('selectedMethod').value = method;
+        
+        // Update active styling for payment method buttons with ripple effect
+        document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
+        element.classList.add('active');
+        
+        // Add ripple effect
+        const ripple = document.createElement('span');
+        ripple.style.position = 'absolute';
+        ripple.style.borderRadius = '50%';
+        ripple.style.backgroundColor = 'rgba(0,210,127,0.3)';
+        ripple.style.width = '100px';
+        ripple.style.height = '100px';
+        ripple.style.pointerEvents = 'none';
+        const rect = element.getBoundingClientRect();
+        ripple.style.left = (rect.width / 2) + 'px';
+        ripple.style.top = (rect.height / 2) + 'px';
+        ripple.style.transform = 'translate(-50%, -50%) scale(0)';
+        ripple.style.transition = 'transform 0.5s ease-out';
+        element.style.position = 'relative';
+        element.style.overflow = 'hidden';
+        element.appendChild(ripple);
+        
+        setTimeout(() => {
+            ripple.style.transform = 'translate(-50%, -50%) scale(4)';
+            setTimeout(() => ripple.remove(), 500);
+        }, 10);
+        
+        // Get all payment panels
+        const panels = document.querySelectorAll('.payment-panel');
+        
+        // Remove active class from all panels
+        panels.forEach(panel => {
+            panel.classList.remove('active');
+        });
+        
+        // Force reflow to ensure animation triggers properly
+        void document.body.offsetHeight;
+        
+        // Add active class to selected panel
+        const targetPanel = document.getElementById('panel-' + method);
+        if (targetPanel) {
+            targetPanel.classList.add('active');
+        }
+        
+        // Update required fields based on active panel
+        updateRequiredFields(method);
+        
+        // Animate form fields
+        animateFormFields(targetPanel);
+    }
+    
+    // Animate form fields when panel appears
+    function animateFormFields(panel) {
+        if (!panel) return;
+        const inputs = panel.querySelectorAll('input, select, textarea');
+        inputs.forEach((input, index) => {
+            input.style.opacity = '0';
+            input.style.transform = 'translateX(-20px)';
+            setTimeout(() => {
+                input.style.transition = 'all 0.3s ease';
+                input.style.opacity = '1';
+                input.style.transform = 'translateX(0)';
+            }, index * 50);
+        });
+    }
+    
+    // Update required fields for active payment method only
+    function updateRequiredFields(activeMethod) {
+        const allPanels = document.querySelectorAll('.payment-panel');
+        const methods = ['card', 'momo', 'bank', 'paypal'];
+        
+        methods.forEach(method => {
+            const panel = document.getElementById(`panel-${method}`);
+            if (!panel) return;
+            
+            const inputs = panel.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (method === activeMethod) {
+                    input.setAttribute('required', 'required');
+                } else {
+                    input.removeAttribute('required');
+                }
+            });
+        });
+    }
+    
+    // Real-time validation functions
+    function validateCardNumber(number) {
+        return /^[0-9\s]{16,19}$/.test(number);
+    }
+    
+    function validateExpiry(expiry) {
+        if (!/^\d{2}\/\d{2}$/.test(expiry)) return false;
+        const [month, year] = expiry.split('/');
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear() % 100;
+        const currentMonth = currentDate.getMonth() + 1;
+        return month >= 1 && month <= 12 && (year > currentYear || (year == currentYear && month >= currentMonth));
+    }
+    
+    function validateCVV(cvv) {
+        return /^[0-9]{3,4}$/.test(cvv);
+    }
+    
+    function validatePhone(phone) {
+        return /^[0-9]{10,12}$/.test(phone);
+    }
+    
+    // Format card number with spaces
+    function formatCardNumber(input) {
+        let value = input.value.replace(/\s/g, '');
+        if (value.length > 16) value = value.slice(0, 16);
+        let formatted = value.replace(/(\d{4})/g, '$1 ').trim();
+        input.value = formatted;
+        
+        // Validate and add visual feedback
+        if (value.length === 16) {
+            input.classList.add('valid');
+            input.classList.remove('invalid');
+        } else if (value.length > 0) {
+            input.classList.remove('valid');
+            input.classList.add('invalid');
+        }
+    }
+    
+    // Format expiry date
+    function formatExpiry(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.slice(0, 2) + '/' + value.slice(2, 4);
+        }
+        input.value = value;
+        
+        // Validate
+        if (value.length === 5 && validateExpiry(value)) {
+            input.classList.add('valid');
+            input.classList.remove('invalid');
+        } else if (value.length > 0) {
+            input.classList.remove('valid');
+            input.classList.add('invalid');
+        }
+    }
+    
+    // Format phone number
+    function formatPhoneNumber(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length > 12) value = value.slice(0, 12);
+        input.value = value;
+        
+        if (value.length >= 10 && validatePhone(value)) {
+            input.classList.add('valid');
+            input.classList.remove('invalid');
+        } else if (value.length > 0) {
+            input.classList.remove('valid');
+            input.classList.add('invalid');
+        }
+    }
+    
+    // Add input formatting event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize required fields for default active panel
+        updateRequiredFields('card');
+        
+        // Card number formatting
+        const cardNumberInput = document.querySelector('input[name="card_number"]');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', function() { formatCardNumber(this); });
+        }
+        
+        // Expiry date formatting
+        const expiryInput = document.querySelector('input[name="expiry"]');
+        if (expiryInput) {
+            expiryInput.addEventListener('input', function() { formatExpiry(this); });
+        }
+        
+        // CVV restrict to numbers
+        const cvvInput = document.querySelector('input[name="cvv"]');
+        if (cvvInput) {
+            cvvInput.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 4);
+                if (this.value.length >= 3) {
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                } else if (this.value.length > 0) {
+                    this.classList.remove('valid');
+                    this.classList.add('invalid');
+                }
+            });
+        }
+        
+        // Phone number formatting
+        const phoneInput = document.querySelector('input[name="phone"]');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function() { formatPhoneNumber(this); });
+        }
+        
+        // Mobile number formatting for MoMo
+        const momoNumberInput = document.querySelector('input[name="momo_number"]');
+        if (momoNumberInput) {
+            momoNumberInput.addEventListener('input', function() { formatPhoneNumber(this); });
+        }
+        
+        // All PIN fields restrict to numbers
+        const pinInputs = document.querySelectorAll('input[type="password"][name*="pin"]');
+        pinInputs.forEach(pinInput => {
+            pinInput.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 6);
+                if (this.value.length >= 4) {
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                } else if (this.value.length > 0) {
+                    this.classList.remove('valid');
+                    this.classList.add('invalid');
+                }
+            });
+        });
+        
+        // Form submission with enhanced validation
+        const checkoutForm = document.getElementById('checkoutForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        
+        checkoutForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate active payment panel fields
+            const activeMethod = document.getElementById('selectedMethod').value;
+            const activePanel = document.getElementById(`panel-${activeMethod}`);
+            
+            if (!activePanel) {
+                showNotification('Please select a payment method', 'error');
+                return false;
+            }
+            
+            const requiredFields = activePanel.querySelectorAll('[required]');
+            let isValid = true;
+            let firstInvalid = null;
+            
+            requiredFields.forEach(field => {
+                if (!field.value || field.value.trim() === '') {
+                    isValid = false;
+                    field.style.borderColor = '#dc2626';
+                    field.style.boxShadow = '0 0 0 3px rgba(220,38,38,0.1)';
+                    if (!firstInvalid) firstInvalid = field;
+                } else {
+                    field.style.borderColor = 'var(--border)';
+                    field.style.boxShadow = 'none';
+                }
+                
+                // Additional validation for specific fields
+                if (field.name === 'card_number' && field.value.replace(/\s/g, '').length < 16) {
+                    isValid = false;
+                    field.style.borderColor = '#dc2626';
+                    if (!firstInvalid) firstInvalid = field;
+                }
+                
+                if (field.name === 'cvv' && field.value.length < 3) {
+                    isValid = false;
+                    field.style.borderColor = '#dc2626';
+                    if (!firstInvalid) firstInvalid = field;
+                }
+                
+                if (field.name === 'expiry' && !validateExpiry(field.value)) {
+                    isValid = false;
+                    field.style.borderColor = '#dc2626';
+                    if (!firstInvalid) firstInvalid = field;
+                }
+                
+                if ((field.name === 'card_pin' || field.name === 'momo_pin' || field.name === 'bank_pin' || field.name === 'paypal_pin') && field.value.length < 4) {
+                    isValid = false;
+                    field.style.borderColor = '#dc2626';
+                    if (!firstInvalid) firstInvalid = field;
+                }
+            });
+            
+            // Validate address and phone from shipping section
+            const addressInput = document.querySelector('input[name="address"]');
+            const phoneInput = document.querySelector('input[name="phone"]');
+            
+            if (!addressInput.value || addressInput.value.trim() === '') {
+                isValid = false;
+                addressInput.style.borderColor = '#dc2626';
+                addressInput.style.boxShadow = '0 0 0 3px rgba(220,38,38,0.1)';
+                if (!firstInvalid) firstInvalid = addressInput;
+            } else {
+                addressInput.style.borderColor = 'var(--border)';
+                addressInput.style.boxShadow = 'none';
+            }
+            
+            if (!phoneInput.value || phoneInput.value.trim() === '') {
+                isValid = false;
+                phoneInput.style.borderColor = '#dc2626';
+                phoneInput.style.boxShadow = '0 0 0 3px rgba(220,38,38,0.1)';
+                if (!firstInvalid) firstInvalid = phoneInput;
+            } else if (!validatePhone(phoneInput.value)) {
+                isValid = false;
+                phoneInput.style.borderColor = '#dc2626';
+                phoneInput.style.boxShadow = '0 0 0 3px rgba(220,38,38,0.1)';
+                if (!firstInvalid) firstInvalid = phoneInput;
+                showNotification('Please enter a valid phone number (10-12 digits)', 'error');
+            } else {
+                phoneInput.style.borderColor = 'var(--border)';
+                phoneInput.style.boxShadow = 'none';
+            }
+            
+            if (!isValid) {
+                showNotification('Please fill in all required fields correctly', 'error');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstInvalid.focus();
+                }
+                return false;
+            }
+            
+            // Show loading state with animation
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin-custom"></i> Processing Transaction...';
+            
+            // Show success notification and submit
+            setTimeout(() => {
+                showNotification('Processing your payment...', 'success');
+                setTimeout(() => {
+                    checkoutForm.submit();
+                }, 500);
+            }, 500);
+        });
+    });
+    
+    // Notification system
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = 'success-message';
+        notification.style.background = type === 'success' ? '#10b981' : '#dc2626';
+        notification.innerHTML = `
+            <i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span style="margin-left: 10px;">${message}</span>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideInRight 0.5s reverse';
+            setTimeout(() => notification.remove(), 500);
+        }, 3000);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,525 @@
+{% extends 'USERPROFILE/base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    :root {
+        --primary: #6366f1;
+        --primary-soft: rgba(99, 102, 241, 0.1);
+        --bg-body: #f8fafc;
+        --card-bg: #ffffff;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --fashion: #ec4899;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --border: #e2e8f0;
+        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    }
+
+    body { background: var(--bg-body); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-main); }
+    .admin-wrapper { padding: 30px; max-width: 1400px; margin: 0 auto; }
+
+    /* Header & Search */
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; gap: 20px; flex-wrap: wrap; }
+    .search-container { position: relative; flex-grow: 1; max-width: 500px; }
+    .search-container i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--primary); }
+    .search-input { 
+        width: 100%; padding: 14px 15px 14px 48px; border-radius: 16px; border: 1px solid var(--border);
+        background: white; outline: none; transition: 0.3s; box-shadow: var(--shadow);
+    }
+    .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft); }
+
+    /* Navigation Tabs */
+    .admin-tabs { display: flex; gap: 12px; background: #f1f5f9; padding: 6px; border-radius: 18px; width: fit-content; margin-bottom: 30px; flex-wrap: wrap; }
+    .tab-btn { 
+        border: none; background: transparent; padding: 10px 24px; border-radius: 14px; 
+        font-weight: 700; color: var(--text-muted); cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;
+    }
+    .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+
+    /* Overview Cards */
+    .stat-card { 
+        background: white; border-radius: 24px; padding: 25px; border: 1px solid var(--border);
+        box-shadow: var(--shadow); transition: 0.3s; height: 100%;
+    }
+    .stat-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+    .icon-box { width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 15px; }
+
+    /* Tables */
+    .table-card { background: white; border-radius: 24px; padding: 20px; border: 1px solid var(--border); box-shadow: var(--shadow); overflow-x: auto; }
+    .custom-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; min-width: 600px; }
+    .custom-table thead th { padding: 15px; color: var(--text-muted); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; text-align: left; }
+    .custom-table tbody tr { background: white; transition: 0.2s; }
+    .custom-table tbody td { padding: 18px 15px; vertical-align: middle; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+    .custom-table tbody td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
+    .custom-table tbody td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
+
+    /* Status Pills */
+    .status-badge { 
+        padding: 6px 14px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; 
+        display: inline-flex; align-items: center; gap: 6px; 
+    }
+    .status-active { background: #ecfdf5; color: #059669; }
+    .status-fashion { background: #fdf2f8; color: var(--fashion); }
+    .status-stock { background: #eff6ff; color: var(--primary); }
+    .status-out { background: #fef2f2; color: var(--danger); }
+    .status-seller { background: #fef3c7; color: #d97706; }
+    .status-customer { background: #e0e7ff; color: #4f46e5; }
+
+    /* Action Buttons */
+    .btn-action { 
+        width: 38px; height: 38px; border-radius: 10px; border: none; 
+        display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer;
+        margin: 0 4px;
+    }
+    .btn-delete { background: #fff1f2; color: var(--danger); }
+    .btn-delete:hover { background: var(--danger); color: white; transform: scale(1.1); }
+    .btn-view { background: #eff6ff; color: var(--primary); }
+    .btn-view:hover { background: var(--primary); color: white; transform: scale(1.1); }
+
+    /* Charts */
+    .chart-container { background: white; border-radius: 24px; padding: 25px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+
+    .tab-pane { display: none; animation: slideUp 0.4s ease-out; }
+    .tab-pane.active { display: block; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Empty state */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .empty-state i { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+    
+    /* Toast notification */
+    .toast-notification {
+        position: fixed; bottom: 20px; right: 20px; background: white; padding: 16px 24px;
+        border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-left: 4px solid var(--success);
+        z-index: 1000; animation: slideInRight 0.3s ease-out; display: none;
+    }
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+</style>
+
+<div class="admin-wrapper">
+    <div class="admin-header">
+        <div>
+            <h2 style="font-weight: 800; margin: 0; letter-spacing: -1px;">Distar <span style="color: var(--primary);">Global Admin</span></h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Real-time ecosystem monitoring</p>
+        </div>
+        <div class="search-container">
+            <i class="fa fa-search"></i>
+            <input type="text" id="masterSearch" class="search-input" placeholder="Search anything (users, cars, houses, orders)...">
+        </div>
+    </div>
+
+    <div class="admin-tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'overview')"><i class="fa fa-chart-pie"></i> Insights</button>
+        <button class="tab-btn" onclick="switchTab(event, 'users')"><i class="fa fa-users"></i> Users</button>
+        <button class="tab-btn" onclick="switchTab(event, 'inventory')"><i class="fa fa-box"></i> Inventory</button>
+        <button class="tab-btn" onclick="switchTab(event, 'financials')"><i class="fa fa-receipt"></i> Transactions</button>
+    </div>
+
+    <!-- Overview Tab -->
+    <div id="overview" class="tab-pane active">
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="icon-box" style="background: var(--primary-soft); color: var(--primary);"><i class="fa fa-coins"></i></div>
+                    <span style="color: var(--text-muted); font-weight: 600; font-size: 0.85rem;">Total Revenue</span>
+                    <h3 style="font-weight: 800; margin: 5px 0 0 0;">USD {{ total_revenue|floatformat:0 }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="icon-box" style="background: #ecfdf5; color: var(--success);"><i class="fa fa-percent"></i></div>
+                    <span style="color: var(--text-muted); font-weight: 600; font-size: 0.85rem;">Platform Fee (2%)</span>
+                    <h3 style="font-weight: 800; margin: 5px 0 0 0; color: var(--success);">USD {{ platform_earnings|floatformat:0 }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="icon-box" style="background: #fdf2f8; color: var(--fashion);"><i class="fa fa-tags"></i></div>
+                    <span style="color: var(--text-muted); font-weight: 600; font-size: 0.85rem;">Total Items</span>
+                    <h3 style="font-weight: 800; margin: 5px 0 0 0;">{{ total_items }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="icon-box" style="background: #fff7ed; color: var(--warning);"><i class="fa fa-user-shield"></i></div>
+                    <span style="color: var(--text-muted); font-weight: 600; font-size: 0.85rem;">Total Users</span>
+                    <h3 style="font-weight: 800; margin: 5px 0 0 0;">{{ users.count }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-8">
+                <div class="chart-container">
+                    <h5 style="font-weight: 800; margin-bottom: 20px;">Sales Growth</h5>
+                    <div style="height: 300px;"><canvas id="revenueChart"></canvas></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-container">
+                    <h5 style="font-weight: 800; margin-bottom: 20px;">Asset Mix</h5>
+                    <div style="height: 300px;"><canvas id="inventoryChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Tab - FIXED ROLE DISPLAY -->
+    <div id="users" class="tab-pane">
+        <div class="table-card">
+            <table class="custom-table" id="userTable">
+                <thead>
+                    <tr>
+                        <th>User Profile</th>
+                        <th>Role</th>
+                        <th>Activity</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 40px; height: 40px; border-radius: 12px; background: var(--primary-soft); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 800;">{{ u.username|slice:":1"|upper }}</div>
+                                <div>
+                                    <div style="font-weight: 700;">{{ u.username }}</div>
+                                    <small style="color: var(--text-muted);">{{ u.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% with role=u.profile.role|default:"customer"|lower %}
+                                {% if role == 'seller' %}
+                                    <span class="status-badge status-seller">
+                                        <i class="fa fa-store"></i> SELLER
+                                    </span>
+                                {% elif role == 'customer' %}
+                                    <span class="status-badge status-customer">
+                                        <i class="fa fa-user"></i> CUSTOMER
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge" style="background: #f1f5f9; color: #475569;">
+                                        <i class="fa fa-question"></i> {{ role|upper }}
+                                    </span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td style="font-weight: 600;">{{ u.item_count }} Listings</td>
+                        <td><span class="status-badge status-active"><i class="fa fa-circle" style="font-size: 6px;"></i> Active</span></td>
+                        <td>
+                            <button class="btn-action btn-view" onclick="viewUserDetails({{ u.id }}, '{{ u.username }}')" title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                            <button class="btn-action btn-delete" onclick="handleDelete('user', {{ u.id }})" title="Delete User">
+                                <i class="fa fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <i class="fa fa-users"></i>
+                                <p>No users found</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Inventory Tab -->
+    <div id="inventory" class="tab-pane">
+        <div class="table-card">
+            <table class="custom-table" id="inventoryTable">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Valuation</th>
+                        <th>Availability</th>
+                        <th>Listed By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Fashion Items -->
+                    {% for f in fashion_items %}
+                    <tr>
+                        <td style="font-weight: 700;">{{ f.title }}</td>
+                        <td><span class="status-badge status-fashion"><i class="fa fa-tshirt"></i> Fashion</span></td>
+                        <td style="font-weight: 800;">USD {{ f.price|floatformat:0 }}</td>
+                        <td>
+                            {% if f.stock > 0 %}
+                                <span class="status-badge status-stock">{{ f.stock }} Units</span>
+                            {% else %}
+                                <span class="status-badge status-out">Sold Out</span>
+                            {% endif %}
+                        </td>
+                        <td><small>{{ f.user.username|default:"Unknown" }}</small></td>
+                        <td>
+                            <button class="btn-action btn-delete" onclick="handleDelete('fashion', {{ f.id }})"><i class="fa fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    
+                    <!-- Buildings -->
+                    {% for b in buildings %}
+                    <tr>
+                        <td style="font-weight: 700;">{{ b.title }}</td>
+                        <td><span class="status-badge" style="background: #f1f5f9;"><i class="fa fa-building"></i> Real Estate</span></td>
+                        <td style="font-weight: 800;">USD {{ b.price|floatformat:0 }}</td>
+                        <td><span class="status-badge status-stock">{{ b.stock }} Units</span></td>
+                        <td><small>{{ b.user.username|default:"Unknown" }}</small></td>
+                        <td>
+                            <button class="btn-action btn-delete" onclick="handleDelete('building', {{ b.id }})"><i class="fa fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    
+                    <!-- Vehicles -->
+                    {% for v in vehicles %}
+                    <tr>
+                        <td style="font-weight: 700;">{{ v.brand }} {{ v.model }} ({{ v.year }})</td>
+                        <td><span class="status-badge" style="background: #f1f5f9;"><i class="fa fa-car"></i> Vehicle</span></td>
+                        <td style="font-weight: 800;">USD {{ v.price|floatformat:0 }}</td>
+                        <td><span class="status-badge status-stock">{{ v.stock }} Units</span></td>
+                        <td><small>{{ v.user.username|default:"Unknown" }}</small></td>
+                        <td>
+                            <button class="btn-action btn-delete" onclick="handleDelete('vehicle', {{ v.id }})"><i class="fa fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    
+                    <!-- Commodities -->
+                    {% for c in commodities %}
+                    <tr>
+                        <td style="font-weight: 700;">{{ c.name }}</td>
+                        <td><span class="status-badge" style="background: #f1f5f9;"><i class="fa fa-box"></i> Commodity</span></td>
+                        <td style="font-weight: 800;">USD {{ c.price|floatformat:0 }}</td>
+                        <td><span class="status-badge status-stock">{{ c.quantity }} Units</span></td>
+                        <td><small>{{ c.user.username|default:"Unknown" }}</small></td>
+                        <td>
+                            <button class="btn-action btn-delete" onclick="handleDelete('commodity', {{ c.id }})"><i class="fa fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <i class="fa fa-box"></i>
+                                <p>No inventory items found</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Financials Tab -->
+    <div id="financials" class="tab-pane">
+        <div class="table-card">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Transaction Date</th>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Gross Amount</th>
+                        <th>Platform Commission</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in paid_orders %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ order.created_at|date:"d M, Y" }}</td>
+                        <td style="font-family: monospace; font-weight: 700; color: var(--primary);">#{{ order.id }}</td>
+                        <td><small>{{ order.user.username|default:"Guest" }}</small></td>
+                        <td style="font-weight: 800;">USD {{ order.total_price|floatformat:0 }}</td>
+                        <td style="color: var(--success); font-weight: 700;">USD {{ order.get_commission|floatformat:0 }}</td>
+                        <td><span class="status-badge status-active"><i class="fa fa-check-circle"></i> Completed</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <i class="fa fa-receipt"></i>
+                                <p>No transactions found</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toastNotification" class="toast-notification">
+    <i class="fa fa-check-circle" style="color: var(--success); margin-right: 10px;"></i>
+    <span id="toastMessage"></span>
+</div>
+
+<script>
+    // Tab Switching Logic
+    function switchTab(evt, tabId) {
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    // Search Filtering
+    const searchInput = document.getElementById('masterSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const query = this.value.toLowerCase();
+            const activePane = document.querySelector('.tab-pane.active');
+            const rows = activePane.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                if (row.querySelector('.empty-state')) return;
+                row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
+            });
+        });
+    }
+
+    // View User Details
+    function viewUserDetails(userId, username) {
+        showToast(`Viewing details for user: ${username} (ID: ${userId})`);
+        // You can redirect to user details page or open a modal
+        // window.location.href = `/admin/user/${userId}/`;
+    }
+    
+    // Show Toast Notification
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toastNotification');
+        const toastMessage = document.getElementById('toastMessage');
+        toastMessage.textContent = message;
+        toast.style.display = 'flex';
+        toast.style.borderLeftColor = isError ? 'var(--danger)' : 'var(--success)';
+        
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Delete Process with AJAX Support
+    async function handleDelete(type, id) {
+        const itemName = type === 'user' ? 'this user' : 'this item';
+        
+        if(confirm(`⚠️ Are you sure you want to delete ${itemName} permanently? This action cannot be undone!`)) {
+            try {
+                const response = await fetch(`/delete/${type}/${id}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message || 'Deleted successfully!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showToast(data.error || 'Delete failed!', true);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred while deleting', true);
+                // Fallback to traditional redirect
+                window.location.href = `/delete/${type}/${id}/`;
+            }
+        }
+    }
+    
+    // Helper function to get CSRF cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // --- Charts ---
+    const ctxRevenue = document.getElementById('revenueChart');
+    if (ctxRevenue) {
+        new Chart(ctxRevenue.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels|safe }},
+                datasets: [{
+                    label: 'Monthly Revenue',
+                    data: {{ chart_data|safe }},
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderWidth: 4,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#6366f1'
+                }]
+            },
+            options: { 
+                maintainAspectRatio: false, 
+                responsive: true,
+                plugins: { legend: { display: false } }, 
+                scales: { y: { beginAtZero: true, grid: { borderDash: [5, 5] } }, x: { grid: { display: false } } } 
+            }
+        });
+    }
+
+    const ctxInv = document.getElementById('inventoryChart');
+    if (ctxInv) {
+        new Chart(ctxInv.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Fashion', 'Buildings', 'Vehicles', 'Commodities'],
+                datasets: [{
+                    data: [{{ fashion_count|default:0 }}, {{ buildings_count|default:0 }}, {{ vehicles_count|default:0 }}, {{ commodities_count|default:0 }}],
+                    backgroundColor: ['#ec4899', '#6366f1', '#3b82f6', '#10b981'],
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: { 
+                maintainAspectRatio: false, 
+                responsive: true,
+                cutout: '65%', 
+                plugins: { 
+                    legend: { position: 'bottom', labels: { padding: 20, font: { weight: 'bold', family: 'Plus Jakarta Sans' } } } 
+                } 
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,216 @@
+{% extends 'USERPROFILE/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root {
+        --primary: #001f3f;
+        --accent: #00d27f;
+        --warning: #f1c40f;
+        --danger: #e74c3c;
+        --bg-soft: #f4f7f6;
+        --text-muted: #64748b;
+        --link-blue: #3b82f6;
+    }
+
+    body { background-color: var(--bg-soft); }
+
+    .history-container {
+        max-width: 1100px;
+        margin: 40px auto 60px;
+        padding: 0 20px;
+    }
+
+    /* CUSTOMER INFO BAR */
+    .customer-info-bar {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .c-details h3 { margin: 0; color: var(--primary); font-size: 18px; }
+    .c-details p { margin: 4px 0 0; color: var(--text-muted); font-size: 13px; }
+    .c-contact { text-align: right; }
+    .c-contact span { display: block; font-size: 14px; font-weight: 700; color: var(--primary); }
+
+    .header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 25px;
+        gap: 15px;
+    }
+
+    /* SEARCH BAR */
+    .search-box { position: relative; margin-bottom: 25px; width: 100%; }
+    .search-box input {
+        width: 100%; padding: 12px 15px 12px 45px;
+        border-radius: 12px; border: 1px solid #e2e8f0; outline: none;
+    }
+    .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+    /* TABS */
+    .history-tabs {
+        display: flex; gap: 10px; margin-bottom: 30px;
+        background: #fff; padding: 8px; border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .tab-item {
+        padding: 10px 20px; border-radius: 8px; cursor: pointer;
+        font-weight: 600; color: var(--text-muted); transition: 0.3s;
+    }
+    .tab-item.active { background: var(--primary); color: white; }
+
+    /* ORDER CARDS */
+    .order-card {
+        background: white; border-radius: 15px; padding: 20px;
+        margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        border-left: 5px solid #cbd5e1; display: grid;
+        grid-template-columns: 100px 1fr auto auto; align-items: center; gap: 20px;
+    }
+    .order-card.pending { border-left-color: var(--warning); }
+    .order-card.shipped { border-left-color: var(--accent); }
+    .order-card.delivered { border-left-color: var(--primary); }
+
+    .order-img { width: 90px; height: 90px; border-radius: 10px; object-fit: cover; background: #f8fafc; }
+    
+    .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .status-pending { background: #fff9db; color: #f08c00; }
+    .status-shipped { background: #e3faf2; color: #0ca678; }
+    .status-delivered { background: #e7f5ff; color: #1971c2; }
+
+    /* UPDATED STEPPER STYLES */
+    .stepper {
+        display: flex; justify-content: space-between;
+        margin-top: 15px; padding-top: 20px; border-top: 1px solid #f1f5f9;
+        grid-column: span 4;
+    }
+    .step { text-align: center; flex: 1; position: relative; }
+    .step i { 
+        width: 32px; height: 32px; line-height: 32px; 
+        border-radius: 50%; background: #e2e8f0; color: white; font-size: 14px;
+        margin-bottom: 5px; transition: 0.3s;
+    }
+    .step.completed i { background: var(--accent); }
+    .step small { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); }
+    .step.completed small { color: var(--primary); }
+
+    @media (max-width: 850px) {
+        .order-card { grid-template-columns: 80px 1fr; }
+        .order-price, .order-status-box { grid-column: span 2; display: flex; justify-content: space-between; align-items: center; }
+        .stepper { grid-column: span 2; }
+    }
+</style>
+
+<div class="history-container">
+    <div class="customer-info-bar">
+        <div class="c-details">
+            <h3>{{ request.user.get_full_name|default:request.user.username }}</h3>
+            <p><i class="fa-solid fa-envelope"></i> {{ request.user.email }}</p>
+        </div>
+        <div class="c-contact">
+            <span><i class="fa-solid fa-phone"></i> {{ request.user.userprofile.phone|default:"No Phone linked" }}</span>
+            <small style="color: var(--accent);">Active Customer Profile</small>
+        </div>
+    </div>
+
+    <div class="header-flex">
+        <h2 style="color: var(--primary); font-size: 26px;">Orders & Purchases</h2>
+        <a href="{% url 'DASHBOARD:buyer_dashboard' %}" style="text-decoration:none; font-size:13px; color:var(--link-blue); font-weight:600;">
+            <i class="fa-solid fa-gauge"></i> Dashboard
+        </a>
+    </div>
+
+    <form method="GET" action="." class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search ID, Location or Status...">
+    </form>
+
+    <div class="history-tabs">
+        <div class="tab-item active" onclick="filterOrders('all', event)">All Orders</div>
+        <div class="tab-item" onclick="filterOrders('tracking', event)">In Transit</div>
+        <div class="tab-item" onclick="filterOrders('delivered', event)">Delivered</div>
+    </div>
+
+    <div id="orders-list">
+        {% for order in orders %}
+        <div class="order-card {{ order.status }}" data-status="{{ order.status }}">
+            {% if order.product.images.first %}
+                <img src="{{ order.product.images.first.image.url }}" class="order-img">
+            {% else %}
+                <div class="order-img" style="display:flex; align-items:center; justify-content:center; background:#e2e8f0;">
+                    <i class="fa-solid fa-box" style="color:#94a3b8;"></i>
+                </div>
+            {% endif %}
+            
+            <div class="order-info">
+                <h4>{{ order.product.name|default:order.product }}</h4>
+                <p><strong>ID:</strong> #DSG-{{ order.id }}</p>
+                <p><strong>Date:</strong> {{ order.created_at|date:"d M Y" }}</p>
+                <p><strong>Location:</strong> {{ order.location }}</p>
+            </div>
+
+            <div class="order-price">
+                <small style="display: block; color: var(--text-muted); font-weight: 400;">Total</small>
+                {{ order.total_price }} USD
+            </div>
+
+            <div class="order-status-box" style="text-align: right;">
+                <span class="status-badge status-{{ order.status }}">
+                    {{ order.get_status_display }}
+                </span>
+                <button onclick="toggleDetails('track-{{ order.id }}')" style="display:block; width:100%; margin-top:10px; border:1px solid #e2e8f0; padding:6px; border-radius:6px; background:white; font-size:11px; font-weight:700; cursor:pointer; color:var(--primary);">
+                    TRACKING
+                </button>
+            </div>
+
+            <div id="track-{{ order.id }}" class="stepper" style="display: none;">
+                <div class="step completed">
+                    <i class="fa-solid fa-receipt"></i>
+                    <small>Order Placed</small>
+                </div>
+
+                <div class="step {% if order.status != 'pending' or order.created_at < one_day_ago %}completed{% endif %}">
+                    <i class="fa-solid fa-square-check"></i>
+                    <small>Confirmed</small>
+                </div>
+
+                <div class="step {% if order.status == 'shipped' or order.status == 'delivered' %}completed{% endif %}">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <small>In Transit</small>
+                </div>
+
+                <div class="step {% if order.status == 'delivered' %}completed{% endif %}">
+                    <i class="fa-solid fa-house-flag"></i>
+                    <small>Delivered</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function filterOrders(type, event) {
+        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        const cards = document.querySelectorAll('.order-card');
+        cards.forEach(card => {
+            const status = card.getAttribute('data-status');
+            if (type === 'all') card.style.display = 'grid';
+            else if (type === 'tracking') card.style.display = (status !== 'delivered') ? 'grid' : 'none';
+            else if (type === 'delivered') card.style.display = (status === 'delivered') ? 'grid' : 'none';
+        });
+    }
+
+    function toggleDetails(id) {
+        const el = document.getElementById(id);
+        el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'flex' : 'none';
+    }
+</script>
+{% endblock %}

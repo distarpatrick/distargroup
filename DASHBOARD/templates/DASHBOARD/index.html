@@ -1,0 +1,250 @@
+{% extends 'USERPROFILE/base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    :root {
+        --dash-primary: #4361ee;
+        --dash-success: #22c55e;
+        --dash-bg: #f8fafc;
+        --dash-border: #f1f5f9;
+        --dash-pink: #f472b6;
+    }
+
+    .dashboard-viewport {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        overflow-y: auto; 
+    }
+
+    .dash-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .welcome-text h1 { font-size: 1.5rem; color: #1e293b; font-weight: 800; }
+    .welcome-text p { font-size: 0.85rem; color: #64748b; }
+
+    /* Auto-fit grid handles the extra cards gracefully */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 16px;
+        border: 1px solid var(--dash-border);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover { 
+        transform: translateY(-3px); 
+        border-color: var(--dash-primary);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .icon-box {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+    
+    /* Box Colors */
+    .blue-box { background: #eff6ff; color: #3b82f6; }
+    .green-box { background: #f0fdf4; color: #22c55e; }
+    .purple-box { background: #faf5ff; color: #a855f7; }
+    .orange-box { background: #fff7ed; color: #f97316; }
+    .pink-box { background: #fdf2f8; color: #db2777; }
+    .teal-box { background: #f0fdfa; color: #0d9488; }
+    .indigo-box { background: #eef2ff; color: #4f46e5; }
+
+    .stat-val { font-size: 1.2rem; font-weight: 800; display: block; color: #1e293b; }
+    .stat-label { color: #64748b; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+
+    .charts-main-layout {
+        display: grid;
+        grid-template-columns: 1.8fr 1.2fr;
+        gap: 1.5rem;
+        min-height: 400px;
+    }
+
+    .chart-box {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 20px;
+        border: 1px solid var(--dash-border);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-box h3 { 
+        font-size: 1rem; 
+        margin-bottom: 1.5rem; 
+        color: #334155;
+        font-weight: 700;
+    }
+
+    .canvas-wrapper { 
+        flex-grow: 1; 
+        position: relative; 
+        width: 100%; 
+        min-height: 250px; 
+    }
+
+    @media (max-width: 1100px) {
+        .charts-main-layout { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="dashboard-viewport">
+    <header class="dash-header">
+        <div class="welcome-text">
+            <h1>Activity Dashboard</h1>
+            <p>Real-time overview of marketplace assets and performance</p>
+        </div>
+        <div style="background: white; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; border: 1px solid #e2e8f0; font-weight: 600;">
+            <i class="fa-solid fa-circle-nodes text-primary me-2"></i> Live System
+            
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="icon-box blue-box"><i class="fa-solid fa-receipt"></i></div>
+            <div><span class="stat-val">{{ total_orders|default:"0" }}</span><span class="stat-label">Total Orders</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-box green-box"><i class="fa-solid fa-wallet"></i></div>
+            <div><span class="stat-val">${{ total_revenue|default:"0" }}</span><span class="stat-label">Total Spend</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-box orange-box"><i class="fa-solid fa-boxes-stacked"></i></div>
+            <div><span class="stat-val">{{ total_stock|default:"0" }}</span><span class="stat-label">Warehouse Stock</span></div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="icon-box pink-box"><i class="fa-solid fa-shirt"></i></div>
+            <div><span class="stat-val">{{ cat_fashion|default:"0" }}</span><span class="stat-label">Fashion</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-box purple-box"><i class="fa-solid fa-building"></i></div>
+            <div><span class="stat-val">{{ cat_building|default:"0" }}</span><span class="stat-label">Buildings</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-box teal-box"><i class="fa-solid fa-car"></i></div>
+            <div><span class="stat-val">{{ cat_vehicle|default:"0" }}</span><span class="stat-label">Vehicles</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-box indigo-box"><i class="fa-solid fa-box-open"></i></div>
+            <div><span class="stat-val">{{ cat_commodity|default:"0" }}</span><span class="stat-label">Commodities</span></div>
+        </div>
+    </div>
+
+    <div class="charts-main-layout">
+        <div class="chart-box">
+            <h3>Spending Trend (Last 14 Days)</h3>
+            <div class="canvas-wrapper">
+                <canvas id="spending14DaysChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-box">
+            <h3>Inventory Breakdown</h3>
+            <div class="canvas-wrapper">
+                <canvas id="categoryDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Dynamic Date Labels
+    const labels = [];
+    for (let i = 13; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    }
+
+    // 2. Spending Trend Chart
+    const spendCtx = document.getElementById('spending14DaysChart').getContext('2d');
+    new Chart(spendCtx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Spending',
+                data: {{ spending_data|safe|default:"[0,0,0,0,0,0,0,0,0,0,0,0,0,0]" }},
+                borderColor: '#4361ee',
+                backgroundColor: 'rgba(67, 97, 238, 0.08)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { callback: (value) => '$' + value } }
+            }
+        }
+    });
+
+    // 3. Doughnut Chart
+    const catCtx = document.getElementById('categoryDistributionChart').getContext('2d');
+    new Chart(catCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Fashion', 'Commodities', 'Vehicles', 'Buildings'],
+            datasets: [{
+                data: [
+                    {{ cat_fashion|default:0 }}, 
+                    {{ cat_commodity|default:0 }}, 
+                    {{ cat_vehicle|default:0 }}, 
+                    {{ cat_building|default:0 }}
+                ],
+                backgroundColor: ['#f472b6', '#4f46e5', '#0d9488', '#a855f7'],
+                borderWidth: 0,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: { 
+                legend: { 
+                    position: 'bottom', 
+                    labels: { boxWidth: 12, padding: 20, font: { weight: '600', family: 'Plus Jakarta Sans' } } 
+                } 
+            }
+        }
+    });
+</script>
+{% endblock %}

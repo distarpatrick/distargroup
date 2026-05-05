@@ -1,0 +1,203 @@
+{% extends 'BUS_SYSTEM/clothes&drink_base.html' %}
+{% load static %}
+
+{% block title %}Fashion Finds - DistarGroup{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Grid Layout */
+    .market-grid {
+        max-width: 1400px;
+        margin: 40px auto 40px;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Card Redesign */
+    .fashion-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+    .fashion-card:hover { 
+        transform: translateY(-8px); 
+    }
+    
+    .fashion-card h2 { 
+        font-size: 1.25rem; 
+        font-weight: 700; 
+        margin-bottom: 15px; 
+        color: var(--brand-secondary); 
+    }
+
+    .hero-img-box {
+        width: 100%;
+        height: 280px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 15px;
+    }
+    
+    .hero-img-box img { 
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+    }
+
+    .category-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .cat-item {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 8px;
+        text-align: center;
+    }
+    
+    .cat-item img { 
+        width: 100%; 
+        height: 100px; 
+        object-fit: cover; 
+        border-radius: 6px; 
+    }
+    
+    .cat-item p { 
+        font-size: 12px; 
+        font-weight: 600; 
+        margin-top: 6px; 
+        color: #475569; 
+    }
+
+    .action-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: var(--brand-primary);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 14px;
+    }
+    
+    .action-link:hover { 
+        text-decoration: underline; 
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="market-grid">
+    <div class="fashion-card">
+        <h2><i class="fa-solid fa-user-tie"></i> Executive Suits</h2>
+        <div class="hero-img-box">
+            {% if clothes_items %}
+                {% with clothes_items|first as first_item %}
+                    {% if first_item.images.all %}
+                        <img src="{{ first_item.images.first.image.url }}" alt="{{ first_item.title }}">
+                    {% else %}
+                        <img src="{% static 'images/cloth1.webp' %}" alt="Suits">
+                    {% endif %}
+                {% endwith %}
+            {% else %}
+                <img src="{% static 'images/cloth1.webp' %}" alt="Suits">
+            {% endif %}
+        </div>
+        <a href="{% url 'BUS_SYSTEM:clothes_list' %}" class="action-link">View Collection <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+
+    <div class="fashion-card">
+        <h2><i class="fa-solid fa-shirt"></i> Daily Fashion</h2>
+        <div class="category-grid">
+            {% for item in clothes_items|slice:":4" %}
+            <div class="cat-item">
+                {% if item.images.all %}
+                    <img src="{{ item.images.first.image.url }}" alt="{{ item.title }}">
+                {% else %}
+                    <img src="{% static 'images/cloth2.webp' %}" alt="{{ item.title }}">
+                {% endif %}
+                <p>{{ item.title|truncatechars:15 }}</p>
+            </div>
+            {% empty %}
+            <div class="cat-item">
+                <img src="{% static 'images/jeans.jpg' %}" alt="Jeans">
+                <p>Jeans</p>
+            </div>
+            <div class="cat-item">
+                <img src="{% static 'images/cloth8.webp' %}" alt="Tops">
+                <p>Tops</p>
+            </div>
+            <div class="cat-item">
+                <img src="{% static 'images/dresss.jpg' %}" alt="Dresses">
+                <p>Dresses</p>
+            </div>
+            <div class="cat-item">
+                <img src="{% static 'images/cloth5.webp' %}" alt="Shoes">
+                <p>T Shirts</p>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="{% url 'BUS_SYSTEM:clothes_list' %}" class="action-link">Browse All Styles</a>
+    </div>
+
+    <div class="fashion-card">
+        <h2><i class="fa-solid fa-couch"></i> Bags & Accessories</h2>
+        <div class="category-grid">
+            {% for item in bags_items|slice:":4" %}
+            <div class="cat-item">
+                {% if item.images.all %}
+                    <img src="{{ item.images.first.image.url }}" alt="{{ item.title }}">
+                {% else %}
+                    <img src="{% static 'images/cloth6.webp' %}" alt="{{ item.title }}">
+                {% endif %}
+                <p>{{ item.title|truncatechars:15 }}</p>
+            </div>
+            {% empty %}
+            <div class="cat-item">
+                <img src="{% static 'images/bag4.jpg' %}" alt="Cleaning">
+                <p>Bags for Office</p>
+            </div>
+            <div class="cat-item">
+                <img src="{% static 'images/bag1.jpg' %}" alt="Storage">
+                <p>Bags for Travel</p>
+            </div>
+            <div class="cat-item">
+                <img src="{% static 'images/bag2.png' %}" alt="Decor">
+                <p>bags for School</p>
+            </div>
+            <div class="cat-item">
+                <img src="{% static 'images/bag3.jpg' %}" alt="Bedding">
+                <p>Bags for storage</p>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="{% url 'BUS_SYSTEM:bags_list' %}" class="action-link">Shop Home</a>
+    </div>
+
+    <div class="fashion-card">
+        <h2><i class="fa-solid fa-sparkles"></i> Beauty & Wellness</h2>
+        <div class="hero-img-box">
+            {% if featured_items %}
+                {% with featured_items|first as featured %}
+                    {% if featured.images.all %}
+                        <img src="{{ featured.images.first.image.url }}" alt="{{ featured.title }}">
+                    {% else %}
+                        <img src="{% static 'images/beuty.jpg' %}" alt="Beauty">
+                    {% endif %}
+                {% endwith %}
+            {% else %}
+                <img src="{% static 'images/beuty.jpg' %}" alt="Beauty">
+            {% endif %}
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted);">Self-care starts at $15.00</p>
+        <a href="{% url 'BUS_SYSTEM:all_fashion' %}" class="action-link">Explore Wellness</a>
+    </div>
+</main>
+{% endblock %}

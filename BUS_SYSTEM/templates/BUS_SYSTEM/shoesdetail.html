@@ -1,0 +1,252 @@
+{% load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>View of The Shoes At The Market</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+    background: #fff;
+    color: #111;
+}
+
+/* ================= HEADER ================= */
+header {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.top-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 40px;
+}
+
+.logo {
+    font-size: 26px;
+}
+
+.nav-links a {
+    margin: 0 12px;
+    text-decoration: none;
+    color: #111;
+    font-weight: 500;
+}
+
+.icons i {
+    margin-left: 15px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* ================= MAIN ================= */
+.container {
+    display: grid;
+    grid-template-columns: 100px 1fr 420px;
+    gap: 40px;
+    padding: 40px;
+}
+
+/* ================= THUMBNAILS ================= */
+.thumbnails img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #f5f5f5;
+    padding: 6px;
+}
+
+.thumbnails img:hover {
+    border: 2px solid #111;
+}
+
+/* ================= MAIN IMAGE ================= */
+.main-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    border-radius: 20px;
+    position: relative;
+}
+
+.main-image img {
+    width: 90%;
+}
+
+.badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ================= PRODUCT INFO ================= */
+.product-info h1 {
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.product-info p {
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.price {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.green {
+    color: #007d48;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+/* ================= COLORS ================= */
+.colors {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+}
+
+.color-box {
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.color-box img {
+    width: 100%;
+}
+
+.color-box:hover {
+    border-color: #111;
+}
+
+.active {
+    border-color: #111;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1000px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+
+    .thumbnails {
+        display: flex;
+        gap: 10px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="top-nav">
+        <div class="logo"><i class="fa-brands fa-nike"></i></div>
+
+        <nav class="nav-links">
+            <a href="#">Men</a>
+            <a href="#">Women</a>
+            <a href="#">Kids</a>
+            <a href="#">Luxury</a>
+            <a href="#">Sport</a>
+        </nav>
+
+        <div class="icons">
+            <i class="fa fa-search"></i>
+            <i class="fa fa-heart"></i>
+            <i class="fa fa-bag-shopping"></i>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+
+    <!-- Thumbnails -->
+    <div class="thumbnails">
+        <img src="{% static 'images/shoe7.png' %}" onclick="changeImage(this.src)">
+        <img src="{% static 'images/shoe4.png' %}" onclick="changeImage(this.src)">
+        <img src="{% static 'images/shoe1.png' %}" onclick="changeImage(this.src)">
+        <img src="{% static 'images/shoe6.png' %}" onclick="changeImage(this.src)">
+    </div>
+
+    <!-- Main Image -->
+    <div class="main-image">
+        <span class="badge"><i class="fa fa-star"></i> Highly Rated</span>
+        <img id="mainImg" src="{% static 'images/shoe5.png' %}">
+    </div>
+
+    <!-- Product Info -->
+    <div class="product-info">
+        <h1>Top Shoes Made For LuxuryS</h1>
+        <p>Men's Shoes</p>
+
+        <div class="price">$120</div>
+        <div class="green">See Price in Bag</div>
+
+        <div class="colors">
+            <div class="color-box active" onclick="selectColor(this)">
+                <img src="{% static 'images/shoe4.png' %}">
+            </div>
+            <div class="color-box" onclick="selectColor(this)">
+                <img src="{% static 'images/shoe3.png' %}">
+            </div>
+            <div class="color-box" onclick="selectColor(this)">
+                <img src="{% static 'images/shoe2.png' %}">
+            </div>
+            <div class="color-box" onclick="selectColor(this)">
+                <img src="{% static 'images/shoe1.png' %}">
+            </div>
+            <div class="color-box">
+                <div style="text-align:center;font-size:12px;font-weight:600;">
+                    🎨<br>Choose<br>Your Own
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script>
+function changeImage(src) {
+    document.getElementById("mainImg").src = src;
+}
+
+function selectColor(el) {
+    document.querySelectorAll(".color-box").forEach(box => {
+        box.classList.remove("active");
+    });
+    el.classList.add("active");
+    const img = el.querySelector("img");
+    if (img) changeImage(img.src);
+}
+</script>
+
+</body>
+</html>

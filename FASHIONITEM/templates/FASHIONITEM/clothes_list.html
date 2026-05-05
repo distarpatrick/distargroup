@@ -1,0 +1,1070 @@
+{% extends 'BUS_SYSTEM/clothes&drink_base.html' %}
+{% load static %}
+
+{% block title %}Premium Clothing Collection - DistarGroup{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .clothes-hero {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        padding: 80px 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .clothes-hero::before {
+        content: '👕';
+        position: absolute;
+        font-size: 300px;
+        opacity: 0.1;
+        bottom: -50px;
+        left: -50px;
+        transform: rotate(15deg);
+    }
+    
+    .clothes-hero::after {
+        content: '👗';
+        position: absolute;
+        font-size: 200px;
+        opacity: 0.1;
+        top: -50px;
+        right: -50px;
+        transform: rotate(-10deg);
+    }
+    
+    .clothes-hero h1 {
+        font-size: 48px;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 15px;
+        letter-spacing: -1px;
+    }
+    
+    .clothes-hero p {
+        color: rgba(255,255,255,0.9);
+        font-size: 18px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    /* Layout */
+    .clothes-layout {
+        max-width: 1400px;
+        margin: 40px auto;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 30px;
+    }
+    
+    /* Filters Sidebar */
+    .filters-sidebar {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        position: sticky;
+        top: 20px;
+        height: fit-content;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+    
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f5;
+    }
+    
+    .filter-header h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+    
+    .clear-filters {
+        color: #f5576c;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    
+    .clear-filters:hover {
+        color: #f093fb;
+    }
+    
+    .filter-group {
+        margin-bottom: 25px;
+        border-bottom: 1px solid #f0f0f5;
+        padding-bottom: 20px;
+    }
+    
+    .filter-group h4 {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c6c7a;
+    }
+    
+    .filter-options {
+        list-style: none;
+    }
+    
+    .filter-options li {
+        margin-bottom: 12px;
+    }
+    
+    .filter-options a {
+        text-decoration: none;
+        color: #1a1a2e;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.3s;
+        padding: 6px 10px;
+        border-radius: 10px;
+    }
+    
+    .filter-options a:hover {
+        background: #f8f9ff;
+        transform: translateX(5px);
+    }
+    
+    .filter-options a.active {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+    
+    .filter-count {
+        background: #f0f0f5;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .filter-options a.active .filter-count {
+        background: rgba(255,255,255,0.3);
+        color: white;
+    }
+    
+    /* Size Filter */
+    .size-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .size-btn {
+        padding: 8px;
+        border: 1px solid #e5e5ea;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .size-btn:hover, .size-btn.active {
+        background: #f5576c;
+        color: white;
+        border-color: #f5576c;
+    }
+    
+    /* Material Filter */
+    .material-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .material-tag {
+        padding: 5px 12px;
+        background: #f0f0f5;
+        border-radius: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .material-tag:hover, .material-tag.active {
+        background: #f5576c;
+        color: white;
+    }
+    
+    /* Price Range */
+    .price-range {
+        padding: 10px 0;
+    }
+    
+    .price-slider {
+        margin: 20px 0;
+    }
+    
+    .price-inputs {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .price-input {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #e5e5ea;
+        border-radius: 8px;
+        font-size: 12px;
+    }
+    
+    /* Sort Bar */
+    .sort-bar {
+        background: white;
+        border-radius: 15px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .results-count {
+        font-size: 14px;
+        color: #6c6c7a;
+    }
+    
+    .results-count strong {
+        color: #1a1a2e;
+        font-size: 18px;
+    }
+    
+    .sort-controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .sort-btn {
+        padding: 8px 16px;
+        border: 1px solid #e5e5ea;
+        background: white;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    
+    .sort-btn:hover, .sort-btn.active {
+        background: #f5576c;
+        color: white;
+        border-color: #f5576c;
+    }
+    
+    /* Products Grid */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+    }
+    
+    /* Product Card */
+    .product-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+    
+    /* Badges */
+    .badges {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        z-index: 2;
+        display: flex;
+        gap: 8px;
+        flex-direction: column;
+    }
+    
+    .badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge-sale {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: #1a1a2e;
+    }
+    
+    .badge-stock {
+        background: #ff6b6b;
+        color: white;
+    }
+    
+    .badge-new {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        color: #1a1a2e;
+    }
+    
+    .badge-trending {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    /* Wishlist Button */
+    .wishlist-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        z-index: 2;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border: none;
+    }
+    
+    .wishlist-btn:hover {
+        transform: scale(1.1);
+    }
+    
+    .wishlist-btn i {
+        font-size: 18px;
+        color: #ff6b6b;
+        transition: 0.3s;
+    }
+    
+    .wishlist-btn.active i {
+        font-weight: 900;
+        color: #ff4757;
+    }
+    
+    /* Product Image */
+    .product-image {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 1;
+        background: #f8f9ff;
+    }
+    
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .product-card:hover .product-image img {
+        transform: scale(1.08);
+    }
+    
+    .quick-view {
+        position: absolute;
+        bottom: -50px;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.8);
+        backdrop-filter: blur(10px);
+        padding: 12px;
+        text-align: center;
+        transition: 0.3s;
+        text-decoration: none;
+        color: white;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    .product-card:hover .quick-view {
+        bottom: 0;
+    }
+    
+    /* Product Info */
+    .product-info {
+        padding: 20px;
+    }
+    
+    .brand {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #f5576c;
+        margin-bottom: 8px;
+    }
+    
+    .product-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        line-height: 1.4;
+        color: #1a1a2e;
+    }
+    
+    .product-details {
+        font-size: 12px;
+        color: #6c6c7a;
+        margin-bottom: 12px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .product-details span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .price-section {
+        margin-bottom: 15px;
+    }
+    
+    .current-price {
+        font-size: 22px;
+        font-weight: 800;
+        color: #1a1a2e;
+    }
+    
+    .old-price {
+        font-size: 14px;
+        color: #999;
+        text-decoration: line-through;
+        margin-left: 8px;
+    }
+    
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+    
+    .stars {
+        color: #ffc107;
+        font-size: 13px;
+    }
+    
+    .review-count {
+        font-size: 12px;
+        color: #6c6c7a;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s;
+    }
+    
+    .product-card:hover .action-buttons {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .cart-btn, .buy-btn {
+        flex: 1;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.3s;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .cart-btn {
+        background: #f0f0f5;
+        color: #1a1a2e;
+        border: none;
+    }
+    
+    .cart-btn:hover {
+        background: #f5576c;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .buy-btn {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+    }
+    
+    .buy-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(245,87,108,0.4);
+    }
+    
+    /* Pagination */
+    .pagination {
+        margin-top: 50px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .page-link {
+        padding: 10px 16px;
+        border: 1px solid #e5e5ea;
+        background: white;
+        border-radius: 10px;
+        text-decoration: none;
+        color: #1a1a2e;
+        transition: all 0.3s;
+    }
+    
+    .page-link:hover, .page-link.active {
+        background: #f5576c;
+        color: white;
+        border-color: #f5576c;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        grid-column: 1/-1;
+        text-align: center;
+        padding: 80px 20px;
+    }
+    
+    .empty-state i {
+        font-size: 80px;
+        color: #ccc;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    
+    /* Toast Notification */
+    .toast-notification {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: #10b981;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .clothes-layout {
+            grid-template-columns: 1fr;
+        }
+        .filters-sidebar {
+            position: static;
+        }
+        .clothes-hero h1 {
+            font-size: 36px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .sort-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .clothes-hero {
+            padding: 60px 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="clothes-hero">
+    <h1><i class="fa-solid fa-shirt"></i> Premium Clothing</h1>
+    <p>Discover the latest trends in fashion - from casual wear to formal elegance</p>
+</div>
+
+<div class="clothes-layout">
+    <!-- Filters Sidebar -->
+    <aside class="filters-sidebar">
+        <div class="filter-header">
+            <h3><i class="fas fa-filter"></i> Filters</h3>
+            <a href="{% url 'BUS_SYSTEM:clothes_list' %}" class="clear-filters">
+                <i class="fas fa-times-circle"></i> Clear All
+            </a>
+        </div>
+
+        <div class="filter-group">
+            <h4><i class="fas fa-venus-mars"></i> Gender</h4>
+            <ul class="filter-options">
+                <li>
+                    <a href="?gender=MALE{% if current_sort %}&sort={{ current_sort }}{% endif %}" {% if current_gender == 'MALE' %}class="active"{% endif %}>
+                        <span><i class="fas fa-mars"></i> Men</span>
+                        <span class="filter-count">{{ gender_counts.MALE|default:"0" }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="?gender=FEMALE{% if current_sort %}&sort={{ current_sort }}{% endif %}" {% if current_gender == 'FEMALE' %}class="active"{% endif %}>
+                        <span><i class="fas fa-venus"></i> Women</span>
+                        <span class="filter-count">{{ gender_counts.FEMALE|default:"0" }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="?gender=UNISEX{% if current_sort %}&sort={{ current_sort }}{% endif %}" {% if current_gender == 'UNISEX' %}class="active"{% endif %}>
+                        <span><i class="fas fa-people-arrows"></i> Unisex</span>
+                        <span class="filter-count">{{ gender_counts.UNISEX|default:"0" }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="?gender=KIDS{% if current_sort %}&sort={{ current_sort }}{% endif %}" {% if current_gender == 'KIDS' %}class="active"{% endif %}>
+                        <span><i class="fas fa-child"></i> Kids</span>
+                        <span class="filter-count">{{ gender_counts.KIDS|default:"0" }}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="filter-group">
+            <h4><i class="fas fa-ruler"></i> Size</h4>
+            <div class="size-grid">
+                <button class="size-btn" data-size="XS">XS</button>
+                <button class="size-btn" data-size="S">S</button>
+                <button class="size-btn" data-size="M">M</button>
+                <button class="size-btn" data-size="L">L</button>
+                <button class="size-btn" data-size="XL">XL</button>
+                <button class="size-btn" data-size="XXL">XXL</button>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <h4><i class="fas fa-palette"></i> Material</h4>
+            <div class="material-tags">
+                <span class="material-tag" data-material="Cotton">Cotton</span>
+                <span class="material-tag" data-material="Polyester">Polyester</span>
+                <span class="material-tag" data-material="Wool">Wool</span>
+                <span class="material-tag" data-material="Silk">Silk</span>
+                <span class="material-tag" data-material="Denim">Denim</span>
+                <span class="material-tag" data-material="Leather">Leather</span>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <h4><i class="fas fa-dollar-sign"></i> Price Range</h4>
+            <div class="price-range">
+                <div class="price-slider">
+                    <input type="range" id="priceMin" min="{{ price_min }}" max="{{ price_max }}" value="{{ min_price_value|default:price_min }}">
+                    <input type="range" id="priceMax" min="{{ price_min }}" max="{{ price_max }}" value="{{ max_price_value|default:price_max }}">
+                </div>
+                <div class="price-inputs">
+                    <input type="number" id="minPriceInput" class="price-input" placeholder="Min" value="{{ min_price_value|default:price_min }}">
+                    <input type="number" id="maxPriceInput" class="price-input" placeholder="Max" value="{{ max_price_value|default:price_max }}">
+                    <button id="applyPrice" class="sort-btn" style="padding: 8px 15px;">Apply</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Products Section -->
+    <div>
+        <!-- Sort Bar -->
+        <div class="sort-bar">
+            <div class="results-count">
+                <strong>{{ total_items }}</strong> items found
+            </div>
+            <div class="sort-controls">
+                <button class="sort-btn {% if current_sort == 'newest' %}active{% endif %}" data-sort="newest">
+                    <i class="fas fa-clock"></i> Newest
+                </button>
+                <button class="sort-btn {% if current_sort == 'price_low' %}active{% endif %}" data-sort="price_low">
+                    <i class="fas fa-arrow-up"></i> Price: Low to High
+                </button>
+                <button class="sort-btn {% if current_sort == 'price_high' %}active{% endif %}" data-sort="price_high">
+                    <i class="fas fa-arrow-down"></i> Price: High to Low
+                </button>
+                <button class="sort-btn {% if current_sort == 'popular' %}active{% endif %}" data-sort="popular">
+                    <i class="fas fa-fire"></i> Most Popular
+                </button>
+                <button class="sort-btn {% if current_sort == 'rating' %}active{% endif %}" data-sort="rating">
+                    <i class="fas fa-star"></i> Top Rated
+                </button>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="products-grid" id="productsGrid">
+            {% for item in page_obj %}
+            <div class="product-card" data-item-id="{{ item.id }}" data-item-name="{{ item.title|escapejs }}" data-price="{{ item.price_after_discount|default:item.price }}" data-size="{{ item.size }}" data-material="{{ item.material|lower }}">
+                <div class="badges">
+                    {% if item.discount > 0 %}
+                    <span class="badge badge-sale">
+                        <i class="fas fa-fire"></i> -{{ item.discount }}% OFF
+                    </span>
+                    {% endif %}
+                    {% if item.views > 100 %}
+                    <span class="badge badge-trending">
+                        <i class="fas fa-chart-line"></i> Trending
+                    </span>
+                    {% endif %}
+                    {% if item.stock < 5 and item.stock > 0 %}
+                    <span class="badge badge-stock">
+                        <i class="fas fa-exclamation-triangle"></i> Only {{ item.stock }} left
+                    </span>
+                    {% endif %}
+                </div>
+
+                <button class="wishlist-btn" data-item-id="{{ item.id }}">
+                    <i class="far fa-heart"></i>
+                </button>
+
+                <div class="product-image">
+                    {% if item.images.all %}
+                        <img src="{{ item.images.first.image.url }}" alt="{{ item.title }}" loading="lazy">
+                    {% else %}
+                        <img src="{% static 'images/placeholder-cloth.jpg' %}" alt="No Image">
+                    {% endif %}
+                    <a href="{% url 'FASHIONITEM:detail' item.id %}" class="quick-view">
+                        <i class="fas fa-eye"></i> Quick View
+                    </a>
+                </div>
+
+                <div class="product-info">
+                    <div class="brand">
+                        <i class="fas fa-certificate"></i> {{ item.brand|default:"Fashion Brand"|upper }}
+                    </div>
+                    <div class="product-title">{{ item.title|truncatechars:40 }}</div>
+                    <div class="product-details">
+                        <span><i class="fas fa-venus-mars"></i> {{ item.get_gender_display }}</span>
+                        <span><i class="fas fa-palette"></i> {{ item.color }}</span>
+                        <span><i class="fas fa-ruler"></i> {{ item.size }}</span>
+                    </div>
+                    {% if item.material %}
+                    <div class="product-details">
+                        <span><i class="fas fa-thread"></i> {{ item.material }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="rating">
+                        <div class="stars">
+                            {% with rating=item.rating|default:0 %}
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= rating|floatformat:0 %}
+                                        <i class="fas fa-star"></i>
+                                    {% elif forloop.counter <= rating|add:0.5|floatformat:0 %}
+                                        <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endwith %}
+                        </div>
+                        <span class="review-count">({{ item.views }} views)</span>
+                    </div>
+
+                    <div class="price-section">
+                        <span class="current-price">${{ item.price_after_discount|default:item.price|floatformat:0 }}</span>
+                        {% if item.discount > 0 %}
+                            <span class="old-price">${{ item.price|floatformat:0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="action-buttons">
+                        {% if item.stock > 0 %}
+                            <button class="cart-btn add-to-cart" data-item-id="{{ item.id }}" data-item-name="{{ item.title|escapejs }}">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
+                            <a href="{% url 'CART:checkout' %}?item={{ item.id }}" class="buy-btn">
+                                <i class="fas fa-bolt"></i> Buy Now
+                            </a>
+                        {% else %}
+                            <button class="cart-btn" disabled style="opacity:0.5; cursor:not-allowed;">
+                                <i class="fas fa-ban"></i> Out of Stock
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <i class="fas fa-tshirt"></i>
+                <h3>No clothing items found</h3>
+                <p>Try adjusting your filters or check back later for new arrivals!</p>
+                <a href="{% url 'BUS_SYSTEM:clothes_list' %}" class="buy-btn" style="display: inline-block; margin-top: 20px; padding: 12px 30px;">
+                    Clear All Filters
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </a>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="page-link active">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">
+                    Next <i class="fas fa-chevron-right"></i>
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Get CSRF token from cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Toast Notification System
+function showToast(message, type = 'success') {
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(toast => toast.remove());
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.style.background = type === 'success' ? '#10b981' : '#ef4444';
+    toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Add to Cart with AJAX - WORKING
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const itemId = this.dataset.itemId;
+        const itemName = this.dataset.itemName || 'Item';
+        
+        // Use the correct URL pattern for FashionItem
+        const url = `/cart/add/FashionItem/${itemId}/`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ quantity: 1 })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                showToast(`${itemName} added to cart!`, 'success');
+                
+                // Update cart count if badge exists
+                const cartBadge = document.querySelector('.cart-count, .cart-badge');
+                if (cartBadge && data.cart_count) {
+                    cartBadge.textContent = data.cart_count;
+                    cartBadge.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        cartBadge.style.transform = 'scale(1)';
+                    }, 300);
+                }
+            } else {
+                showToast(data.error || 'Failed to add to cart', 'error');
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            showToast('Network error. Please try again.', 'error');
+        }
+    });
+});
+
+// Wishlist Toggle
+async function toggleWishlist(itemId, button) {
+    try {
+        const response = await fetch(`/fashion/toggle-wishlist/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            const icon = button.querySelector('i');
+            if (data.is_wishlisted) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                showToast('Added to wishlist!', 'success');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                showToast('Removed from wishlist', 'success');
+            }
+        } else {
+            showToast(data.message || 'Error updating wishlist', 'error');
+        }
+    } catch (error) {
+        console.error('Error toggling wishlist:', error);
+        showToast('Error updating wishlist', 'error');
+    }
+}
+
+// Wishlist buttons
+document.querySelectorAll('.wishlist-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const itemId = btn.dataset.itemId;
+        toggleWishlist(itemId, btn);
+    });
+});
+
+// Sort functionality
+document.querySelectorAll('.sort-btn[data-sort]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const sortType = btn.dataset.sort;
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('sort', sortType);
+        currentUrl.searchParams.delete('page');
+        window.location.href = currentUrl.toString();
+    });
+});
+
+// Size filter
+document.querySelectorAll('.size-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const size = btn.dataset.size;
+        const currentUrl = new URL(window.location.href);
+        if (currentUrl.searchParams.get('size') === size) {
+            currentUrl.searchParams.delete('size');
+            btn.classList.remove('active');
+        } else {
+            currentUrl.searchParams.set('size', size);
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        currentUrl.searchParams.delete('page');
+        window.location.href = currentUrl.toString();
+    });
+    
+    // Highlight active size
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('size') === btn.dataset.size) {
+        btn.classList.add('active');
+    }
+});
+
+// Material filter
+document.querySelectorAll('.material-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+        const material = tag.dataset.material;
+        const currentUrl = new URL(window.location.href);
+        if (currentUrl.searchParams.get('material') === material) {
+            currentUrl.searchParams.delete('material');
+            tag.classList.remove('active');
+        } else {
+            currentUrl.searchParams.set('material', material);
+            document.querySelectorAll('.material-tag').forEach(t => t.classList.remove('active'));
+            tag.classList.add('active');
+        }
+        currentUrl.searchParams.delete('page');
+        window.location.href = currentUrl.toString();
+    });
+    
+    // Highlight active material
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('material') === tag.dataset.material) {
+        tag.classList.add('active');
+    }
+});
+
+// Price filter
+function applyPriceFilter() {
+    const minPrice = parseFloat(document.getElementById('minPriceInput').value);
+    const maxPrice = parseFloat(document.getElementById('maxPriceInput').value);
+    
+    const currentUrl = new URL(window.location.href);
+    if (minPrice) currentUrl.searchParams.set('min_price', minPrice);
+    else currentUrl.searchParams.delete('min_price');
+    
+    if (maxPrice) currentUrl.searchParams.set('max_price', maxPrice);
+    else currentUrl.searchParams.delete('max_price');
+    
+    currentUrl.searchParams.delete('page');
+    window.location.href = currentUrl.toString();
+}
+
+// Price filter button
+document.getElementById('applyPrice')?.addEventListener('click', applyPriceFilter);
+</script>
+{% endblock %}
